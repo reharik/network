@@ -1,0 +1,28 @@
+{
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "nx run-many -t build",
+    "start:api": "nx serve @app/api",
+    "docker:api": "nx run @app/api:docker:build"
+  },
+  "devDependencies": {
+    "@nx/docker": "^21.4.1",
+    "@nx/eslint": "21.4.1",
+    "@nx/jest": "21.4.1",
+    "@nx/node": "^21.4.1",
+    "@nx/vite": "21.4.1",
+    "@nx/web": "21.4.1",
+    "@vitest/ui": "^3.0.0",
+    "eslint": "~8.57.0",
+    "jest": "^30.0.2",
+    "jiti": "2.4.2",
+    "nx": "21.4.1",
+    "typescript": "^5.9.2",
+    "vite": "^6.0.0",
+    "vitest": "^3.0.0"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "workspaceLayout": { "appsDir": "apps", "libsDir": "packages" },
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "cache": true
+    },
+    "dev": {
+      "dependsOn": ["^dev"],
+      "cache": true
+    },
+    "start": {
+      "cache": true
+    },
+    "db:migrate": {
+      "cache": true
+    },
+    "db:migrate:prod": {
+      "cache": true
+    },
+    "db:rollback": {
+      "cache": true
+    },
+    "db:make": {
+      "cache": true
+    },
+    "db:seed": {
+      "cache": true
+    },
+    "test": {
+      "cache": true
+    },
+    "lint": {
+      "cache": true
+    }
+  },
+  "plugins": [
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "eslint:lint"
+      }
+    },
+    {
+      "plugin": "@nx/jest/plugin",
+      "options": {
+        "targetName": "jest:test"
+      }
+    },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "buildTargetName": "vite:build",
+        "testTargetName": "test",
+        "serveTargetName": "serve",
+        "devTargetName": "vite:dev",
+        "previewTargetName": "vite:preview",
+        "serveStaticTargetName": "serve-static",
+        "typecheckTargetName": "typecheck",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps"
+      }
+    }
+  ],
+  "nxCloudId": "68b5fa275e52195fdda7c175"
+}
