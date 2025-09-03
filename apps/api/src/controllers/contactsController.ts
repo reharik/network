@@ -1,20 +1,15 @@
 import { Context } from 'koa';
+import { ContactMethod, upsertContactSchema } from '@network/contracts';
 import {
-  ContactMethod,
-  createContactBodySchema,
-  patchContactBodySchema,
-} from '@contracts';
-import type { CreateContactBody, PatchContactBody } from '@contracts';
-import {
-  listContacts as repoList,
-  createContact as repoCreate,
-  getContact as repoGet,
-  patchContact as repoPatch,
+  listContacts,
+  createContact as createContactDB,
+  patchContact as patchContactDB,
 } from '../repositories/contactRepository';
+import { ContactDTOPartial } from '../repositories/dtos';
 
 export const getContacts = async (ctx: Context) => {
-  const userId = ctx.state.user.id as string;
-  const rows = await repoList(ctx.db, userId, {
+  const userId = ctx.user.id;
+  const rows = await listContacts(ctx.db, userId, {
     /* dueOnly, q parsed elsewhere if needed */
   });
   ctx.status = 200;
@@ -23,16 +18,16 @@ export const getContacts = async (ctx: Context) => {
 };
 
 export const createContact = async (ctx: Context) => {
-  const parsed = createContactBodySchema.safeParse(ctx.request.body);
+  const parsed = upsertContactSchema.safeParse(ctx.request.body);
   if (!parsed.success) {
     ctx.status = 400;
     ctx.body = { error: 'Invalid request format', issues: parsed.error.issues };
     return ctx;
   }
-  const body: CreateContactBody = parsed.data;
-  const userId = ctx.state.user.id as string;
+  const body: ContactDTOPartial = parsed.data;
+  const userId = ctx.user.id;
 
-  const created = await repoCreate(ctx.db, userId, {
+  const created = await createContactDB(ctx.db, userId, {
     ...body,
     preferredMethod: body.preferredMethod ?? ContactMethod.email.value,
   });
@@ -43,16 +38,17 @@ export const createContact = async (ctx: Context) => {
 };
 
 export const patchContact = async (ctx: Context) => {
-  const parsed = patchContactBodySchema.safeParse(ctx.request.body);
+  const parsed = upsertContactSchema.safeParse(ctx.request.body);
   if (!parsed.success) {
     ctx.status = 400;
     ctx.body = { error: 'Invalid request format', issues: parsed.error.issues };
     return ctx;
   }
-  const body: PatchContactBody = parsed.data;
-  const userId = ctx.state.user.id as string;
+  const body: ContactDTOPartial = parsed.data;
+  const userId = ctx.user.id;
 
-  const updated = await repoPatch(ctx.db, userId, ctx.params.id, body);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+  const updated = await patchContactDB(ctx.db, userId, ctx.params.id, body);
   if (!updated) {
     ctx.status = 404;
     ctx.body = { error: 'Contact not found' };

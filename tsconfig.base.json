@@ -1,9 +1,0 @@
-{
-  "compileOnSave": false,
-  "compilerOptions": {
-    "rootDir": ".",
-    "baseUrl": ".",
-    "paths": {},
-    "forceConsistentCasingInFileNames": true
-  }
-}

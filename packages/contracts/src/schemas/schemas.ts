@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ContactMethod, parseContactMethod } from '../enums/ContactMethod';
+import { parseContactMethod } from '../enums/ContactMethod';
 
 // Utility parser → normalized to enum .value
 const contactMethodValueSchema = z.string().transform((s, ctx) => {
@@ -33,18 +33,10 @@ export const contactSchema = z.object({
   updatedAt: z.string().datetime().optional(),
 });
 
-export const createContactBodySchema = z.object({
-  firstName: z.string().min(1).max(200),
-  lastName: z.string().min(1).max(200),
-  preferredMethod: contactMethodValueSchema.optional(),
-  email: z.string().email().nullable().optional(),
-  phone: z.string().trim().nullable().optional(),
-  notes: z.string().trim().nullable().optional(),
-  intervalDays: z.coerce.number().int().min(1).max(365).optional(),
-});
-
-export const patchContactBodySchema = z
+export const upsertContactSchema = z
   .object({
+    id: z.string().uuid().optional(),
+    userId: z.string().uuid().optional(),
     firstName: z.string().min(1).max(200).optional(),
     lastName: z.string().min(1).max(200).optional(),
     preferredMethod: contactMethodValueSchema.optional(),
@@ -62,4 +54,33 @@ export const patchContactBodySchema = z
 export const dailyPlanSchema = z.object({
   items: z.array(contactSchema),
   date: z.string().datetime(),
+});
+
+export const uuidParam = z.string().uuid();
+
+// Contacts
+export const listContactsQuerySchema = z.object({
+  dueOnly: z
+    .union([z.literal('true'), z.literal('false')])
+    .optional()
+    .transform((v) => v === 'true'),
+  q: z.string().trim().min(1).optional(),
+});
+
+// Touches
+export const createTouchSchema = z.object({
+  contactId: uuidParam,
+  method: z.enum(['EMAIL', 'SMS', 'CALL', 'OTHER']),
+  message: z.string().trim().optional(),
+  outcome: z.string().trim().optional(),
+});
+
+// Plan
+export const planQuerySchema = z.object({
+  date: z.string().datetime().optional(),
+});
+
+// Users
+export const upsertDailyGoalSchema = z.object({
+  dailyGoal: z.coerce.number().int().min(0).max(500),
 });

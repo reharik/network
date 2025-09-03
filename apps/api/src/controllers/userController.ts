@@ -1,15 +1,15 @@
 import { Context } from 'koa';
 import {
-  getUser as repoGetUser,
-  updateDailyGoal as repoUpdateDaily,
+  getUser as getUserDB,
+  updateDailyGoal as updateDailyGoalDB,
 } from '../repositories/userRepository';
-import { updateDailyGoalBodySchema } from './requestSchemas';
+import { upsertDailyGoalSchema } from '@network/contracts';
 
 type StateUser = { id: string };
 
 export const getMe = async (ctx: Context): Promise<Context> => {
   const userId = (ctx.state.user as StateUser).id;
-  const user = await repoGetUser(ctx.db, userId);
+  const user = await getUserDB(ctx.db, userId);
   if (!user) {
     ctx.status = 404;
     ctx.body = { error: 'User not found' };
@@ -21,7 +21,7 @@ export const getMe = async (ctx: Context): Promise<Context> => {
 };
 
 export const updateDailyGoal = async (ctx: Context): Promise<Context> => {
-  const val = updateDailyGoalBodySchema.safeParse(ctx.request.body);
+  const val = upsertDailyGoalSchema.safeParse(ctx.request.body);
   if (!val.success) {
     ctx.status = 400;
     ctx.body = { error: 'Invalid request format', issues: val.error.issues };
@@ -29,7 +29,7 @@ export const updateDailyGoal = async (ctx: Context): Promise<Context> => {
   }
 
   const userId = (ctx.state.user as StateUser).id;
-  const updated = await repoUpdateDaily(ctx.db, userId, val.data.dailyGoal);
+  const updated = await updateDailyGoalDB(ctx.db, userId, val.data.dailyGoal);
   if (!updated) {
     ctx.status = 404;
     ctx.body = { error: 'User not found' };

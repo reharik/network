@@ -61,7 +61,11 @@ export const Settings = () => {
               ? s.weeklyDigest
               : old.weeklyDigest,
         }));
-      } catch {}
+      } catch (err: unknown) {
+        console.log(`************err************`);
+        console.log(err);
+        console.log(`********END err************`);
+      }
     }
   }, []);
 

@@ -1,0 +1,27 @@
+# dependency dirs
+
+node_modules
+\*\*/node_modules
+
+# build outputs
+
+**/dist
+**/build
+**/.turbo
+**/.nx
+
+# VCS & editor
+
+.git
+.gitignore
+.vscode
+.idea
+
+# misc
+
+Dockerfile
+**/Dockerfile
+**/.DS_Store
+**/coverage
+**/.cache
+\*\*/.pnpm-store

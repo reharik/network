@@ -1,36 +1,23 @@
-# ---- base version shared across stages ----
 ARG NODE_VERSION=22
-
-# ---- Base ----
-FROM node:${NODE_VERSION}-slim AS base
+FROM node:${NODE_VERSION}-bookworm AS base
 WORKDIR /repo
+RUN corepack enable || true
 
-# ---- Builder (used in CI to build & test) ----
-FROM base AS builder
-
-# 1) copy manifests first for caching
+FROM base AS deps
 COPY package.json package-lock.json ./
 COPY apps/api/package.json apps/api/package.json
-# If you have internal packages with their own package.json files, uncomment:
-# COPY packages/*/package.json packages/*/package.json
+RUN npm ci --workspaces --include-workspace-root
 
-# 2) full install (monorepo)
-RUN npm ci
-
-# 3) copy the rest and build just the API via Nx
+FROM base AS build
+COPY --from=deps /repo/node_modules ./node_modules
 COPY . .
-RUN npx nx build @app/api
+RUN npx nx build @app/api --configuration=production || npx nx build @app/api
 
-# ---- Runtime (lean prod image) ----
-FROM base AS runtime
+FROM node:${NODE_VERSION}-slim AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
-
-# bring over built artifact & node_modules then prune dev deps
-COPY --from=builder /repo/apps/api/dist ./dist
-COPY --from=builder /repo/package.json ./package.json
-COPY --from=builder /repo/node_modules ./node_modules
-RUN npm prune --omit=dev
-
+COPY --from=deps /repo/node_modules ./node_modules
+COPY --from=build /repo/apps/api/dist ./apps/api/dist
+COPY apps/api/package.json ./apps/api/package.json
 EXPOSE 3000
-CMD ["node", "dist/index.js"]
+CMD ["node", "apps/api/dist/server.js"]

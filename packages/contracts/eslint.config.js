@@ -27,6 +27,12 @@ export default tseslint.config(
     rules: {
       ...eslintConfigPrettier.rules,
       'prettier/prettier': 'warn',
+      '@typescript-eslint/no-misused-promises': [
+        'error',
+        {
+          checksVoidReturn: false,
+        },
+      ],
     },
   },
 );

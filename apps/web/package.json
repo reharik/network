@@ -1,13 +1,13 @@
 {
   "name": "@app/web",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "build": "nx build web",
+    "serve": "nx serve web",
+    "preview": "nx preview web",
     "dev": "nx serve",
-    "build": "tsc -b && nx vite:build",
-    "lint": "nx eslint:lint",
-    "preview": "nx vite:preview"
+    "lint": "nx eslint:lint"
   },
   "dependencies": {
     "@network/contracts": "*",
@@ -30,6 +30,7 @@
     "globals": "^15.15.0",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.24.1",
-    "vite": "^6.2.0"
+    "vite": "^6.3.5",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }

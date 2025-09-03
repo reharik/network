@@ -39,7 +39,9 @@ const baseInput = css`
   color: ${({ theme }) => theme.colors.text};
   border-radius: ${({ theme }) => theme.radius.sm};
   outline: none;
-  transition: border 120ms ease, box-shadow 120ms ease;
+  transition:
+    border 120ms ease,
+    box-shadow 120ms ease;
   &:focus {
     border-color: ${({ theme }) => theme.colors.accent};
     box-shadow: 0 0 0 3px rgba(124, 156, 255, 0.15);

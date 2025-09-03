@@ -1,19 +1,17 @@
 import { Context } from 'koa';
-import { createTouchBodySchema } from './requestSchemas';
-import { createTouch as repoCreateTouch } from '../repositories/touchesRepository';
-
-type StateUser = { id: string };
+import { createTouch as createTouchDB } from '../repositories/touchesRepository';
+import { createTouchSchema } from '@network/contracts';
 
 export const createTouch = async (ctx: Context): Promise<Context> => {
-  const val = createTouchBodySchema.safeParse(ctx.request.body);
+  const val = createTouchSchema.safeParse(ctx.request.body);
   if (!val.success) {
     ctx.status = 400;
     ctx.body = { error: 'Invalid request format', issues: val.error.issues };
     return ctx;
   }
 
-  const userId = (ctx.state.user as StateUser).id;
-  const touch = await repoCreateTouch(ctx.db, userId, val.data);
+  const userId = ctx.user.id;
+  const touch = await createTouchDB(ctx.db, userId, val.data);
 
   if (!touch) {
     ctx.status = 404;

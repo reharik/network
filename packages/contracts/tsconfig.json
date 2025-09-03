@@ -1,9 +1,13 @@
 {
-  "compileOnSave": false,
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "baseUrl": ".",
-    "paths": {},
-    "forceConsistentCasingInFileNames": true
-  }
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": false,
+    "outDir": "../../dist/packages/contracts",
+    "noEmit": true,
+    "types": ["jest"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.spec.ts", "dist", "node_modules"]
 }

@@ -1,6 +1,6 @@
 import { Context } from 'koa';
-import { planQuerySchema } from './requestSchemas';
 import { getDailyPlan as repoGetDailyPlan } from '../repositories/planRepository';
+import { planQuerySchema } from '@network/contracts';
 
 type StateUser = { id: string };
 

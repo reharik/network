@@ -1,4 +1,3 @@
-// src/pages/Contacts.tsx
 import { useQuery } from '@tanstack/react-query';
 import { fetchContacts } from '../services/contactListService';
 import {
@@ -21,7 +20,7 @@ export const Contacts = () => {
     queryKey: ['contacts'],
     queryFn: fetchContacts,
   });
-  const contacts = data?.contacts ?? [];
+  const contacts = useMemo(() => data?.contacts ?? [], [data]);
 
   const [q, setQ] = useState('');
   const [channel, setChannel] = useState<ContactMethod>(ContactMethod.sms);
@@ -29,10 +28,10 @@ export const Contacts = () => {
   const filtered = useMemo(() => {
     return contacts.filter((c) => {
       const byQ = q
-        ? c.name.toLowerCase().includes(q.toLowerCase()) ||
-          c.handle.toLowerCase().includes(q.toLowerCase())
+        ? c.firstName.toLowerCase().includes(q.toLowerCase()) ||
+          c.lastName.toLowerCase().includes(q.toLowerCase())
         : true;
-      const byCh = channel ? c.preferredChannel === channel : true;
+      const byCh = channel ? c.preferredMethod === channel : true;
       return byQ && byCh;
     });
   }, [contacts, q, channel]);
@@ -75,7 +74,6 @@ export const Contacts = () => {
                 <tr>
                   <th>Name</th>
                   <th>Preferred</th>
-                  <th>Handle</th>
                   <th>Interval</th>
                   <th style={{ width: 1 }}></th>
                 </tr>
@@ -84,10 +82,11 @@ export const Contacts = () => {
                 {filtered.map((c) => (
                   <tr key={c.id}>
                     <td>
-                      <Link to={`/contacts/${c.id}`}>{c.name}</Link>
+                      <Link
+                        to={`/contacts/${c.id}`}
+                      >{`${c.firstName} ${c.lastName}`}</Link>
                     </td>
-                    <td>{c.preferredChannel.display}</td>
-                    <td>{c.handle}</td>
+                    <td>{c.preferredMethod.display}</td>
                     <td>{c.intervalDays} days</td>
                     <td>
                       <Button variant="secondary" size="sm">

@@ -1,9 +1,7 @@
 import type { Knex } from 'knex';
-import type {
-  Contact,
-  CreateContactBody,
-  PatchContactBody,
-} from '@network/contracts';
+import { ContactDTOPartial } from './dtos';
+import { toContactEntity } from './mappers';
+import { v4 } from 'uuid';
 
 export type ListContactsOpts = { dueOnly?: boolean; q?: string };
 
@@ -12,7 +10,7 @@ export const listContacts = async (
   userId: string,
   opts?: ListContactsOpts,
 ) => {
-  let q = db<Contact>('contacts').where({ userId });
+  let q = db('contacts').where({ userId });
   if (opts?.dueOnly) q = q.andWhere('nextDueAt', '<=', db.fn.now());
   if (opts?.q) {
     q = q.andWhere((qb) => {
@@ -31,59 +29,33 @@ export const listContacts = async (
 export const createContact = async (
   db: Knex,
   userId: string,
-  body: CreateContactBody,
+  data: ContactDTOPartial,
 ) => {
-  const payload = {
-    id: db.raw('gen_random_uuid()'),
+  const payload: ContactDTOPartial = {
+    ...data,
+    id: v4(),
     userId,
-    firstName: body.firstName,
-    lastName: body.lastName,
-    preferredMethod: body?.preferredMethod?.value ?? 'EMAIL',
-    email: body.email ?? null,
-    phone: body.phone ?? null,
-    notes: body.notes ?? null,
-    intervalDays: body.intervalDays ?? 14,
-    nextDueAt: db.fn.now(),
   };
-  const [row] = await db<Contact>('contacts').insert(payload).returning('*');
-  return row;
+  const [row] = await db('contacts').insert(payload).returning('*');
+  return toContactEntity(row);
 };
 
-export const getContact = (db: Knex, userId: string, id: string) =>
-  db<Contact>('contacts').where({ id, userId }).first();
+export const getContact = async (db: Knex, userId: string, id: string) => {
+  const dto = await db('contacts').where({ id, userId }).first();
+  toContactEntity(dto);
+};
 
 export const patchContact = async (
   db: Knex,
   userId: string,
   id: string,
-  patch: PatchContactBody,
+  data: Partial<ContactDTOPartial>,
 ) => {
-  const existing = await db<Contact>('contacts').where({ id, userId }).first();
+  const existing = await db('contacts').where({ id, userId }).first();
   if (!existing) return null;
 
-  const updates: Partial<Contact> = {};
-  if (patch.firstName !== undefined) updates.firstName = patch.firstName;
-  if (patch.lastName !== undefined) updates.lastName = patch.lastName;
-  if (patch.preferredMethod !== undefined)
-    updates.preferredMethod = patch.preferredMethod;
-  if (patch.email !== undefined) updates.email = patch.email;
-  if (patch.phone !== undefined) updates.phone = patch.phone;
-  if (patch.notes !== undefined) updates.notes = patch.notes;
-  if (patch.paused !== undefined) updates.paused = !!patch.paused;
-  if (patch.snoozedUntil !== undefined)
-    updates.snoozedUntil = patch.snoozedUntil ?? null;
-  if (patch.intervalDays !== undefined) {
-    updates.intervalDays = patch.intervalDays;
-    const base = existing.lastTouchedAt
-      ? new Date(existing.lastTouchedAt)
-      : new Date();
-    updates.nextDueAt = new Date(
-      base.getTime() + patch.intervalDays * 86_400_000,
-    ).toISOString() as any;
-  }
+  const updates: Partial<ContactDTOPartial> = { ...existing, ...data };
 
-  const [row] = await db<Contact>('contacts')
-    .where({ id, userId })
-    .update(updates, '*');
+  const [row] = await db('contacts').where({ id, userId }).update(updates, '*');
   return row ?? null;
 };

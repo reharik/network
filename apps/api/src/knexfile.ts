@@ -20,7 +20,7 @@ const connection: Knex.StaticConnectionConfig = {
   database: process.env.POSTGRES_DB || 'network',
 };
 
-export const knexConfig: Knex.Config = {
+export const knexConfig = {
   client: 'pg',
   connection,
   migrations: {
@@ -32,6 +32,6 @@ export const knexConfig: Knex.Config = {
     directory: SEEDS_DIR,
     extension: 'ts',
   },
-};
+} satisfies Knex.Config;
 
 export default knexConfig;

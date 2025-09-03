@@ -3,14 +3,14 @@ import type { Knex } from 'knex';
 import { DateTime } from 'luxon';
 
 export const getDailyPlan = async (db: Knex, userId: string, date?: string) => {
-  const user = await db<User>('users').where({ id: userId }).first();
+  const user = await db('users').where({ id: userId }).first();
   if (!user) return { items: [], date: DateTime.now().toISO() };
 
   const dayStart = date
     ? DateTime.fromISO(date).startOf('day')
     : DateTime.now().startOf('day');
 
-  const due = await db<Contact>('contacts')
+  const due = await db('contacts')
     .where({ userId, paused: false })
     .andWhere((qb) =>
       qb.whereNull('snoozedUntil').orWhere('snoozedUntil', '<=', db.fn.now()),

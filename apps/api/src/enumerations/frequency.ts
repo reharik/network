@@ -1,4 +1,4 @@
-import { DateTime } from '../../node_modules/@types/luxon';
+import { DateTime } from 'luxon';
 import { enumeration, Enumeration } from 'smart-enums';
 
 const input = {

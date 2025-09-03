@@ -67,7 +67,7 @@ export const ImportPage = () => {
   const importMut = useMutation({
     mutationFn: (r: ImportRow[]) => importContacts(r),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: qk.contacts });
+      void qc.invalidateQueries({ queryKey: qk.contacts });
       alert('Import complete');
     },
   });

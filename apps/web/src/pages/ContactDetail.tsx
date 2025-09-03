@@ -89,15 +89,15 @@ export const ContactDetail = () => {
     mutationFn: updateContact,
     onSuccess: (updated) => {
       qc.setQueryData(qk.contact(updated.id), updated);
-      qc.invalidateQueries({ queryKey: qk.contacts });
+      void qc.invalidateQueries({ queryKey: qk.contacts });
     },
   });
 
   const deleteMut = useMutation({
     mutationFn: () => deleteContact(id),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: qk.contacts });
-      navigate('/contacts');
+      void qc.invalidateQueries({ queryKey: qk.contacts });
+      void navigate('/contacts');
     },
   });
 

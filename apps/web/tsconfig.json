@@ -1,13 +1,11 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "target": "ESNext",
     "jsx": "react-jsx",
-    "strict": true,
+    "outDir": "../../dist/out-tsc/apps/web",
     "noEmit": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "types": ["vite/client", "jest"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  "include": ["src"],
+  "exclude": ["dist", "node_modules"]
 }

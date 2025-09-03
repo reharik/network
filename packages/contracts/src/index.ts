@@ -1,3 +1,3 @@
 export * from './enums/ContactMethod';
-export * from './types/contact';
-export * from './schemas/contact';
+export * from './types/types';
+export * from './schemas/schemas';

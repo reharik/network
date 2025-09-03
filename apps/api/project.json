@@ -1,0 +1,62 @@
+{
+  "name": "api",
+  "projectType": "application",
+  "sourceRoot": "apps/api/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{workspaceRoot}/dist/apps/api"],
+      "options": {
+        "platform": "node",
+        "format": ["esm"],
+        "bundle": true,
+        "main": "apps/api/src/index.ts",
+        "outputPath": "dist/apps/api",
+        "tsConfig": "apps/api/tsconfig.json",
+        "assets": [
+          {
+            "input": "apps/api",
+            "glob": "assets/**/*",
+            "output": "assets"
+          }
+        ],
+        "external": []
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "options": {
+        "buildTarget": "api:build",
+        "watch": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/api/**/*.{ts,tsx,js,mjs,cjs}"],
+        "fix": false
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/api"],
+      "options": {
+        "jestConfig": "apps/api/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "docker-build:prod": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker compose -f docker-compose.prod.yml build api"
+      }
+    },
+    "docker-up:dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "docker compose -f docker-compose.dev.yml up --build"
+      }
+    }
+  },
+  "tags": ["type:app"]
+}
