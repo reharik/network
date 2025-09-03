@@ -1,6 +1,17 @@
 // routes/touches.ts
 import Router from '@koa/router';
-import { createTouch } from '../controllers/touchesController';
+import type { TouchesController } from '../controllers/touchesController';
 
-export const touchesRouter = new Router({ prefix: '/api/touches' });
-touchesRouter.post('/', createTouch);
+export interface TouchesRoutes {
+  router: Router;
+}
+
+export const createTouchesRoutes = (
+  touchesController: TouchesController,
+): TouchesRoutes => {
+  const router = new Router({ prefix: '/api/touches' });
+
+  router.post('/', touchesController.createTouch);
+
+  return { router };
+};

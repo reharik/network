@@ -1,6 +1,15 @@
 {
   "name": "root",
   "targets": {
+    "build": {
+      "executor": "nx:noop"
+    },
+    "test": {
+      "executor": "nx:noop"
+    },
+    "lint": {
+      "executor": "nx:noop"
+    },
     "format": {
       "executor": "nx:run-commands",
       "options": {

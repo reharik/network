@@ -38,9 +38,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// node_modules/fast-glob/out/utils/array.js
+// ../../node_modules/fast-glob/out/utils/array.js
 var require_array = __commonJS({
-  "node_modules/fast-glob/out/utils/array.js"(exports) {
+  "../../node_modules/fast-glob/out/utils/array.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.splitWhen = exports.flatten = void 0;
@@ -65,9 +65,9 @@ var require_array = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/utils/errno.js
+// ../../node_modules/fast-glob/out/utils/errno.js
 var require_errno = __commonJS({
-  "node_modules/fast-glob/out/utils/errno.js"(exports) {
+  "../../node_modules/fast-glob/out/utils/errno.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isEnoentCodeError = void 0;
@@ -78,9 +78,9 @@ var require_errno = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/utils/fs.js
+// ../../node_modules/fast-glob/out/utils/fs.js
 var require_fs = __commonJS({
-  "node_modules/fast-glob/out/utils/fs.js"(exports) {
+  "../../node_modules/fast-glob/out/utils/fs.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createDirentFromStats = void 0;
@@ -103,9 +103,9 @@ var require_fs = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/utils/path.js
+// ../../node_modules/fast-glob/out/utils/path.js
 var require_path = __commonJS({
-  "node_modules/fast-glob/out/utils/path.js"(exports) {
+  "../../node_modules/fast-glob/out/utils/path.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.convertPosixPathToPattern = exports.convertWindowsPathToPattern = exports.convertPathToPattern = exports.escapePosixPath = exports.escapeWindowsPath = exports.escape = exports.removeLeadingDotSegment = exports.makeAbsolute = exports.unixify = void 0;
@@ -156,9 +156,9 @@ var require_path = __commonJS({
   }
 });
 
-// node_modules/is-extglob/index.js
+// ../../node_modules/is-extglob/index.js
 var require_is_extglob = __commonJS({
-  "node_modules/is-extglob/index.js"(exports, module) {
+  "../../node_modules/is-extglob/index.js"(exports, module) {
     "use strict";
     module.exports = function isExtglob(str) {
       if (typeof str !== "string" || str === "") {
@@ -174,9 +174,9 @@ var require_is_extglob = __commonJS({
   }
 });
 
-// node_modules/is-glob/index.js
+// ../../node_modules/is-glob/index.js
 var require_is_glob = __commonJS({
-  "node_modules/is-glob/index.js"(exports, module) {
+  "../../node_modules/is-glob/index.js"(exports, module) {
     "use strict";
     var isExtglob = require_is_extglob();
     var chars = { "{": "}", "(": ")", "[": "]" };
@@ -306,9 +306,9 @@ var require_is_glob = __commonJS({
   }
 });
 
-// node_modules/fast-glob/node_modules/glob-parent/index.js
+// ../../node_modules/fast-glob/node_modules/glob-parent/index.js
 var require_glob_parent = __commonJS({
-  "node_modules/fast-glob/node_modules/glob-parent/index.js"(exports, module) {
+  "../../node_modules/fast-glob/node_modules/glob-parent/index.js"(exports, module) {
     "use strict";
     var isGlob = require_is_glob();
     var pathPosixDirname = __require("path").posix.dirname;
@@ -335,9 +335,9 @@ var require_glob_parent = __commonJS({
   }
 });
 
-// node_modules/braces/lib/utils.js
+// ../../node_modules/braces/lib/utils.js
 var require_utils = __commonJS({
-  "node_modules/braces/lib/utils.js"(exports) {
+  "../../node_modules/braces/lib/utils.js"(exports) {
     "use strict";
     exports.isInteger = (num) => {
       if (typeof num === "number") {
@@ -417,9 +417,9 @@ var require_utils = __commonJS({
   }
 });
 
-// node_modules/braces/lib/stringify.js
+// ../../node_modules/braces/lib/stringify.js
 var require_stringify = __commonJS({
-  "node_modules/braces/lib/stringify.js"(exports, module) {
+  "../../node_modules/braces/lib/stringify.js"(exports, module) {
     "use strict";
     var utils = require_utils();
     module.exports = (ast, options = {}) => {
@@ -448,9 +448,9 @@ var require_stringify = __commonJS({
   }
 });
 
-// node_modules/is-number/index.js
+// ../../node_modules/is-number/index.js
 var require_is_number = __commonJS({
-  "node_modules/is-number/index.js"(exports, module) {
+  "../../node_modules/is-number/index.js"(exports, module) {
     "use strict";
     module.exports = function(num) {
       if (typeof num === "number") {
@@ -464,9 +464,9 @@ var require_is_number = __commonJS({
   }
 });
 
-// node_modules/to-regex-range/index.js
+// ../../node_modules/to-regex-range/index.js
 var require_to_regex_range = __commonJS({
-  "node_modules/to-regex-range/index.js"(exports, module) {
+  "../../node_modules/to-regex-range/index.js"(exports, module) {
     "use strict";
     var isNumber = require_is_number();
     var toRegexRange = (min, max, options) => {
@@ -675,9 +675,9 @@ var require_to_regex_range = __commonJS({
   }
 });
 
-// node_modules/fill-range/index.js
+// ../../node_modules/fill-range/index.js
 var require_fill_range = __commonJS({
-  "node_modules/fill-range/index.js"(exports, module) {
+  "../../node_modules/fill-range/index.js"(exports, module) {
     "use strict";
     var util2 = __require("util");
     var toRegexRange = require_to_regex_range();
@@ -869,9 +869,9 @@ var require_fill_range = __commonJS({
   }
 });
 
-// node_modules/braces/lib/compile.js
+// ../../node_modules/braces/lib/compile.js
 var require_compile = __commonJS({
-  "node_modules/braces/lib/compile.js"(exports, module) {
+  "../../node_modules/braces/lib/compile.js"(exports, module) {
     "use strict";
     var fill = require_fill_range();
     var utils = require_utils();
@@ -921,9 +921,9 @@ var require_compile = __commonJS({
   }
 });
 
-// node_modules/braces/lib/expand.js
+// ../../node_modules/braces/lib/expand.js
 var require_expand = __commonJS({
-  "node_modules/braces/lib/expand.js"(exports, module) {
+  "../../node_modules/braces/lib/expand.js"(exports, module) {
     "use strict";
     var fill = require_fill_range();
     var stringify = require_stringify();
@@ -1015,9 +1015,9 @@ var require_expand = __commonJS({
   }
 });
 
-// node_modules/braces/lib/constants.js
+// ../../node_modules/braces/lib/constants.js
 var require_constants = __commonJS({
-  "node_modules/braces/lib/constants.js"(exports, module) {
+  "../../node_modules/braces/lib/constants.js"(exports, module) {
     "use strict";
     module.exports = {
       MAX_LENGTH: 1e4,
@@ -1116,9 +1116,9 @@ var require_constants = __commonJS({
   }
 });
 
-// node_modules/braces/lib/parse.js
+// ../../node_modules/braces/lib/parse.js
 var require_parse = __commonJS({
-  "node_modules/braces/lib/parse.js"(exports, module) {
+  "../../node_modules/braces/lib/parse.js"(exports, module) {
     "use strict";
     var stringify = require_stringify();
     var {
@@ -1354,9 +1354,9 @@ var require_parse = __commonJS({
   }
 });
 
-// node_modules/braces/index.js
+// ../../node_modules/braces/index.js
 var require_braces = __commonJS({
-  "node_modules/braces/index.js"(exports, module) {
+  "../../node_modules/braces/index.js"(exports, module) {
     "use strict";
     var stringify = require_stringify();
     var compile = require_compile();
@@ -1417,9 +1417,9 @@ var require_braces = __commonJS({
   }
 });
 
-// node_modules/micromatch/node_modules/picomatch/lib/constants.js
+// ../../node_modules/micromatch/node_modules/picomatch/lib/constants.js
 var require_constants2 = __commonJS({
-  "node_modules/micromatch/node_modules/picomatch/lib/constants.js"(exports, module) {
+  "../../node_modules/micromatch/node_modules/picomatch/lib/constants.js"(exports, module) {
     "use strict";
     var path3 = __require("path");
     var WIN_SLASH = "\\\\/";
@@ -1614,9 +1614,9 @@ var require_constants2 = __commonJS({
   }
 });
 
-// node_modules/micromatch/node_modules/picomatch/lib/utils.js
+// ../../node_modules/micromatch/node_modules/picomatch/lib/utils.js
 var require_utils2 = __commonJS({
-  "node_modules/micromatch/node_modules/picomatch/lib/utils.js"(exports) {
+  "../../node_modules/micromatch/node_modules/picomatch/lib/utils.js"(exports) {
     "use strict";
     var path3 = __require("path");
     var win32 = process.platform === "win32";
@@ -1675,9 +1675,9 @@ var require_utils2 = __commonJS({
   }
 });
 
-// node_modules/micromatch/node_modules/picomatch/lib/scan.js
+// ../../node_modules/micromatch/node_modules/picomatch/lib/scan.js
 var require_scan = __commonJS({
-  "node_modules/micromatch/node_modules/picomatch/lib/scan.js"(exports, module) {
+  "../../node_modules/micromatch/node_modules/picomatch/lib/scan.js"(exports, module) {
     "use strict";
     var utils = require_utils2();
     var {
@@ -2005,9 +2005,9 @@ var require_scan = __commonJS({
   }
 });
 
-// node_modules/micromatch/node_modules/picomatch/lib/parse.js
+// ../../node_modules/micromatch/node_modules/picomatch/lib/parse.js
 var require_parse2 = __commonJS({
-  "node_modules/micromatch/node_modules/picomatch/lib/parse.js"(exports, module) {
+  "../../node_modules/micromatch/node_modules/picomatch/lib/parse.js"(exports, module) {
     "use strict";
     var constants = require_constants2();
     var utils = require_utils2();
@@ -2778,9 +2778,9 @@ var require_parse2 = __commonJS({
   }
 });
 
-// node_modules/micromatch/node_modules/picomatch/lib/picomatch.js
+// ../../node_modules/micromatch/node_modules/picomatch/lib/picomatch.js
 var require_picomatch = __commonJS({
-  "node_modules/micromatch/node_modules/picomatch/lib/picomatch.js"(exports, module) {
+  "../../node_modules/micromatch/node_modules/picomatch/lib/picomatch.js"(exports, module) {
     "use strict";
     var path3 = __require("path");
     var scan = require_scan();
@@ -2919,17 +2919,17 @@ var require_picomatch = __commonJS({
   }
 });
 
-// node_modules/micromatch/node_modules/picomatch/index.js
+// ../../node_modules/micromatch/node_modules/picomatch/index.js
 var require_picomatch2 = __commonJS({
-  "node_modules/micromatch/node_modules/picomatch/index.js"(exports, module) {
+  "../../node_modules/micromatch/node_modules/picomatch/index.js"(exports, module) {
     "use strict";
     module.exports = require_picomatch();
   }
 });
 
-// node_modules/micromatch/index.js
+// ../../node_modules/micromatch/index.js
 var require_micromatch = __commonJS({
-  "node_modules/micromatch/index.js"(exports, module) {
+  "../../node_modules/micromatch/index.js"(exports, module) {
     "use strict";
     var util2 = __require("util");
     var braces = require_braces();
@@ -3088,9 +3088,9 @@ var require_micromatch = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/utils/pattern.js
+// ../../node_modules/fast-glob/out/utils/pattern.js
 var require_pattern = __commonJS({
-  "node_modules/fast-glob/out/utils/pattern.js"(exports) {
+  "../../node_modules/fast-glob/out/utils/pattern.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isAbsolute = exports.partitionAbsoluteAndRelative = exports.removeDuplicateSlashes = exports.matchAny = exports.convertPatternsToRe = exports.makeRe = exports.getPatternParts = exports.expandBraceExpansion = exports.expandPatternsWithBraceExpansion = exports.isAffectDepthOfReadingPattern = exports.endsWithSlashGlobStar = exports.hasGlobStar = exports.getBaseDirectory = exports.isPatternRelatedToParentDirectory = exports.getPatternsOutsideCurrentDirectory = exports.getPatternsInsideCurrentDirectory = exports.getPositivePatterns = exports.getNegativePatterns = exports.isPositivePattern = exports.isNegativePattern = exports.convertToNegativePattern = exports.convertToPositivePattern = exports.isDynamicPattern = exports.isStaticPattern = void 0;
@@ -3253,9 +3253,9 @@ var require_pattern = __commonJS({
   }
 });
 
-// node_modules/merge2/index.js
+// ../../node_modules/merge2/index.js
 var require_merge2 = __commonJS({
-  "node_modules/merge2/index.js"(exports, module) {
+  "../../node_modules/merge2/index.js"(exports, module) {
     "use strict";
     var Stream = __require("stream");
     var PassThrough = Stream.PassThrough;
@@ -3372,9 +3372,9 @@ var require_merge2 = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/utils/stream.js
+// ../../node_modules/fast-glob/out/utils/stream.js
 var require_stream = __commonJS({
-  "node_modules/fast-glob/out/utils/stream.js"(exports) {
+  "../../node_modules/fast-glob/out/utils/stream.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.merge = void 0;
@@ -3395,9 +3395,9 @@ var require_stream = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/utils/string.js
+// ../../node_modules/fast-glob/out/utils/string.js
 var require_string = __commonJS({
-  "node_modules/fast-glob/out/utils/string.js"(exports) {
+  "../../node_modules/fast-glob/out/utils/string.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isEmpty = exports.isString = void 0;
@@ -3412,9 +3412,9 @@ var require_string = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/utils/index.js
+// ../../node_modules/fast-glob/out/utils/index.js
 var require_utils3 = __commonJS({
-  "node_modules/fast-glob/out/utils/index.js"(exports) {
+  "../../node_modules/fast-glob/out/utils/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.string = exports.stream = exports.pattern = exports.path = exports.fs = exports.errno = exports.array = void 0;
@@ -3435,9 +3435,9 @@ var require_utils3 = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/managers/tasks.js
+// ../../node_modules/fast-glob/out/managers/tasks.js
 var require_tasks = __commonJS({
-  "node_modules/fast-glob/out/managers/tasks.js"(exports) {
+  "../../node_modules/fast-glob/out/managers/tasks.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.convertPatternGroupToTask = exports.convertPatternGroupsToTasks = exports.groupPatternsByBaseDirectory = exports.getNegativePatternsAsPositive = exports.getPositivePatterns = exports.convertPatternsToTasks = exports.generate = void 0;
@@ -3531,9 +3531,9 @@ var require_tasks = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.stat/out/providers/async.js
+// ../../node_modules/@nodelib/fs.stat/out/providers/async.js
 var require_async = __commonJS({
-  "node_modules/@nodelib/fs.stat/out/providers/async.js"(exports) {
+  "../../node_modules/@nodelib/fs.stat/out/providers/async.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
@@ -3573,9 +3573,9 @@ var require_async = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.stat/out/providers/sync.js
+// ../../node_modules/@nodelib/fs.stat/out/providers/sync.js
 var require_sync = __commonJS({
-  "node_modules/@nodelib/fs.stat/out/providers/sync.js"(exports) {
+  "../../node_modules/@nodelib/fs.stat/out/providers/sync.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.read = void 0;
@@ -3601,9 +3601,9 @@ var require_sync = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.stat/out/adapters/fs.js
+// ../../node_modules/@nodelib/fs.stat/out/adapters/fs.js
 var require_fs2 = __commonJS({
-  "node_modules/@nodelib/fs.stat/out/adapters/fs.js"(exports) {
+  "../../node_modules/@nodelib/fs.stat/out/adapters/fs.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createFileSystemAdapter = exports.FILE_SYSTEM_ADAPTER = void 0;
@@ -3624,9 +3624,9 @@ var require_fs2 = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.stat/out/settings.js
+// ../../node_modules/@nodelib/fs.stat/out/settings.js
 var require_settings = __commonJS({
-  "node_modules/@nodelib/fs.stat/out/settings.js"(exports) {
+  "../../node_modules/@nodelib/fs.stat/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var fs = require_fs2();
@@ -3646,9 +3646,9 @@ var require_settings = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.stat/out/index.js
+// ../../node_modules/@nodelib/fs.stat/out/index.js
 var require_out = __commonJS({
-  "node_modules/@nodelib/fs.stat/out/index.js"(exports) {
+  "../../node_modules/@nodelib/fs.stat/out/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.statSync = exports.stat = exports.Settings = void 0;
@@ -3678,9 +3678,9 @@ var require_out = __commonJS({
   }
 });
 
-// node_modules/queue-microtask/index.js
+// ../../node_modules/queue-microtask/index.js
 var require_queue_microtask = __commonJS({
-  "node_modules/queue-microtask/index.js"(exports, module) {
+  "../../node_modules/queue-microtask/index.js"(exports, module) {
     "use strict";
     var promise;
     module.exports = typeof queueMicrotask === "function" ? queueMicrotask.bind(typeof window !== "undefined" ? window : global) : (cb) => (promise || (promise = Promise.resolve())).then(cb).catch((err) => setTimeout(() => {
@@ -3689,9 +3689,9 @@ var require_queue_microtask = __commonJS({
   }
 });
 
-// node_modules/run-parallel/index.js
+// ../../node_modules/run-parallel/index.js
 var require_run_parallel = __commonJS({
-  "node_modules/run-parallel/index.js"(exports, module) {
+  "../../node_modules/run-parallel/index.js"(exports, module) {
     "use strict";
     module.exports = runParallel;
     var queueMicrotask2 = require_queue_microtask();
@@ -3740,9 +3740,9 @@ var require_run_parallel = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.scandir/out/constants.js
+// ../../node_modules/@nodelib/fs.scandir/out/constants.js
 var require_constants3 = __commonJS({
-  "node_modules/@nodelib/fs.scandir/out/constants.js"(exports) {
+  "../../node_modules/@nodelib/fs.scandir/out/constants.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.IS_SUPPORT_READDIR_WITH_FILE_TYPES = void 0;
@@ -3760,9 +3760,9 @@ var require_constants3 = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.scandir/out/utils/fs.js
+// ../../node_modules/@nodelib/fs.scandir/out/utils/fs.js
 var require_fs3 = __commonJS({
-  "node_modules/@nodelib/fs.scandir/out/utils/fs.js"(exports) {
+  "../../node_modules/@nodelib/fs.scandir/out/utils/fs.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createDirentFromStats = void 0;
@@ -3785,9 +3785,9 @@ var require_fs3 = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.scandir/out/utils/index.js
+// ../../node_modules/@nodelib/fs.scandir/out/utils/index.js
 var require_utils4 = __commonJS({
-  "node_modules/@nodelib/fs.scandir/out/utils/index.js"(exports) {
+  "../../node_modules/@nodelib/fs.scandir/out/utils/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.fs = void 0;
@@ -3796,9 +3796,9 @@ var require_utils4 = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.scandir/out/providers/common.js
+// ../../node_modules/@nodelib/fs.scandir/out/providers/common.js
 var require_common = __commonJS({
-  "node_modules/@nodelib/fs.scandir/out/providers/common.js"(exports) {
+  "../../node_modules/@nodelib/fs.scandir/out/providers/common.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.joinPathSegments = void 0;
@@ -3812,9 +3812,9 @@ var require_common = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.scandir/out/providers/async.js
+// ../../node_modules/@nodelib/fs.scandir/out/providers/async.js
 var require_async2 = __commonJS({
-  "node_modules/@nodelib/fs.scandir/out/providers/async.js"(exports) {
+  "../../node_modules/@nodelib/fs.scandir/out/providers/async.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.readdir = exports.readdirWithFileTypes = exports.read = void 0;
@@ -3922,9 +3922,9 @@ var require_async2 = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.scandir/out/providers/sync.js
+// ../../node_modules/@nodelib/fs.scandir/out/providers/sync.js
 var require_sync2 = __commonJS({
-  "node_modules/@nodelib/fs.scandir/out/providers/sync.js"(exports) {
+  "../../node_modules/@nodelib/fs.scandir/out/providers/sync.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.readdir = exports.readdirWithFileTypes = exports.read = void 0;
@@ -3981,9 +3981,9 @@ var require_sync2 = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.scandir/out/adapters/fs.js
+// ../../node_modules/@nodelib/fs.scandir/out/adapters/fs.js
 var require_fs4 = __commonJS({
-  "node_modules/@nodelib/fs.scandir/out/adapters/fs.js"(exports) {
+  "../../node_modules/@nodelib/fs.scandir/out/adapters/fs.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createFileSystemAdapter = exports.FILE_SYSTEM_ADAPTER = void 0;
@@ -4006,9 +4006,9 @@ var require_fs4 = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.scandir/out/settings.js
+// ../../node_modules/@nodelib/fs.scandir/out/settings.js
 var require_settings2 = __commonJS({
-  "node_modules/@nodelib/fs.scandir/out/settings.js"(exports) {
+  "../../node_modules/@nodelib/fs.scandir/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var path3 = __require("path");
@@ -4036,9 +4036,9 @@ var require_settings2 = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.scandir/out/index.js
+// ../../node_modules/@nodelib/fs.scandir/out/index.js
 var require_out2 = __commonJS({
-  "node_modules/@nodelib/fs.scandir/out/index.js"(exports) {
+  "../../node_modules/@nodelib/fs.scandir/out/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Settings = exports.scandirSync = exports.scandir = void 0;
@@ -4068,9 +4068,9 @@ var require_out2 = __commonJS({
   }
 });
 
-// node_modules/reusify/reusify.js
+// ../../node_modules/reusify/reusify.js
 var require_reusify = __commonJS({
-  "node_modules/reusify/reusify.js"(exports, module) {
+  "../../node_modules/reusify/reusify.js"(exports, module) {
     "use strict";
     function reusify(Constructor) {
       var head = new Constructor();
@@ -4099,9 +4099,9 @@ var require_reusify = __commonJS({
   }
 });
 
-// node_modules/fastq/queue.js
+// ../../node_modules/fastq/queue.js
 var require_queue = __commonJS({
-  "node_modules/fastq/queue.js"(exports, module) {
+  "../../node_modules/fastq/queue.js"(exports, module) {
     "use strict";
     var reusify = require_reusify();
     function fastqueue(context, worker, _concurrency) {
@@ -4360,9 +4360,9 @@ var require_queue = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.walk/out/readers/common.js
+// ../../node_modules/@nodelib/fs.walk/out/readers/common.js
 var require_common2 = __commonJS({
-  "node_modules/@nodelib/fs.walk/out/readers/common.js"(exports) {
+  "../../node_modules/@nodelib/fs.walk/out/readers/common.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.joinPathSegments = exports.replacePathSegmentSeparator = exports.isAppliedFilter = exports.isFatalError = void 0;
@@ -4394,9 +4394,9 @@ var require_common2 = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.walk/out/readers/reader.js
+// ../../node_modules/@nodelib/fs.walk/out/readers/reader.js
 var require_reader = __commonJS({
-  "node_modules/@nodelib/fs.walk/out/readers/reader.js"(exports) {
+  "../../node_modules/@nodelib/fs.walk/out/readers/reader.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var common = require_common2();
@@ -4411,9 +4411,9 @@ var require_reader = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.walk/out/readers/async.js
+// ../../node_modules/@nodelib/fs.walk/out/readers/async.js
 var require_async3 = __commonJS({
-  "node_modules/@nodelib/fs.walk/out/readers/async.js"(exports) {
+  "../../node_modules/@nodelib/fs.walk/out/readers/async.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var events_1 = __require("events");
@@ -4514,9 +4514,9 @@ var require_async3 = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.walk/out/providers/async.js
+// ../../node_modules/@nodelib/fs.walk/out/providers/async.js
 var require_async4 = __commonJS({
-  "node_modules/@nodelib/fs.walk/out/providers/async.js"(exports) {
+  "../../node_modules/@nodelib/fs.walk/out/providers/async.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var async_1 = require_async3();
@@ -4550,9 +4550,9 @@ var require_async4 = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.walk/out/providers/stream.js
+// ../../node_modules/@nodelib/fs.walk/out/providers/stream.js
 var require_stream2 = __commonJS({
-  "node_modules/@nodelib/fs.walk/out/providers/stream.js"(exports) {
+  "../../node_modules/@nodelib/fs.walk/out/providers/stream.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var stream_1 = __require("stream");
@@ -4591,9 +4591,9 @@ var require_stream2 = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.walk/out/readers/sync.js
+// ../../node_modules/@nodelib/fs.walk/out/readers/sync.js
 var require_sync3 = __commonJS({
-  "node_modules/@nodelib/fs.walk/out/readers/sync.js"(exports) {
+  "../../node_modules/@nodelib/fs.walk/out/readers/sync.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var fsScandir = require_out2();
@@ -4655,9 +4655,9 @@ var require_sync3 = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.walk/out/providers/sync.js
+// ../../node_modules/@nodelib/fs.walk/out/providers/sync.js
 var require_sync4 = __commonJS({
-  "node_modules/@nodelib/fs.walk/out/providers/sync.js"(exports) {
+  "../../node_modules/@nodelib/fs.walk/out/providers/sync.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var sync_1 = require_sync3();
@@ -4675,9 +4675,9 @@ var require_sync4 = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.walk/out/settings.js
+// ../../node_modules/@nodelib/fs.walk/out/settings.js
 var require_settings3 = __commonJS({
-  "node_modules/@nodelib/fs.walk/out/settings.js"(exports) {
+  "../../node_modules/@nodelib/fs.walk/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var path3 = __require("path");
@@ -4707,9 +4707,9 @@ var require_settings3 = __commonJS({
   }
 });
 
-// node_modules/@nodelib/fs.walk/out/index.js
+// ../../node_modules/@nodelib/fs.walk/out/index.js
 var require_out3 = __commonJS({
-  "node_modules/@nodelib/fs.walk/out/index.js"(exports) {
+  "../../node_modules/@nodelib/fs.walk/out/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Settings = exports.walkStream = exports.walkSync = exports.walk = void 0;
@@ -4747,9 +4747,9 @@ var require_out3 = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/readers/reader.js
+// ../../node_modules/fast-glob/out/readers/reader.js
 var require_reader2 = __commonJS({
-  "node_modules/fast-glob/out/readers/reader.js"(exports) {
+  "../../node_modules/fast-glob/out/readers/reader.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var path3 = __require("path");
@@ -4786,9 +4786,9 @@ var require_reader2 = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/readers/stream.js
+// ../../node_modules/fast-glob/out/readers/stream.js
 var require_stream3 = __commonJS({
-  "node_modules/fast-glob/out/readers/stream.js"(exports) {
+  "../../node_modules/fast-glob/out/readers/stream.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var stream_1 = __require("stream");
@@ -4843,9 +4843,9 @@ var require_stream3 = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/readers/async.js
+// ../../node_modules/fast-glob/out/readers/async.js
 var require_async5 = __commonJS({
-  "node_modules/fast-glob/out/readers/async.js"(exports) {
+  "../../node_modules/fast-glob/out/readers/async.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var fsWalk = require_out3();
@@ -4882,9 +4882,9 @@ var require_async5 = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/providers/matchers/matcher.js
+// ../../node_modules/fast-glob/out/providers/matchers/matcher.js
 var require_matcher = __commonJS({
-  "node_modules/fast-glob/out/providers/matchers/matcher.js"(exports) {
+  "../../node_modules/fast-glob/out/providers/matchers/matcher.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var utils = require_utils3();
@@ -4933,9 +4933,9 @@ var require_matcher = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/providers/matchers/partial.js
+// ../../node_modules/fast-glob/out/providers/matchers/partial.js
 var require_partial = __commonJS({
-  "node_modules/fast-glob/out/providers/matchers/partial.js"(exports) {
+  "../../node_modules/fast-glob/out/providers/matchers/partial.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var matcher_1 = require_matcher();
@@ -4970,9 +4970,9 @@ var require_partial = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/providers/filters/deep.js
+// ../../node_modules/fast-glob/out/providers/filters/deep.js
 var require_deep = __commonJS({
-  "node_modules/fast-glob/out/providers/filters/deep.js"(exports) {
+  "../../node_modules/fast-glob/out/providers/filters/deep.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var utils = require_utils3();
@@ -5035,9 +5035,9 @@ var require_deep = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/providers/filters/entry.js
+// ../../node_modules/fast-glob/out/providers/filters/entry.js
 var require_entry = __commonJS({
-  "node_modules/fast-glob/out/providers/filters/entry.js"(exports) {
+  "../../node_modules/fast-glob/out/providers/filters/entry.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var utils = require_utils3();
@@ -5123,9 +5123,9 @@ var require_entry = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/providers/filters/error.js
+// ../../node_modules/fast-glob/out/providers/filters/error.js
 var require_error = __commonJS({
-  "node_modules/fast-glob/out/providers/filters/error.js"(exports) {
+  "../../node_modules/fast-glob/out/providers/filters/error.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var utils = require_utils3();
@@ -5144,9 +5144,9 @@ var require_error = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/providers/transformers/entry.js
+// ../../node_modules/fast-glob/out/providers/transformers/entry.js
 var require_entry2 = __commonJS({
-  "node_modules/fast-glob/out/providers/transformers/entry.js"(exports) {
+  "../../node_modules/fast-glob/out/providers/transformers/entry.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var utils = require_utils3();
@@ -5176,9 +5176,9 @@ var require_entry2 = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/providers/provider.js
+// ../../node_modules/fast-glob/out/providers/provider.js
 var require_provider = __commonJS({
-  "node_modules/fast-glob/out/providers/provider.js"(exports) {
+  "../../node_modules/fast-glob/out/providers/provider.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var path3 = __require("path");
@@ -5230,9 +5230,9 @@ var require_provider = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/providers/async.js
+// ../../node_modules/fast-glob/out/providers/async.js
 var require_async6 = __commonJS({
-  "node_modules/fast-glob/out/providers/async.js"(exports) {
+  "../../node_modules/fast-glob/out/providers/async.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var async_1 = require_async5();
@@ -5259,9 +5259,9 @@ var require_async6 = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/providers/stream.js
+// ../../node_modules/fast-glob/out/providers/stream.js
 var require_stream4 = __commonJS({
-  "node_modules/fast-glob/out/providers/stream.js"(exports) {
+  "../../node_modules/fast-glob/out/providers/stream.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var stream_1 = __require("stream");
@@ -5293,9 +5293,9 @@ var require_stream4 = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/readers/sync.js
+// ../../node_modules/fast-glob/out/readers/sync.js
 var require_sync5 = __commonJS({
-  "node_modules/fast-glob/out/readers/sync.js"(exports) {
+  "../../node_modules/fast-glob/out/readers/sync.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var fsStat = require_out();
@@ -5341,9 +5341,9 @@ var require_sync5 = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/providers/sync.js
+// ../../node_modules/fast-glob/out/providers/sync.js
 var require_sync6 = __commonJS({
-  "node_modules/fast-glob/out/providers/sync.js"(exports) {
+  "../../node_modules/fast-glob/out/providers/sync.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var sync_1 = require_sync5();
@@ -5370,9 +5370,9 @@ var require_sync6 = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/settings.js
+// ../../node_modules/fast-glob/out/settings.js
 var require_settings4 = __commonJS({
-  "node_modules/fast-glob/out/settings.js"(exports) {
+  "../../node_modules/fast-glob/out/settings.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DEFAULT_FILE_SYSTEM_ADAPTER = void 0;
@@ -5430,9 +5430,9 @@ var require_settings4 = __commonJS({
   }
 });
 
-// node_modules/fast-glob/out/index.js
+// ../../node_modules/fast-glob/out/index.js
 var require_out4 = __commonJS({
-  "node_modules/fast-glob/out/index.js"(exports, module) {
+  "../../node_modules/fast-glob/out/index.js"(exports, module) {
     "use strict";
     var taskManager = require_tasks();
     var async_1 = require_async6();
@@ -5531,9 +5531,9 @@ var require_out4 = __commonJS({
   }
 });
 
-// node_modules/awilix/lib/load-module-native.js
+// ../../node_modules/awilix/lib/load-module-native.js
 var require_load_module_native = __commonJS({
-  "node_modules/awilix/lib/load-module-native.js"(exports, module) {
+  "../../node_modules/awilix/lib/load-module-native.js"(exports, module) {
     "use strict";
     function importModule2(path3) {
       return import(path3);
@@ -5542,7 +5542,7 @@ var require_load_module_native = __commonJS({
   }
 });
 
-// node_modules/tslib/tslib.es6.mjs
+// ../../node_modules/tslib/tslib.es6.mjs
 var tslib_es6_exports = {};
 __export(tslib_es6_exports, {
   __addDisposableResource: () => __addDisposableResource,
@@ -5981,7 +5981,7 @@ function __rewriteRelativeImportExtension(path3, preserveJsx) {
 }
 var extendStatics, __assign, __createBinding, __setModuleDefault, ownKeys, _SuppressedError, tslib_es6_default;
 var init_tslib_es6 = __esm({
-  "node_modules/tslib/tslib.es6.mjs"() {
+  "../../node_modules/tslib/tslib.es6.mjs"() {
     "use strict";
     extendStatics = function(d, b) {
       extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
@@ -6068,9 +6068,9 @@ var init_tslib_es6 = __esm({
   }
 });
 
-// node_modules/lower-case/dist/index.js
+// ../../node_modules/lower-case/dist/index.js
 var require_dist = __commonJS({
-  "node_modules/lower-case/dist/index.js"(exports) {
+  "../../node_modules/lower-case/dist/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.lowerCase = exports.localeLowerCase = void 0;
@@ -6119,9 +6119,9 @@ var require_dist = __commonJS({
   }
 });
 
-// node_modules/no-case/dist/index.js
+// ../../node_modules/no-case/dist/index.js
 var require_dist2 = __commonJS({
-  "node_modules/no-case/dist/index.js"(exports) {
+  "../../node_modules/no-case/dist/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.noCase = void 0;
@@ -6153,9 +6153,9 @@ var require_dist2 = __commonJS({
   }
 });
 
-// node_modules/pascal-case/dist/index.js
+// ../../node_modules/pascal-case/dist/index.js
 var require_dist3 = __commonJS({
-  "node_modules/pascal-case/dist/index.js"(exports) {
+  "../../node_modules/pascal-case/dist/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.pascalCase = exports.pascalCaseTransformMerge = exports.pascalCaseTransform = void 0;
@@ -6184,9 +6184,9 @@ var require_dist3 = __commonJS({
   }
 });
 
-// node_modules/camel-case/dist/index.js
+// ../../node_modules/camel-case/dist/index.js
 var require_dist4 = __commonJS({
-  "node_modules/camel-case/dist/index.js"(exports) {
+  "../../node_modules/camel-case/dist/index.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.camelCase = exports.camelCaseTransformMerge = exports.camelCaseTransform = void 0;
@@ -6214,12 +6214,12 @@ var require_dist4 = __commonJS({
   }
 });
 
-// apps/api/src/koaServer.ts
+// src/koaServer.ts
 import Koa from "koa";
 import { koaBody } from "koa-body";
 import dotenv2 from "dotenv";
 
-// apps/api/src/middleware/errorHandler.ts
+// src/middleware/errorHandler.ts
 import { HttpError } from "koa";
 async function errorHandler(ctx, next) {
   try {
@@ -6235,13 +6235,13 @@ async function errorHandler(ctx, next) {
   }
 }
 
-// apps/api/src/koaServer.ts
+// src/koaServer.ts
 import http from "http";
 
-// apps/api/src/knex.ts
+// src/knex.ts
 import knex from "knex";
 
-// apps/api/src/knexfile.ts
+// src/knexfile.ts
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
@@ -6272,7 +6272,7 @@ var knexConfig = {
   }
 };
 
-// apps/api/src/knex.ts
+// src/knex.ts
 var db = knex.knex(knexConfig);
 process.on("SIGINT", async () => {
   await db.destroy();
@@ -6283,14 +6283,14 @@ process.on("SIGTERM", async () => {
   process.exit(0);
 });
 
-// apps/api/src/middleware/requestLogger.ts
+// src/middleware/requestLogger.ts
 async function requestLogger(ctx, next) {
   console.log("REQ", ctx.method, ctx.path);
   await next();
   console.log("RES", ctx.status, ctx.path);
 }
 
-// node_modules/awilix/lib/awilix.module.mjs
+// ../../node_modules/awilix/lib/awilix.module.mjs
 var import_fast_glob = __toESM(require_out4(), 1);
 var import_load_module_native = __toESM(require_load_module_native(), 1);
 var import_camel_case = __toESM(require_dist4(), 1);
@@ -7344,11 +7344,10 @@ function createContainerInternal(options, parentContainer, parentResolutionStack
   }
 }
 
-// apps/api/src/repositories/userRepository.ts
+// src/repositories/userRepository.ts
 var createUserRepository = (db2) => ({
   getUser: async (id) => {
-    const result = await db2("users").where({ id }).first();
-    return result;
+    return db2("users").where({ id }).first();
   },
   updateDailyGoal: async (id, dailyGoal) => {
     const [row] = await db2("users").where({ id }).update({ dailyGoal }, "*");
@@ -7356,131 +7355,7 @@ var createUserRepository = (db2) => ({
   }
 });
 
-// apps/api/src/repositories/contactRepository.ts
-import { v4 } from "uuid";
-var createContactRepository = (db2, mappers) => ({
-  listContacts: async (userId, opts) => {
-    let q = db2("contacts").where({ userId });
-    if (opts?.dueOnly) q = q.andWhere("nextDueAt", "<=", db2.fn.now());
-    if (opts?.q) {
-      q = q.andWhere((qb) => {
-        qb.whereILike("firstName", `%${opts.q}%`).orWhereILike("lastName", `%${opts.q}%`).orWhereILike("email", `%${opts.q}%`).orWhereILike("phone", `%${opts.q}%`);
-      });
-    }
-    const rows = await q.orderBy([
-      { column: "lastName", order: "asc" },
-      { column: "firstName", order: "asc" }
-    ]);
-    const entities = rows.map((row) => mappers.toContactEntity(row)).filter((entity) => entity !== void 0);
-    return entities;
-  },
-  createContact: async (userId, data) => {
-    const payload = {
-      ...data,
-      id: v4(),
-      userId
-    };
-    const [row] = await db2("contacts").insert(payload).returning("*");
-    const entity = mappers.toContactEntity(row);
-    if (!entity) throw new Error("Failed to create contact");
-    return entity;
-  },
-  getContact: async (userId, id) => {
-    const dto = await db2("contacts").where({ id, userId }).first();
-    return mappers.toContactEntity(dto);
-  },
-  patchContact: async (userId, id, data) => {
-    const existing = await db2("contacts").where({ id, userId }).first();
-    if (!existing) return void 0;
-    const updates = { ...existing, ...data };
-    const [row] = await db2("contacts").where({ id, userId }).update(updates, "*");
-    const entity = mappers.toContactEntity(row);
-    return entity || void 0;
-  }
-});
-
-// apps/api/src/repositories/planRepository.ts
-import { DateTime } from "luxon";
-var createPlanRepository = (db2, mappers) => ({
-  getDailyPlan: async (userId, date) => {
-    const user = await db2("users").where({ id: userId }).first();
-    if (!user)
-      return {
-        items: [],
-        date: DateTime.now().toISO() || (/* @__PURE__ */ new Date()).toISOString()
-      };
-    const dayStart = date ? DateTime.fromISO(date).startOf("day") : DateTime.now().startOf("day");
-    const due = await db2("contacts").where({ userId, paused: false }).andWhere(
-      (qb) => qb.whereNull("snoozedUntil").orWhere("snoozedUntil", "<=", db2.fn.now())
-    ).andWhere("nextDueAt", "<=", dayStart.toJSDate()).orderBy([
-      { column: "nextDueAt", order: "asc" },
-      { column: "updatedAt", order: "asc" },
-      { column: "fullName", order: "asc" }
-    ]).limit(user.dailyGoal);
-    if (due.length >= user.dailyGoal) {
-      const contactEntities = due.map((row) => mappers.toContactEntity(row)).filter((entity) => entity !== void 0);
-      return { items: contactEntities, date: dayStart.toISO() };
-    }
-    const topUp = await db2("contacts").where({ userId, paused: false }).andWhere(
-      (qb) => qb.whereNull("snoozedUntil").orWhere("snoozedUntil", "<=", db2.fn.now())
-    ).andWhere("nextDueAt", ">", dayStart.toJSDate()).andWhere("nextDueAt", "<=", dayStart.plus({ days: 3 }).toJSDate()).orderBy([
-      { column: "nextDueAt", order: "asc" },
-      { column: "updatedAt", order: "asc" },
-      { column: "fullName", order: "asc" }
-    ]).limit(user.dailyGoal - due.length);
-    const dueEntities = due.map((row) => mappers.toContactEntity(row)).filter((entity) => entity !== void 0);
-    const topUpEntities = topUp.map((row) => mappers.toContactEntity(row)).filter((entity) => entity !== void 0);
-    return {
-      items: [...dueEntities, ...topUpEntities],
-      date: dayStart.toISO()
-    };
-  }
-});
-
-// apps/api/src/repositories/touchesRepository.ts
-var createTouchesRepository = (db2, mappers) => ({
-  createTouch: async (userId, body) => {
-    const contact = await db2("contacts").where({ id: body.contactId, userId }).first();
-    if (!contact) return void 0;
-    const [touch] = await db2("touch_logs").insert({
-      id: db2.raw("gen_random_uuid()"),
-      userId,
-      contactId: body.contactId,
-      method: body.method,
-      message: body.message,
-      outcome: body.outcome,
-      createdAt: db2.fn.now()
-    }).returning("*");
-    const nextDueAt = new Date(
-      Date.now() + (contact.intervalDays ?? 0) * 864e5
-    ).toISOString();
-    await db2("contacts").where({ id: contact.id }).update({ lastTouchedAt: db2.fn.now(), nextDueAt });
-    const entity = mappers.toTouchEntity(touch);
-    return entity || void 0;
-  }
-});
-
-// apps/api/src/repositories/suggestionRepository.ts
-var createSuggestionRepository = (db2) => ({
-  getSuggestionsForContact: async (contact) => {
-    const firstName = contact.fullName.split(" ")[0];
-    const rows = await db2("suggestionTemplates").select("body").orderBy("createdAt", "asc").limit(10);
-    const pool = rows.length ? rows.map((r) => r.body) : [
-      "Hi {{firstName}}, just checking in to see how you're doing.",
-      "Hey {{firstName}} \u2014 thought of you today. How's your week going?",
-      "Hi {{firstName}}! Anything new or fun lately? Would love to catch up."
-    ];
-    const picks = [];
-    for (const s of pool) {
-      const msg = s.replaceAll("{{firstName}}", firstName);
-      if (!picks.includes(msg)) picks.push(msg);
-      if (picks.length >= 3) break;
-    }
-    return picks;
-  }
-});
-
-// packages/contracts/src/enums/ContactMethod.ts
+// ../../packages/contracts/src/enums/ContactMethod.ts
 import { enumeration } from "smart-enums";
 var input = ["email", "sms", "call", "other"];
 var ContactMethod = enumeration({
@@ -7488,7 +7363,7 @@ var ContactMethod = enumeration({
 });
 var parseContactMethod = (s) => ContactMethod.tryFromValue(s) ?? ContactMethod.tryFromKey(s) ?? ContactMethod.tryFromDisplay(s);
 
-// packages/contracts/src/schemas/schemas.ts
+// ../../packages/contracts/src/schemas/schemas.ts
 import { z } from "zod";
 var contactMethodValueSchema = z.string().transform((s, ctx) => {
   const item = parseContactMethod(s);
@@ -7507,30 +7382,16 @@ var contactSchema = z.object({
   firstName: z.string().min(1).max(200),
   lastName: z.string().min(1).max(200),
   preferredMethod: contactMethodValueSchema,
-  email: z.string().email().optional(),
-  phone: z.string().trim().optional(),
-  notes: z.string().trim().optional(),
+  email: z.string().email().nullable().optional(),
+  phone: z.string().trim().nullable().optional(),
+  notes: z.string().trim().nullable().optional(),
   intervalDays: z.number().int().min(1).max(365),
   paused: z.boolean().optional(),
-  snoozedUntil: z.string().datetime().optional(),
+  snoozedUntil: z.string().datetime().nullable().optional(),
   nextDueAt: z.string().datetime().optional(),
-  lastTouchedAt: z.string().datetime().optional(),
+  lastTouchedAt: z.string().datetime().nullable().optional(),
   createdAt: z.string().datetime().optional(),
   updatedAt: z.string().datetime().optional()
-});
-var touchSchema = z.object({
-  id: z.string().uuid(),
-  userId: z.string().uuid(),
-  contactId: z.string().uuid(),
-  method: contactMethodValueSchema,
-  message: z.string().trim().optional(),
-  outcome: z.string().trim().optional(),
-  createdAt: z.string().datetime().optional()
-});
-var userSchema = z.object({
-  id: z.string().uuid(),
-  email: z.string().email(),
-  dailyGoal: z.number().int().min(0).max(500)
 });
 var upsertContactSchema = z.object({
   id: z.string().uuid().optional(),
@@ -7538,11 +7399,11 @@ var upsertContactSchema = z.object({
   firstName: z.string().min(1).max(200).optional(),
   lastName: z.string().min(1).max(200).optional(),
   preferredMethod: contactMethodValueSchema.optional(),
-  email: z.string().email().optional(),
-  phone: z.string().trim().optional(),
-  notes: z.string().trim().optional(),
+  email: z.string().email().nullable().optional(),
+  phone: z.string().trim().nullable().optional(),
+  notes: z.string().trim().nullable().optional(),
   paused: z.boolean().optional(),
-  snoozedUntil: z.string().datetime().optional(),
+  snoozedUntil: z.string().datetime().nullable().optional(),
   intervalDays: z.coerce.number().int().min(1).max(365).optional()
 }).refine((v) => Object.keys(v).length > 0, {
   message: "At least one field must be provided"
@@ -7569,50 +7430,129 @@ var upsertDailyGoalSchema = z.object({
   dailyGoal: z.coerce.number().int().min(0).max(500)
 });
 
-// apps/api/src/repositories/mappers.ts
-var createMappers = () => ({
-  // Database to Entity (internal use)
-  toContactEntity: (dto) => {
-    return dto ? {
-      ...dto,
-      preferredMethod: ContactMethod.fromValue(dto.preferredMethod)
-    } : void 0;
+// src/repositories/mappers.ts
+var toContactEntity = (dto) => {
+  return dto ? {
+    ...dto,
+    preferredMethod: ContactMethod.fromValue(dto.preferredMethod)
+  } : void 0;
+};
+var toTouchEntity = (dto) => {
+  return dto ? {
+    ...dto,
+    method: ContactMethod.fromValue(dto.method)
+  } : void 0;
+};
+
+// src/repositories/contactRepository.ts
+import { v4 } from "uuid";
+var createContactRepository = (db2) => ({
+  listContacts: async (userId, opts) => {
+    let q = db2("contacts").where({ userId });
+    if (opts?.dueOnly) q = q.andWhere("nextDueAt", "<=", db2.fn.now());
+    if (opts?.q) {
+      q = q.andWhere((qb) => {
+        qb.whereILike("firstName", `%${opts.q}%`).orWhereILike("lastName", `%${opts.q}%`).orWhereILike("email", `%${opts.q}%`).orWhereILike("phone", `%${opts.q}%`);
+      });
+    }
+    return q.orderBy([
+      { column: "lastName", order: "asc" },
+      { column: "firstName", order: "asc" }
+    ]);
   },
-  toTouchEntity: (dto) => {
-    return dto ? {
-      ...dto,
-      method: ContactMethod.fromValue(dto.method)
-    } : void 0;
-  },
-  // Entity to DTO (for API responses)
-  toContactDTO: (entity) => {
-    return {
-      ...entity,
-      preferredMethod: entity.preferredMethod.value
+  createContact: async (userId, data) => {
+    const payload = {
+      ...data,
+      id: v4(),
+      userId
     };
+    const [row] = await db2("contacts").insert(payload).returning("*");
+    return toContactEntity(row);
   },
-  toTouchDTO: (entity) => {
-    return {
-      ...entity,
-      method: entity.method.value
-    };
+  getContact: async (userId, id) => {
+    const dto = await db2("contacts").where({ id, userId }).first();
+    return toContactEntity(dto);
   },
-  toContactListDTO: (entities) => {
-    return entities.map((entity) => ({
-      ...entity,
-      preferredMethod: entity.preferredMethod.value
-    }));
-  },
-  // DTO to Entity (for API requests)
-  toContactDTOPartial: (entity) => {
-    return { ...entity, preferredMethod: entity.preferredMethod.value };
-  },
-  toTouchDTOPartial: (entity) => {
-    return { ...entity, method: entity.method.value };
+  patchContact: async (userId, id, data) => {
+    const existing = await db2("contacts").where({ id, userId }).first();
+    if (!existing) return null;
+    const updates = { ...existing, ...data };
+    const [row] = await db2("contacts").where({ id, userId }).update(updates, "*");
+    return row ?? null;
   }
 });
 
-// apps/api/src/controllers/userController.ts
+// src/repositories/planRepository.ts
+import { DateTime } from "luxon";
+var createPlanRepository = (db2) => ({
+  getDailyPlan: async (userId, date) => {
+    const user = await db2("users").where({ id: userId }).first();
+    if (!user) return { items: [], date: DateTime.now().toISO() };
+    const dayStart = date ? DateTime.fromISO(date).startOf("day") : DateTime.now().startOf("day");
+    const due = await db2("contacts").where({ userId, paused: false }).andWhere(
+      (qb) => qb.whereNull("snoozedUntil").orWhere("snoozedUntil", "<=", db2.fn.now())
+    ).andWhere("nextDueAt", "<=", dayStart.toJSDate()).orderBy([
+      { column: "nextDueAt", order: "asc" },
+      { column: "updatedAt", order: "asc" },
+      { column: "fullName", order: "asc" }
+    ]).limit(user.dailyGoal);
+    if (due.length >= user.dailyGoal) {
+      return { items: due, date: dayStart.toISO() };
+    }
+    const topUp = await db2("contacts").where({ userId, paused: false }).andWhere(
+      (qb) => qb.whereNull("snoozedUntil").orWhere("snoozedUntil", "<=", db2.fn.now())
+    ).andWhere("nextDueAt", ">", dayStart.toJSDate()).andWhere("nextDueAt", "<=", dayStart.plus({ days: 3 }).toJSDate()).orderBy([
+      { column: "nextDueAt", order: "asc" },
+      { column: "updatedAt", order: "asc" },
+      { column: "fullName", order: "asc" }
+    ]).limit(user.dailyGoal - due.length);
+    return { items: [...due, ...topUp], date: dayStart.toISO() };
+  }
+});
+
+// src/repositories/touchesRepository.ts
+var createTouchesRepository = (db2) => ({
+  createTouch: async (userId, body) => {
+    const contact = await db2("contacts").where({ id: body.contactId, userId }).first();
+    if (!contact) return null;
+    const [touch] = await db2("touch_logs").insert({
+      id: db2.raw("gen_random_uuid()"),
+      userId,
+      contactId: body.contactId,
+      method: body.method,
+      message: body.message,
+      outcome: body.outcome,
+      createdAt: db2.fn.now()
+    }).returning("*");
+    const nextDueAt = new Date(
+      Date.now() + (contact.intervalDays ?? 0) * 864e5
+    ).toISOString();
+    await db2("contacts").where({ id: contact.id }).update({ lastTouchedAt: db2.fn.now(), nextDueAt });
+    return toTouchEntity(touch);
+  }
+});
+
+// src/repositories/suggestionRepository.ts
+var createSuggestionRepository = (db2) => ({
+  getSuggestionsForContact: async (contact) => {
+    const firstName = contact.fullName.split(" ")[0];
+    const rows = await db2("suggestionTemplates").select("body").orderBy("createdAt", "asc").limit(10);
+    const pool = rows.length ? rows.map((r) => r.body) : [
+      "Hi {{firstName}}, just checking in to see how you're doing.",
+      "Hey {{firstName}} \u2014 thought of you today. How's your week going?",
+      "Hi {{firstName}}! Anything new or fun lately? Would love to catch up."
+    ];
+    const picks = [];
+    for (const s of pool) {
+      const msg = s.replaceAll("{{firstName}}", firstName);
+      if (!picks.includes(msg)) picks.push(msg);
+      if (picks.length >= 3) break;
+    }
+    return picks;
+  }
+});
+
+// src/controllers/userController.ts
 var createUserController = (userRepository) => ({
   getMe: async (ctx) => {
     const userId = ctx.state.user.id;
@@ -7634,10 +7574,7 @@ var createUserController = (userRepository) => ({
       return ctx;
     }
     const userId = ctx.state.user.id;
-    const updated = await userRepository.updateDailyGoal(
-      userId,
-      val.data.dailyGoal
-    );
+    const updated = await userRepository.updateDailyGoal(userId, val.data.dailyGoal);
     if (!updated) {
       ctx.status = 404;
       ctx.body = { error: "User not found" };
@@ -7649,14 +7586,13 @@ var createUserController = (userRepository) => ({
   }
 });
 
-// apps/api/src/controllers/contactsController.ts
-var createContactsController = (contactRepository, mappers) => ({
+// src/controllers/contactsController.ts
+var createContactsController = (contactRepository) => ({
   getContacts: async (ctx) => {
     const userId = ctx.user.id;
-    const entities = await contactRepository.listContacts(userId, {
+    const rows = await contactRepository.listContacts(userId, {
       /* dueOnly, q parsed elsewhere if needed */
     });
-    const rows = mappers.toContactListDTO(entities);
     ctx.status = 200;
     ctx.body = rows;
     return ctx;
@@ -7665,19 +7601,15 @@ var createContactsController = (contactRepository, mappers) => ({
     const parsed = upsertContactSchema.safeParse(ctx.request.body);
     if (!parsed.success) {
       ctx.status = 400;
-      ctx.body = {
-        error: "Invalid request format",
-        issues: parsed.error.issues
-      };
+      ctx.body = { error: "Invalid request format", issues: parsed.error.issues };
       return ctx;
     }
     const body = parsed.data;
     const userId = ctx.user.id;
-    const entity = await contactRepository.createContact(userId, {
+    const created = await contactRepository.createContact(userId, {
       ...body,
       preferredMethod: body.preferredMethod ?? ContactMethod.email.value
     });
-    const created = mappers.toContactDTO(entity);
     ctx.status = 201;
     ctx.body = created;
     return ctx;
@@ -7686,32 +7618,24 @@ var createContactsController = (contactRepository, mappers) => ({
     const parsed = upsertContactSchema.safeParse(ctx.request.body);
     if (!parsed.success) {
       ctx.status = 400;
-      ctx.body = {
-        error: "Invalid request format",
-        issues: parsed.error.issues
-      };
+      ctx.body = { error: "Invalid request format", issues: parsed.error.issues };
       return ctx;
     }
     const body = parsed.data;
     const userId = ctx.user.id;
-    const entity = await contactRepository.patchContact(
-      userId,
-      ctx.params.id,
-      body
-    );
-    if (!entity) {
+    const updated = await contactRepository.patchContact(userId, ctx.params.id, body);
+    if (!updated) {
       ctx.status = 404;
       ctx.body = { error: "Contact not found" };
       return ctx;
     }
-    const updated = mappers.toContactDTO(entity);
     ctx.status = 200;
     ctx.body = updated;
     return ctx;
   }
 });
 
-// apps/api/src/controllers/planController.ts
+// src/controllers/planController.ts
 var createPlanController = (planRepository) => ({
   getDailyPlan: async (ctx) => {
     const val = planQuerySchema.safeParse(ctx.request.query);
@@ -7728,8 +7652,8 @@ var createPlanController = (planRepository) => ({
   }
 });
 
-// apps/api/src/controllers/touchesController.ts
-var createTouchesController = (touchesRepository, mappers) => ({
+// src/controllers/touchesController.ts
+var createTouchesController = (touchesRepository) => ({
   createTouch: async (ctx) => {
     const val = createTouchSchema.safeParse(ctx.request.body);
     if (!val.success) {
@@ -7738,20 +7662,19 @@ var createTouchesController = (touchesRepository, mappers) => ({
       return ctx;
     }
     const userId = ctx.user.id;
-    const entity = await touchesRepository.createTouch(userId, val.data);
-    if (!entity) {
+    const touch = await touchesRepository.createTouch(userId, val.data);
+    if (!touch) {
       ctx.status = 404;
       ctx.body = { error: "Contact not found" };
       return ctx;
     }
-    const touch = mappers.toTouchDTO(entity);
     ctx.status = 201;
     ctx.body = touch;
     return ctx;
   }
 });
 
-// apps/api/src/routes/userRoutes.ts
+// src/routes/userRoutes.ts
 import Router from "@koa/router";
 var createUserRoutes = (userController) => {
   const router = new Router({ prefix: "/api/me" });
@@ -7760,7 +7683,7 @@ var createUserRoutes = (userController) => {
   return { router };
 };
 
-// apps/api/src/routes/contactRoutes.ts
+// src/routes/contactRoutes.ts
 import Router2 from "@koa/router";
 var createContactRoutes = (contactsController) => {
   const router = new Router2({ prefix: "/api/contacts" });
@@ -7770,7 +7693,7 @@ var createContactRoutes = (contactsController) => {
   return { router };
 };
 
-// apps/api/src/routes/planRoutes.ts
+// src/routes/planRoutes.ts
 import Router3 from "@koa/router";
 var createPlanRoutes = (planController) => {
   const router = new Router3({ prefix: "/api/plan" });
@@ -7778,7 +7701,7 @@ var createPlanRoutes = (planController) => {
   return { router };
 };
 
-// apps/api/src/routes/touchesRoutes.ts
+// src/routes/touchesRoutes.ts
 import Router4 from "@koa/router";
 var createTouchesRoutes = (touchesController) => {
   const router = new Router4({ prefix: "/api/touches" });
@@ -7786,32 +7709,23 @@ var createTouchesRoutes = (touchesController) => {
   return { router };
 };
 
-// apps/api/src/routes/index.ts
+// src/routes/index.ts
 import Router5 from "@koa/router";
 var createRoutes = (contactRoutes, touchesRoutes, planRoutes, userRoutes) => ({
   mountRoutes: (app2) => {
     const root = new Router5();
-    root.use(
-      contactRoutes.router.routes(),
-      contactRoutes.router.allowedMethods()
-    );
-    root.use(
-      touchesRoutes.router.routes(),
-      touchesRoutes.router.allowedMethods()
-    );
+    root.use(contactRoutes.router.routes(), contactRoutes.router.allowedMethods());
+    root.use(touchesRoutes.router.routes(), touchesRoutes.router.allowedMethods());
     root.use(planRoutes.router.routes(), planRoutes.router.allowedMethods());
     root.use(userRoutes.router.routes(), userRoutes.router.allowedMethods());
     app2.use(root.routes()).use(root.allowedMethods());
   }
 });
 
-// apps/api/src/container.ts
+// src/container.ts
 var container = createContainer();
 container.register({
   db: asValue(db)
-});
-container.register({
-  mappers: asFunction(createMappers)
 });
 container.register({
   // Repository instances
@@ -7837,7 +7751,7 @@ container.register({
   routes: asFunction(createRoutes)
 });
 
-// apps/api/src/koaServer.ts
+// src/koaServer.ts
 dotenv2.config();
 var app = new Koa();
 app.context.db = db;
@@ -7862,7 +7776,7 @@ var routes = container.resolve("routes");
 routes.mountRoutes(app);
 var server = http.createServer(app.callback());
 
-// apps/api/src/index.ts
+// src/index.ts
 var PORT = process.env.PORT || 3e3;
 server.listen(PORT, () => {
   console.log(`\u{1F680} Server running on http://localhost:${PORT}`);

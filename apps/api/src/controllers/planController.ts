@@ -1,20 +1,28 @@
 import { Context } from 'koa';
-import { getDailyPlan as repoGetDailyPlan } from '../repositories/planRepository';
 import { planQuerySchema } from '@network/contracts';
+import type { PlanRepository } from '../repositories/planRepository';
 
 type StateUser = { id: string };
 
-export const getDailyPlan = async (ctx: Context): Promise<Context> => {
-  const val = planQuerySchema.safeParse(ctx.request.query);
-  if (!val.success) {
-    ctx.status = 400;
-    ctx.body = { error: 'Invalid request format', issues: val.error.issues };
-    return ctx;
-  }
+export interface PlanController {
+  getDailyPlan: (ctx: Context) => Promise<Context>;
+}
 
-  const userId = (ctx.state.user as StateUser).id;
-  const result = await repoGetDailyPlan(ctx.db, userId, val.data.date);
-  ctx.status = 200;
-  ctx.body = result;
-  return ctx;
-};
+export const createPlanController = (
+  planRepository: PlanRepository,
+): PlanController => ({
+  getDailyPlan: async (ctx: Context): Promise<Context> => {
+    const val = planQuerySchema.safeParse(ctx.request.query);
+    if (!val.success) {
+      ctx.status = 400;
+      ctx.body = { error: 'Invalid request format', issues: val.error.issues };
+      return ctx;
+    }
+
+    const userId = (ctx.state.user as StateUser).id;
+    const result = await planRepository.getDailyPlan(userId, val.data.date);
+    ctx.status = 200;
+    ctx.body = result;
+    return ctx;
+  },
+});

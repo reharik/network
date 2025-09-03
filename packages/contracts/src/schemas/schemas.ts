@@ -14,6 +14,17 @@ const contactMethodValueSchema = z.string().transform((s, ctx) => {
   return item.value; // "EMAIL" | "SMS" | "CALL" | "OTHER"
 });
 
+// Explicit TypeScript types for schemas
+export type ContactSchema = z.infer<typeof contactSchema>;
+export type TouchSchema = z.infer<typeof touchSchema>;
+export type UserSchema = z.infer<typeof userSchema>;
+export type DailyPlanSchema = z.infer<typeof dailyPlanSchema>;
+export type CreateTouchSchema = z.infer<typeof createTouchSchema>;
+export type UpsertContactSchema = z.infer<typeof upsertContactSchema>;
+export type UpsertDailyGoalSchema = z.infer<typeof upsertDailyGoalSchema>;
+export type ListContactsQuerySchema = z.infer<typeof listContactsQuerySchema>;
+export type PlanQuerySchema = z.infer<typeof planQuerySchema>;
+
 /** Runtime validation schemas; keep them aligned with the TS types above. */
 export const contactSchema = z.object({
   id: z.string().uuid(),
@@ -21,16 +32,32 @@ export const contactSchema = z.object({
   firstName: z.string().min(1).max(200),
   lastName: z.string().min(1).max(200),
   preferredMethod: contactMethodValueSchema,
-  email: z.string().email().nullable().optional(),
-  phone: z.string().trim().nullable().optional(),
-  notes: z.string().trim().nullable().optional(),
+  email: z.string().email().optional(),
+  phone: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
   intervalDays: z.number().int().min(1).max(365),
   paused: z.boolean().optional(),
-  snoozedUntil: z.string().datetime().nullable().optional(),
+  snoozedUntil: z.string().datetime().optional(),
   nextDueAt: z.string().datetime().optional(),
-  lastTouchedAt: z.string().datetime().nullable().optional(),
+  lastTouchedAt: z.string().datetime().optional(),
   createdAt: z.string().datetime().optional(),
   updatedAt: z.string().datetime().optional(),
+});
+
+export const touchSchema = z.object({
+  id: z.string().uuid(),
+  userId: z.string().uuid(),
+  contactId: z.string().uuid(),
+  method: contactMethodValueSchema,
+  message: z.string().trim().optional(),
+  outcome: z.string().trim().optional(),
+  createdAt: z.string().datetime().optional(),
+});
+
+export const userSchema = z.object({
+  id: z.string().uuid(),
+  email: z.string().email(),
+  dailyGoal: z.number().int().min(0).max(500),
 });
 
 export const upsertContactSchema = z
@@ -40,11 +67,11 @@ export const upsertContactSchema = z
     firstName: z.string().min(1).max(200).optional(),
     lastName: z.string().min(1).max(200).optional(),
     preferredMethod: contactMethodValueSchema.optional(),
-    email: z.string().email().nullable().optional(),
-    phone: z.string().trim().nullable().optional(),
-    notes: z.string().trim().nullable().optional(),
+    email: z.string().email().optional(),
+    phone: z.string().trim().optional(),
+    notes: z.string().trim().optional(),
     paused: z.boolean().optional(),
-    snoozedUntil: z.string().datetime().nullable().optional(),
+    snoozedUntil: z.string().datetime().optional(),
     intervalDays: z.coerce.number().int().min(1).max(365).optional(),
   })
   .refine((v) => Object.keys(v).length > 0, {

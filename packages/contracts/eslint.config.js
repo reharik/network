@@ -3,9 +3,18 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import prettierPlugin from 'eslint-plugin-prettier';
 import eslintConfigPrettier from 'eslint-config-prettier';
+import { defineConfig } from 'eslint/config';
 
-export default tseslint.config(
-  { ignores: ['dist', 'build', 'node_modules'] },
+export default defineConfig(
+  {
+    ignores: [
+      'dist/**',
+      'build/**',
+      'node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+    ],
+  },
   {
     files: ['**/*.ts'],
     extends: [

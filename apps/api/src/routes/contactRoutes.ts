@@ -1,15 +1,20 @@
 import Router from '@koa/router';
-import {
-  getContacts,
-  createContact,
-  // getContact,
-  patchContact,
-  // getContactSuggestions,
-} from '../controllers/contactsController';
+import type { ContactsController } from '../controllers/contactsController';
 
-export const contactsRouter = new Router({ prefix: '/api/contacts' });
-contactsRouter.get('/', getContacts);
-contactsRouter.post('/', createContact);
-// contactsRouter.get('/:id', getContact);
-contactsRouter.patch('/:id', patchContact);
-// contactsRouter.get('/:id/suggestions', getContactSuggestions);
+export interface ContactRoutes {
+  router: Router;
+}
+
+export const createContactRoutes = (
+  contactsController: ContactsController,
+): ContactRoutes => {
+  const router = new Router({ prefix: '/api/contacts' });
+
+  router.get('/', contactsController.getContacts);
+  router.post('/', contactsController.createContact);
+  // router.get('/:id', contactsController.getContact);
+  router.patch('/:id', contactsController.patchContact);
+  // router.get('/:id/suggestions', contactsController.getContactSuggestions);
+
+  return { router };
+};

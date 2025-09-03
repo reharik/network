@@ -4,9 +4,9 @@ import dotenv from 'dotenv';
 import { errorHandler } from './middleware/errorHandler';
 import http from 'http';
 import { db } from './knex';
-import { mountRoutes } from './routes';
 import { requestLogger } from './middleware/requestLogger';
 import { Context } from 'koa';
+import { container } from './container';
 dotenv.config();
 
 const app = new Koa();
@@ -32,7 +32,10 @@ process.on('uncaughtException', (err) => {
 app.use(errorHandler);
 app.use(requestLogger);
 app.use(koaBody());
-mountRoutes(app);
+
+// Mount routes using the container
+const routes = container.resolve('routes');
+routes.mountRoutes(app);
 
 const server = http.createServer(app.callback());
 export { server };

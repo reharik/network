@@ -12,5 +12,5 @@ export type ContactMethod = Enumeration<
 
 export const parseContactMethod = (s: string): ContactMethod | undefined =>
   ContactMethod.tryFromValue(s) ??
-  ContactMethod.tryFromKey(s as ContactMethod['key']) ??
+  ContactMethod.tryFromKey(s) ??
   ContactMethod.tryFromDisplay(s);

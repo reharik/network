@@ -1,6 +1,17 @@
 // routes/plan.ts
 import Router from '@koa/router';
-import { getDailyPlan } from '../controllers/planController';
+import type { PlanController } from '../controllers/planController';
 
-export const planRouter = new Router({ prefix: '/api/plan' });
-planRouter.get('/', getDailyPlan);
+export interface PlanRoutes {
+  router: Router;
+}
+
+export const createPlanRoutes = (
+  planController: PlanController,
+): PlanRoutes => {
+  const router = new Router({ prefix: '/api/plan' });
+
+  router.get('/', planController.getDailyPlan);
+
+  return { router };
+};

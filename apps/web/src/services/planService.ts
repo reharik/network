@@ -1,6 +1,12 @@
 // src/services/planService.ts
 import { ContactMethod } from '@network/contracts';
 import { apiFetch } from '../api';
+import {
+  DailyPlanBE,
+  TodayResponseFE,
+  TodayPickFE,
+  toFEContact,
+} from '../types';
 
 const buildLink = (ch: ContactMethod, handle: string) => {
   if (!handle) return '#';
@@ -31,7 +37,7 @@ export const getTodayReachOuts = async (
     const fe = toFEContact(c);
     return {
       ...fe,
-      link: buildLink(fe.preferredChannel, fe.handle),
+      link: buildLink(fe.preferredChannel, fe.handle || ''),
       suggestion: suggestions[i],
     };
   });

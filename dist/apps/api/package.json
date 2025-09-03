@@ -23,6 +23,7 @@
   "dependencies": {
     "@koa/router": "^13.1.0",
     "@network/contracts": "*",
+    "awilix": "^12.0.5",
     "dotenv": "^16.6.1",
     "knex": "^3.1.0",
     "koa": "^2.16.0",
