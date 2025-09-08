@@ -25,18 +25,12 @@ export const createAuthService = ({ connection }: { connection: Knex }): AuthSer
 
       // Find user by email
       const user = await connection('users').where({ email }).first();
-      console.log(`************user************`);
-      console.log(JSON.stringify(user, null, 4));
-      console.log(`********END user************`);
       if (!user || !user.passwordHash) {
         return null;
       }
 
       // Verify password
       const isValidPassword = await bcrypt.compare(password, user.passwordHash);
-      console.log(`************isValidPassword************`);
-      console.log(isValidPassword);
-      console.log(`********END isValidPassword************`);
       if (!isValidPassword) {
         return null;
       }

@@ -8,6 +8,7 @@ export interface ContactsController {
   getContacts: (ctx: Context) => Promise<Context>;
   createContact: (ctx: Context) => Promise<Context>;
   patchContact: (ctx: Context) => Promise<Context>;
+  importContacts: (ctx: Context) => Promise<Context>;
 }
 
 export const createContactsController = ({
