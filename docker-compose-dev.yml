@@ -21,9 +21,11 @@ services:
       retries: 20
 
   api:
-    image: node:22-bookworm
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: dev
     container_name: network_api
-    working_dir: /repo
     depends_on:
       db:
         condition: service_healthy
@@ -36,16 +38,21 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
       CHOKIDAR_USEPOLLING: '1'
       WATCHPACK_POLLING: 'true'
+      NODEMON_IGNORE: 'dist,node_modules,coverage'
+      NODEMON_WATCH: 'apps/api/src'
+      NODEMON_EXEC: 'tsx apps/api/src/index.ts'
     ports:
       - '3000:3000'
     volumes:
-      - ./:/repo
-      - repo_node_modules:/repo/node_modules
+      # Mount source code and config files for hot reload
+      - ./apps/api:/app/apps/api
+      - /app/apps/api/node_modules # Exclude node_modules from volume mount
+      - ./packages:/app/packages
     command: >
-      bash -lc "npm ci && npm run db:migrate && npm run dev:api"
+      bash -lc "cd apps/api && npm run db:migrate && npx nodemon"
 
 volumes:
   pgdata:
-  repo_node_modules:

@@ -9,6 +9,7 @@
 !apps/api/src/
 !apps/api/tsconfig.json
 !apps/api/package.json
+!apps/api/nodemon.json
 !packages/contracts/src/
 !packages/contracts/tsconfig.json
 !packages/contracts/package.json

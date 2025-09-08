@@ -39,15 +39,12 @@ export type TodayResponseFE = {
 };
 
 // Helper function to convert backend contact to frontend contact
-export const toFEContact = (
-  contact: Contact,
-): Omit<TodayPickFE, 'link' | 'suggestion'> => {
+export const toFEContact = (contact: Contact): Omit<TodayPickFE, 'link' | 'suggestion'> => {
   const preferredChannel = ContactMethod.fromValue(contact.preferredMethod);
   const handle =
     preferredChannel === ContactMethod.email
       ? contact.email
-      : preferredChannel === ContactMethod.sms ||
-          preferredChannel === ContactMethod.call
+      : preferredChannel === ContactMethod.sms || preferredChannel === ContactMethod.call
         ? contact.phone
         : undefined;
 

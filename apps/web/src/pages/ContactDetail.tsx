@@ -1,14 +1,10 @@
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
-import styled from 'styled-components';
-import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Contact } from '../types';
-import {
-  deleteContact,
-  getContact,
-  updateContact,
-} from '../services/contactService';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import styled from 'styled-components';
+import { useContactService } from '../hooks';
 import { qk } from '../services/keys';
+import type { Contact } from '../types';
 
 const Card = styled.section`
   background: #0e1220;
@@ -63,6 +59,7 @@ export const ContactDetail = () => {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { getContact, updateContact, deleteContact } = useContactService();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: qk.contact(id),
@@ -75,10 +72,8 @@ export const ContactDetail = () => {
     if (data) setForm(data);
   }, [data]);
 
-  const onChange =
-    (k: keyof Contact) =>
-    (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      setForm((prev) => (prev ? { ...prev, [k]: e.target.value } : prev));
+  const onChange = (k: keyof Contact) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm((prev) => (prev ? { ...prev, [k]: e.target.value } : prev));
 
   const isDirty = useMemo(
     () => JSON.stringify(data ?? {}) !== JSON.stringify(form ?? {}),
@@ -113,48 +108,28 @@ export const ContactDetail = () => {
       <Row>
         <Field>
           <Label htmlFor="firstName">First name</Label>
-          <Input
-            id="firstName"
-            value={form.firstName}
-            onChange={onChange('firstName')}
-          />
+          <Input id="firstName" value={form.firstName} onChange={onChange('firstName')} />
         </Field>
         <Field>
           <Label htmlFor="lastName">Last name</Label>
-          <Input
-            id="lastName"
-            value={form.lastName}
-            onChange={onChange('lastName')}
-          />
+          <Input id="lastName" value={form.lastName} onChange={onChange('lastName')} />
         </Field>
       </Row>
 
       <Row>
         <Field style={{ flex: 1 }}>
           <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            value={form.email ?? ''}
-            onChange={onChange('email')}
-          />
+          <Input id="email" value={form.email ?? ''} onChange={onChange('email')} />
         </Field>
         <Field style={{ flex: 1 }}>
           <Label htmlFor="phone">Phone</Label>
-          <Input
-            id="phone"
-            value={form.phone ?? ''}
-            onChange={onChange('phone')}
-          />
+          <Input id="phone" value={form.phone ?? ''} onChange={onChange('phone')} />
         </Field>
       </Row>
 
       <Field>
         <Label htmlFor="notes">Notes</Label>
-        <TextArea
-          id="notes"
-          value={form.notes ?? ''}
-          onChange={onChange('notes')}
-        />
+        <TextArea id="notes" value={form.notes ?? ''} onChange={onChange('notes')} />
       </Field>
 
       <Row>
@@ -165,11 +140,7 @@ export const ContactDetail = () => {
           {saveMut.isPending ? 'Saving…' : 'Save changes'}
         </Button>
 
-        <Button
-          danger
-          onClick={() => deleteMut.mutate()}
-          disabled={deleteMut.isPending}
-        >
+        <Button danger onClick={() => deleteMut.mutate()} disabled={deleteMut.isPending}>
           {deleteMut.isPending ? 'Deleting…' : 'Delete contact'}
         </Button>
 

@@ -32,9 +32,7 @@ describe('Container', () => {
   it('should resolve suggestionRepository', () => {
     const suggestionRepository = container.resolve('suggestionRepository');
     expect(suggestionRepository).toBeDefined();
-    expect(typeof suggestionRepository.getSuggestionsForContact).toBe(
-      'function',
-    );
+    expect(typeof suggestionRepository.getSuggestionsForContact).toBe('function');
   });
 
   it('should resolve mappers', () => {

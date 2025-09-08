@@ -1,8 +1,8 @@
 // src/Layout.tsx
-import styled from 'styled-components';
-import { HStack, Spacer, Button } from './ui/Primitives';
 import { Link, NavLink, Outlet } from 'react-router-dom';
+import styled from 'styled-components';
 import { useAuth } from './contexts/AuthContext';
+import { Button, HStack, Spacer } from './ui/Primitives';
 
 export const Container = styled.div`
   max-width: 960px;
@@ -65,11 +65,7 @@ export const Layout = () => {
                 <span style={{ color: '#9CA3AF', fontSize: '14px' }}>
                   {user.firstName} {user.lastName}
                 </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={logout}
-                >
+                <Button variant="outline" size="sm" onClick={logout}>
                   Logout
                 </Button>
               </HStack>

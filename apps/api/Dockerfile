@@ -3,7 +3,7 @@ ARG NODE_VERSION=22
 # =============================================================================
 # BASE IMAGE SETUP
 # =============================================================================
-FROM node:${NODE_VERSION}-bookworm AS base
+FROM node:${NODE_VERSION}-slim AS base
 WORKDIR /repo
 RUN corepack enable || true
 
@@ -41,11 +41,12 @@ RUN npx nx build @app/api --configuration=production
 # =============================================================================
 
 # Development runtime - full environment with hot reloading
-FROM node:${NODE_VERSION}-bookworm AS dev
+FROM node:${NODE_VERSION}-slim AS dev
 ENV NODE_ENV=development
 WORKDIR /app
 COPY --from=deps-dev-staging /repo/node_modules ./node_modules
 COPY . .
+RUN npm install -g nodemon
 EXPOSE 3000
 CMD ["npm", "run", "dev", "--workspace=@app/api"]
 

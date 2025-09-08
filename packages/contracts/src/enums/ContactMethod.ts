@@ -5,12 +5,7 @@ export const ContactMethod = enumeration({
   input,
 });
 
-export type ContactMethod = Enumeration<
-  typeof ContactMethod,
-  typeof ContactMethod
->;
+export type ContactMethod = Enumeration<typeof ContactMethod, typeof ContactMethod>;
 
 export const parseContactMethod = (s: string): ContactMethod | undefined =>
-  ContactMethod.tryFromValue(s) ??
-  ContactMethod.tryFromKey(s) ??
-  ContactMethod.tryFromDisplay(s);
+  ContactMethod.tryFromValue(s) ?? ContactMethod.tryFromKey(s) ?? ContactMethod.tryFromDisplay(s);

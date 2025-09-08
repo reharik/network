@@ -1,14 +1,13 @@
-import Koa from 'koa';
-import { koaBody } from 'koa-body';
-import dotenv from 'dotenv';
-import { errorHandler } from './middleware/errorHandler';
-import http from 'http';
-import { database } from './knex';
-import { requestLogger } from './middleware/requestLogger';
-import { createAuthMiddleware } from './middleware/authMiddleware';
-import { Context } from 'koa';
-import { container } from './container';
+import cors from '@koa/cors';
 import Router from '@koa/router';
+import dotenv from 'dotenv';
+import http from 'http';
+import Koa, { Context } from 'koa';
+import { koaBody } from 'koa-body';
+import { container } from './container';
+import { database } from './knex';
+import { errorHandler } from './middleware/errorHandler';
+import { requestLogger } from './middleware/requestLogger';
 dotenv.config();
 
 const app = new Koa();
@@ -33,21 +32,25 @@ process.on('uncaughtException', (err) => {
 
 app.use(errorHandler);
 app.use(requestLogger);
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
+    credentials: true,
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  }),
+);
 app.use(koaBody());
 
 // Mount routes using the container
 const routes = container.resolve('routes');
-const authService = container.resolve('authService');
-const authMiddleware = createAuthMiddleware(authService);
+const optionalAuthMiddleware = container.resolve('optionalAuthMiddleware');
 
 const router = new Router({ prefix: '/api' });
 routes.mountRoutes(router);
 
-// Apply auth middleware to protected routes (everything except auth routes)
-router.use('/me', authMiddleware);
-router.use('/contacts', authMiddleware);
-router.use('/plan', authMiddleware);
-router.use('/touches', authMiddleware);
+// Apply optional auth middleware globally - adds isLoggedIn flag to context
+app.use(optionalAuthMiddleware);
 
 app.use(router.routes()).use(router.allowedMethods());
 

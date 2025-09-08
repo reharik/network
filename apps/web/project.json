@@ -40,6 +40,12 @@
         "jestConfig": "apps/web/jest.config.js",
         "passWithNoTests": true
       }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prettier --write apps/web/src/**/*.{ts,tsx,js,jsx,json}"
+      }
     }
   },
   "tags": []

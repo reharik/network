@@ -1,3 +1,4 @@
+import { User } from '@network/contracts';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import type { Knex } from 'knex';
@@ -7,30 +8,15 @@ export interface LoginCredentials {
   password: string;
 }
 
-export interface AuthUser {
-  id: string;
-  email: string;
-  firstName: string | null;
-  lastName: string | null;
-  dailyGoal: number;
-}
-
 export interface AuthService {
-  login: (
-    credentials: LoginCredentials,
-  ) => Promise<{ user: AuthUser; token: string } | null>;
-  verifyToken: (token: string) => Promise<AuthUser | null>;
+  login: (credentials: LoginCredentials) => Promise<{ user: User; token: string } | null>;
+  verifyToken: (token: string) => Promise<User | null>;
   hashPassword: (password: string) => Promise<string>;
   comparePassword: (password: string, hash: string) => Promise<boolean>;
 }
 
-export const createAuthService = ({
-  connection,
-}: {
-  connection: Knex;
-}): AuthService => {
-  const JWT_SECRET =
-    process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+export const createAuthService = ({ connection }: { connection: Knex }): AuthService => {
+  const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
   const JWT_EXPIRES_IN = '30d'; // 30 days sliding scale
 
   return {
@@ -39,13 +25,18 @@ export const createAuthService = ({
 
       // Find user by email
       const user = await connection('users').where({ email }).first();
-
+      console.log(`************user************`);
+      console.log(JSON.stringify(user, null, 4));
+      console.log(`********END user************`);
       if (!user || !user.passwordHash) {
         return null;
       }
 
       // Verify password
       const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+      console.log(`************isValidPassword************`);
+      console.log(isValidPassword);
+      console.log(`********END isValidPassword************`);
       if (!isValidPassword) {
         return null;
       }
@@ -65,15 +56,7 @@ export const createAuthService = ({
         { expiresIn: JWT_EXPIRES_IN },
       );
 
-      const authUser: AuthUser = {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        dailyGoal: user.dailyGoal,
-      };
-
-      return { user: authUser, token };
+      return { user, token };
     },
 
     verifyToken: async (token: string) => {
@@ -83,21 +66,13 @@ export const createAuthService = ({
           email: string;
         };
 
-        const user = await connection('users')
-          .where({ id: decoded.userId })
-          .first();
+        const user = await connection('users').where({ id: decoded.userId }).first();
 
         if (!user) {
           return null;
         }
 
-        return {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          dailyGoal: user.dailyGoal,
-        };
+        return user;
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err: unknown) {
         return null;

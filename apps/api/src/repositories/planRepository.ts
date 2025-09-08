@@ -24,21 +24,17 @@ export const createPlanRepository = ({
         items: [],
         date: DateTime.now().toISO() || new Date().toISOString(),
       };
-    const dayStart = date
-      ? DateTime.fromISO(date).startOf('day')
-      : DateTime.now().startOf('day');
+    const dayStart = date ? DateTime.fromISO(date).startOf('day') : DateTime.now().startOf('day');
     const due = await connection<ContactDTO>('contacts')
       .where({ userId, paused: false })
       .andWhere((qb) =>
-        qb
-          .whereNull('snoozedUntil')
-          .orWhere('snoozedUntil', '<=', connection.fn.now()),
+        qb.whereNull('snoozedUntil').orWhere('snoozedUntil', '<=', connection.fn.now()),
       )
       .andWhere('nextDueAt', '<=', dayStart.toJSDate())
       .orderBy([
         { column: 'nextDueAt', order: 'asc' },
         { column: 'updatedAt', order: 'asc' },
-        { column: 'fullName', order: 'asc' },
+        { column: 'lastName', order: 'asc' },
       ])
       .limit(user.dailyGoal);
     if (due.length >= user.dailyGoal) {
@@ -50,16 +46,14 @@ export const createPlanRepository = ({
     const topUp = await connection<ContactDTO>('contacts')
       .where({ userId, paused: false })
       .andWhere((qb) =>
-        qb
-          .whereNull('snoozedUntil')
-          .orWhere('snoozedUntil', '<=', connection.fn.now()),
+        qb.whereNull('snoozedUntil').orWhere('snoozedUntil', '<=', connection.fn.now()),
       )
       .andWhere('nextDueAt', '>', dayStart.toJSDate())
       .andWhere('nextDueAt', '<=', dayStart.plus({ days: 3 }).toJSDate())
       .orderBy([
         { column: 'nextDueAt', order: 'asc' },
         { column: 'updatedAt', order: 'asc' },
-        { column: 'fullName', order: 'asc' },
+        { column: 'lastName', order: 'asc' },
       ])
       .limit(user.dailyGoal - due.length);
     const dueEntities = due

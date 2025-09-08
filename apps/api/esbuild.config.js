@@ -9,7 +9,8 @@ const result = await esbuild.build({
   minify: false,
   minifyIdentifiers: false,
   keepNames: true,
-  sourcemap: true,
+  sourcemap: 'external',
+  sourcesContent: true,
   tsconfig: 'tsconfig.json',
   external: [
     'pg',
@@ -21,6 +22,9 @@ const result = await esbuild.build({
     'oracledb',
     'pg-query-stream',
   ],
+  banner: {
+    js: 'import { createRequire } from "module"; const require = createRequire(import.meta.url);',
+  },
 });
 
 console.log('Build result:', result);

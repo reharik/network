@@ -64,6 +64,12 @@
         "passWithNoTests": true
       }
     },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prettier --write apps/api/src/**/*.{ts,tsx,js,jsx,json}"
+      }
+    },
     "docker-build:prod": {
       "executor": "nx:run-commands",
       "options": {

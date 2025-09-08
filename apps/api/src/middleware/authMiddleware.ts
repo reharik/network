@@ -1,17 +1,7 @@
 import type { Context, Next } from 'koa';
 import type { AuthService } from '../services/authService';
 
-export interface AuthState {
-  user: {
-    id: string;
-    email: string;
-    firstName: string | null;
-    lastName: string | null;
-    dailyGoal: number;
-  };
-}
-
-export const createAuthMiddleware = (authService: AuthService) => {
+export const createAuthMiddleware = ({ authService }: { authService: AuthService }) => {
   return async (ctx: Context, next: Next) => {
     const authHeader = ctx.get('Authorization');
 
@@ -36,10 +26,10 @@ export const createAuthMiddleware = (authService: AuthService) => {
   };
 };
 
-// Optional auth middleware - doesn't fail if no token
-export const createOptionalAuthMiddleware = (authService: AuthService) => {
+export const createOptionalAuthMiddleware = ({ authService }: { authService: AuthService }) => {
   return async (ctx: Context, next: Next) => {
     const authHeader = ctx.get('Authorization');
+    ctx.isLoggedIn = false;
 
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
@@ -47,9 +37,11 @@ export const createOptionalAuthMiddleware = (authService: AuthService) => {
 
       if (user) {
         ctx.user = user;
+        ctx.isLoggedIn = true;
       }
     }
 
     await next();
   };
 };
+// Test comment Mon Sep  8 02:32:06 PM CDT 2025

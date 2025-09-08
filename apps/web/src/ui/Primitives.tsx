@@ -141,13 +141,7 @@ export const Table = styled.table`
   }
 `;
 
-export const Field = ({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) => (
+export const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <VStack gap={1}>
     <Label>{label}</Label>
     {children}

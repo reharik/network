@@ -1,5 +1,5 @@
-import type { Knex } from 'knex';
 import bcrypt from 'bcryptjs';
+import type { Knex } from 'knex';
 
 export async function seed(knex: Knex): Promise<void> {
   // Hash passwords

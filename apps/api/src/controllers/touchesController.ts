@@ -1,6 +1,6 @@
+import type { TouchDTOPartial } from '@network/contracts';
 import type { Context } from 'koa';
 import type { TouchesRepository } from '../repositories/touchesRepository';
-import type { TouchDTOPartial } from '@network/contracts';
 
 export interface TouchesController {
   createTouch: (ctx: Context) => Promise<Context>;

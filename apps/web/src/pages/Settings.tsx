@@ -56,10 +56,7 @@ export const Settings = () => {
         setState((old) => ({
           reminderHour: s.reminderHour ?? old.reminderHour,
           tz: s.tz ?? old.tz,
-          weeklyDigest:
-            typeof s.weeklyDigest === 'boolean'
-              ? s.weeklyDigest
-              : old.weeklyDigest,
+          weeklyDigest: typeof s.weeklyDigest === 'boolean' ? s.weeklyDigest : old.weeklyDigest,
         }));
       } catch (err: unknown) {
         console.log(`************err************`);
@@ -83,9 +80,7 @@ export const Settings = () => {
           id="reminderHour"
           type="time"
           value={state.reminderHour}
-          onChange={(e) =>
-            setState((s) => ({ ...s, reminderHour: e.target.value }))
-          }
+          onChange={(e) => setState((s) => ({ ...s, reminderHour: e.target.value }))}
         />
       </Row>
       <Row>
@@ -102,9 +97,7 @@ export const Settings = () => {
           id="weeklyDigest"
           type="checkbox"
           checked={state.weeklyDigest}
-          onChange={(e) =>
-            setState((s) => ({ ...s, weeklyDigest: e.target.checked }))
-          }
+          onChange={(e) => setState((s) => ({ ...s, weeklyDigest: e.target.checked }))}
         />
       </Row>
       <Row>

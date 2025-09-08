@@ -1,11 +1,7 @@
-import type { Context } from 'koa';
-import {
-  ContactMethod,
-  upsertContactSchema,
-  ContactDTOPartial,
-} from '@network/contracts';
-import type { ContactRepository } from '../repositories/contactRepository';
 import type { ContactDTO, ContactListDTO } from '@network/contracts';
+import { ContactDTOPartial, ContactMethod, upsertContactSchema } from '@network/contracts';
+import type { Context } from 'koa';
+import type { ContactRepository } from '../repositories/contactRepository';
 import type { Mappers } from '../repositories/mappers';
 
 export interface ContactsController {
@@ -69,11 +65,7 @@ export const createContactsController = ({
     const body: ContactDTOPartial = parsed.data;
     const userId = ctx.user.id;
 
-    const entity = await contactRepository.patchContact(
-      userId,
-      ctx.params.id,
-      body,
-    );
+    const entity = await contactRepository.patchContact(userId, ctx.params.id, body);
     if (!entity) {
       ctx.status = 404;
       ctx.body = { error: 'Contact not found' };

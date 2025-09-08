@@ -1,14 +1,14 @@
 // src/App.tsx
-import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Suspense, lazy } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './contexts/AuthContext';
+import { Layout } from './Layout';
 import { GlobalStyle } from './styles/globalStyle';
 import { theme } from './styles/theme';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Layout } from './Layout';
 import { ScrollToTop } from './ui/ScrollToTop';
-import { AuthProvider } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
 
 const Today = lazy(async () => {
   const mod = await import('./pages/Today');
@@ -30,6 +30,10 @@ const ImportPage = lazy(async () => {
   const mod = await import('./pages/Import');
   return { default: mod.ImportPage };
 });
+const Login = lazy(async () => {
+  const mod = await import('./pages/Login');
+  return { default: mod.default };
+});
 
 const qc = new QueryClient();
 
@@ -44,11 +48,14 @@ export default function App() {
             <Suspense fallback={<div style={{ padding: 16 }}>Loading…</div>}>
               <Routes>
                 {/* all app routes share the Layout and require authentication */}
-                <Route element={
-                  <ProtectedRoute>
-                    <Layout />
-                  </ProtectedRoute>
-                }>
+                <Route path="login" element={<Login />} />
+                <Route
+                  element={
+                    <ProtectedRoute>
+                      <Layout />
+                    </ProtectedRoute>
+                  }
+                >
                   <Route index element={<Today />} />
                   <Route path="contacts" element={<Contacts />} />
                   <Route path="contacts/:id" element={<ContactDetail />} />
@@ -57,10 +64,7 @@ export default function App() {
                 </Route>
 
                 {/* catch-all */}
-                <Route
-                  path="*"
-                  element={<div style={{ padding: 16 }}>Not found</div>}
-                />
+                <Route path="*" element={<div style={{ padding: 16 }}>Not found</div>} />
               </Routes>
             </Suspense>
           </BrowserRouter>

@@ -1,20 +1,14 @@
 // src/pages/Today.tsx
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  Button,
-  Card,
-  Field,
-  HStack,
-  TextArea,
-  VStack,
-  Badge,
-} from '../ui/Primitives';
 import { Container } from '../Layout';
-import { getTodayReachOuts } from '../services/planService';
-import { logTouch, snoozeContact } from '../services/touchService';
+import { usePlanService, useTouchService } from '../hooks';
+import { Badge, Button, Card, Field, HStack, TextArea, VStack } from '../ui/Primitives';
 
 export const Today = ({ count = 3 }: { count?: number }) => {
   const qc = useQueryClient();
+  const { getTodayReachOuts } = usePlanService();
+  const { logTouch, snoozeContact } = useTouchService();
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['today', count],
     queryFn: () => getTodayReachOuts(count),
@@ -47,22 +41,16 @@ export const Today = ({ count = 3 }: { count?: number }) => {
             <VStack gap={2}>
               <HStack>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>
-                    {c.name}
-                  </div>
+                  <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{c.name}</div>
                   <div style={{ color: '#a8b3c7', fontSize: '.9rem' }}>
-                    {c.preferredChannel.display}: {c.handle} · every{' '}
-                    {c.intervalDays}d
+                    {c.preferredChannel.display}: {c.handle} · every {c.intervalDays}d
                   </div>
                 </div>
                 <a href={c.link}>Open {c.preferredChannel.display}</a>
               </HStack>
 
               <Field label="Suggested line">
-                <TextArea
-                  defaultValue={c.suggestion}
-                  onFocus={(e) => e.currentTarget.select()}
-                />
+                <TextArea defaultValue={c.suggestion} onFocus={(e) => e.currentTarget.select()} />
               </Field>
 
               <HStack>
@@ -73,10 +61,7 @@ export const Today = ({ count = 3 }: { count?: number }) => {
                 >
                   Snooze 7d
                 </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => snooze.mutate({ contactId: c.id, days: 1 })}
-                >
+                <Button variant="ghost" onClick={() => snooze.mutate({ contactId: c.id, days: 1 })}>
                   Snooze 1d
                 </Button>
               </HStack>
@@ -84,9 +69,7 @@ export const Today = ({ count = 3 }: { count?: number }) => {
           </Card>
         ))}
 
-        {(data?.picks?.length ?? 0) === 0 && !isLoading && (
-          <Card>you’re all caught up 🎉</Card>
-        )}
+        {(data?.picks?.length ?? 0) === 0 && !isLoading && <Card>you’re all caught up 🎉</Card>}
       </VStack>
     </Container>
   );

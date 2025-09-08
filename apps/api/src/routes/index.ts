@@ -1,9 +1,9 @@
 import Router from '@koa/router';
-import type { ContactRoutes } from './contactRoutes';
-import type { TouchesRoutes } from './touchesRoutes';
-import type { PlanRoutes } from './planRoutes';
-import type { UserRoutes } from './userRoutes';
 import type { AuthRoutes } from './authRoutes';
+import type { ContactRoutes } from './contactRoutes';
+import type { PlanRoutes } from './planRoutes';
+import type { TouchesRoutes } from './touchesRoutes';
+import type { UserRoutes } from './userRoutes';
 
 export interface Routes {
   mountRoutes: (router: Router) => void;

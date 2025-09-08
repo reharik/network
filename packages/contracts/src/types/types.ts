@@ -1,11 +1,9 @@
 import type { ContactMethod } from '../enums/ContactMethod';
 
-export type ReplaceProp<
+export type ReplaceProp<T, K extends PropertyKey, V, Opt extends boolean = true> = Omit<
   T,
-  K extends PropertyKey,
-  V,
-  Opt extends boolean = true,
-> = Omit<T, Extract<K, keyof T>> &
+  Extract<K, keyof T>
+> &
   (Opt extends true ? { [P in K]?: V } : { [P in K]-?: V });
 
 export type SetRequired<T, K extends keyof T> = Omit<T, K> & {
@@ -62,11 +60,7 @@ export type DailyPlanDTO = {
 };
 
 // API Request DTOs (partial versions for updates)
-export type ContactDTOPartial = ReplaceProp<
-  Partial<Contact>,
-  'preferredMethod',
-  string
->;
+export type ContactDTOPartial = ReplaceProp<Partial<Contact>, 'preferredMethod', string>;
 export type TouchDTOPartial = ReplaceProp<Partial<Touch>, 'method', string>;
 export type UserDTOPartial = Partial<User>;
 

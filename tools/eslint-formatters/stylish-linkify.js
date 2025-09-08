@@ -9,8 +9,7 @@ import path from 'node:path';
 const stripAnsi = (s) => s.replace(/\u001B\[[0-9;]*m/g, '');
 
 /** Wrap display text as an OSC-8 hyperlink to target URL */
-const makeLink = (display, target) =>
-  `\u001B]8;;${target}\u0007${display}\u001B]8;;\u0007`;
+const makeLink = (display, target) => `\u001B]8;;${target}\u0007${display}\u001B]8;;\u0007`;
 
 /** resolve CJS/ESM default interop */
 const resolveDefault = (m) => (m && (m.default ?? m)) || undefined;
@@ -23,15 +22,11 @@ try {
 } catch {
   try {
     // Legacy internal path (ESLint <= 8 classic)
-    stylish = resolveDefault(
-      await import('eslint/lib/cli-engine/formatters/stylish'),
-    );
+    stylish = resolveDefault(await import('eslint/lib/cli-engine/formatters/stylish'));
   } catch {
     try {
       // Bridge path sometimes present
-      stylish = resolveDefault(
-        await import('@eslint/eslintrc/lib/cli-engine/formatters/stylish'),
-      );
+      stylish = resolveDefault(await import('@eslint/eslintrc/lib/cli-engine/formatters/stylish'));
     } catch {
       // Minimal fallback
       stylish = (results) =>
@@ -48,11 +43,7 @@ const looksLikePathHeader = (plainLine) => {
   // no trailing colon, and not a bullet/summary marker.
   if (!plainLine || /^\s/.test(plainLine)) return false;
   if (plainLine.endsWith(':')) return false;
-  if (
-    plainLine.startsWith('✖') ||
-    plainLine.startsWith('✔') ||
-    plainLine.startsWith('⚠')
-  )
+  if (plainLine.startsWith('✖') || plainLine.startsWith('✔') || plainLine.startsWith('⚠'))
     return false;
 
   // Must look like a file path (has an extension)

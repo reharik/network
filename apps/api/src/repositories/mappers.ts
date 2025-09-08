@@ -1,12 +1,11 @@
-import { Contact, Touch } from '@network/contracts';
-import { ContactMethod } from '@network/contracts';
 import type {
-  ContactDTOPartial,
-  TouchDTOPartial,
   ContactDTO,
-  TouchDTO,
+  ContactDTOPartial,
   ContactListDTO,
+  TouchDTO,
+  TouchDTOPartial,
 } from '@network/contracts';
+import { Contact, ContactMethod, Touch } from '@network/contracts';
 
 export interface Mappers {
   // Database to Entity (internal use)

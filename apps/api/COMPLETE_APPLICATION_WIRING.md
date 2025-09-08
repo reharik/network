@@ -76,9 +76,7 @@ export interface ControllerName {
   handler2: (ctx: Context) => Promise<Context>;
 }
 
-export const createControllerName = (
-  repository: Repository,
-): ControllerName => ({
+export const createControllerName = (repository: Repository): ControllerName => ({
   handler1: async (ctx: Context) => {
     // Implementation using repository
   },
@@ -202,9 +200,7 @@ export interface NotificationRepository {
   createNotification: (userId: string, message: string) => Promise<any>;
 }
 
-export const createNotificationRepository = (
-  db: Knex,
-): NotificationRepository => ({
+export const createNotificationRepository = (db: Knex): NotificationRepository => ({
   createNotification: async (userId: string, message: string) => {
     // Implementation
   },
@@ -262,10 +258,7 @@ export const createRoutes = (
 ): Routes => ({
   mountRoutes: (app: Koa) => {
     // ... existing routes
-    root.use(
-      notificationRoutes.router.routes(),
-      notificationRoutes.router.allowedMethods(),
-    );
+    root.use(notificationRoutes.router.routes(), notificationRoutes.router.allowedMethods());
   },
 });
 ```

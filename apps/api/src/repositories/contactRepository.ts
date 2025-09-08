@@ -1,8 +1,8 @@
-import type { Knex } from 'knex';
-import { ContactDTOPartial } from '@network/contracts';
-import type { Mappers } from './mappers';
 import type { Contact } from '@network/contracts';
+import { ContactDTOPartial } from '@network/contracts';
+import type { Knex } from 'knex';
 import { v4 } from 'uuid';
+import type { Mappers } from './mappers';
 
 export type ListContactsOpts = { dueOnly?: boolean; q?: string };
 
@@ -59,17 +59,11 @@ export const createContactRepository = ({
     const dto = await connection('contacts').where({ id, userId }).first();
     return mappers.toContactEntity(dto);
   },
-  patchContact: async (
-    userId: string,
-    id: string,
-    data: Partial<ContactDTOPartial>,
-  ) => {
+  patchContact: async (userId: string, id: string, data: Partial<ContactDTOPartial>) => {
     const existing = await connection('contacts').where({ id, userId }).first();
     if (!existing) return undefined;
     const updates: Partial<ContactDTOPartial> = { ...existing, ...data };
-    const [row] = await connection('contacts')
-      .where({ id, userId })
-      .update(updates, '*');
+    const [row] = await connection('contacts').where({ id, userId }).update(updates, '*');
     const entity = mappers.toContactEntity(row);
     return entity || undefined;
   },

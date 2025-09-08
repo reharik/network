@@ -1,4 +1,4 @@
-import { HttpError, Context, Next } from 'koa';
+import { Context, HttpError, Next } from 'koa';
 
 export async function errorHandler(ctx: Context, next: Next) {
   try {

@@ -1,5 +1,6 @@
 import Router from '@koa/router';
 import type { ContactsController } from '../controllers/contactsController';
+import { requireAuth } from '../middleware/routeGuards';
 
 export interface ContactRoutes {
   mountRoutes: (router: Router) => void;
@@ -11,8 +12,8 @@ export const createContactRoutes = ({
   contactsController: ContactsController;
 }): ContactRoutes => ({
   mountRoutes: (router: Router) => {
-    router.get('/contacts', contactsController.getContacts);
-    router.post('/contacts', contactsController.createContact);
-    router.patch('/contacts/:id', contactsController.patchContact);
+    router.get('/contacts', requireAuth(contactsController.getContacts));
+    router.post('/contacts', requireAuth(contactsController.createContact));
+    router.patch('/contacts/:id', requireAuth(contactsController.patchContact));
   },
 });

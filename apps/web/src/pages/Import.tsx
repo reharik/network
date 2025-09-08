@@ -1,7 +1,7 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { DragEvent, useState } from 'react';
 import styled from 'styled-components';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { importContacts, type ImportRow } from '../services/contactService';
+import { useContactService, type ImportRow } from '../hooks';
 import { qk } from '../services/keys';
 
 const Section = styled.section`
@@ -61,6 +61,7 @@ const mapRow = (r: CsvRow): ImportRow => ({
 
 export const ImportPage = () => {
   const qc = useQueryClient();
+  const { importContacts } = useContactService();
   const [rows, setRows] = useState<CsvRow[]>([]);
   const [fileName, setFileName] = useState<string>('');
 
@@ -92,8 +93,8 @@ export const ImportPage = () => {
     <Section>
       <h2>Import Contacts (CSV)</h2>
       <p>
-        Headers: <code>firstName,lastName,email,phone,notes,tags</code> (use{' '}
-        <code>|</code> to separate multiple tags)
+        Headers: <code>firstName,lastName,email,phone,notes,tags</code> (use <code>|</code> to
+        separate multiple tags)
       </p>
 
       <DropZone onDrop={onDrop} onDragOver={(e) => e.preventDefault()}>

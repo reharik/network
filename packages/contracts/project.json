@@ -29,6 +29,12 @@
         "jestConfig": "packages/contracts/jest.config.js",
         "passWithNoTests": true
       }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prettier --write packages/contracts/src/**/*.{ts,tsx,js,jsx,json}"
+      }
     }
   },
   "tags": []

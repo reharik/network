@@ -25,7 +25,6 @@ export const createAuthController = ({
     }
 
     const result = await authService.login({ email, password });
-
     if (!result) {
       ctx.status = 401;
       ctx.body = { error: 'Invalid email or password' };

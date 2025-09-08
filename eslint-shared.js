@@ -1,9 +1,9 @@
 import js from '@eslint/js';
+import eslintConfigPrettier from 'eslint-config-prettier';
+import prettierPlugin from 'eslint-plugin-prettier';
+import { defineConfig } from 'eslint/config';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
-import prettierPlugin from 'eslint-plugin-prettier';
-import eslintConfigPrettier from 'eslint-config-prettier';
-import { defineConfig } from 'eslint/config';
 
 // Common TypeScript rules that all projects share
 export const commonTypeScriptRules = {
@@ -34,12 +34,7 @@ export const createBaseTypeScriptConfig = async (options = {}) => {
   const {
     globals: customGlobals = globals.node,
     ecmaVersion = 'latest',
-    ignores = [
-      '**/dist/**',
-      '**/build/**',
-      '**/node_modules/**',
-      '**/coverage/**',
-    ],
+    ignores = ['**/dist/**', '**/build/**', '**/node_modules/**', '**/coverage/**'],
     additionalRules = {},
     additionalPlugins = {},
   } = options;
@@ -48,10 +43,7 @@ export const createBaseTypeScriptConfig = async (options = {}) => {
     { ignores },
     {
       files: ['**/*.ts'],
-      extends: [
-        js.configs.recommended,
-        ...tseslint.configs.recommendedTypeChecked,
-      ],
+      extends: [js.configs.recommended, ...tseslint.configs.recommendedTypeChecked],
       languageOptions: {
         globals: customGlobals,
         parserOptions: {

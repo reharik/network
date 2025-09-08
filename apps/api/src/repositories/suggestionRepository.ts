@@ -1,9 +1,7 @@
 import type { Knex } from 'knex';
 
 export interface SuggestionRepository {
-  getSuggestionsForContact: (contact: {
-    fullName: string;
-  }) => Promise<string[]>;
+  getSuggestionsForContact: (contact: { fullName: string }) => Promise<string[]>;
 }
 
 export const createSuggestionRepository = ({
@@ -25,6 +23,9 @@ export const createSuggestionRepository = ({
           'Hi {{firstName}}! Anything new or fun lately? Would love to catch up.',
         ];
     const picks: string[] = [];
+    console.log(`************"fu"************`);
+    console.log('fu');
+    console.log(`********END "fu"************`);
     for (const s of pool) {
       const msg = s.replaceAll('{{firstName}}', firstName);
       if (!picks.includes(msg)) picks.push(msg);

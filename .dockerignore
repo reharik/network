@@ -1,27 +1,37 @@
-# dependency dirs
+# Exclude everything by default
+*
 
-node_modules
-\*\*/node_modules
+# Include only what we need for the API
+!package.json
+!package-lock.json
+!apps/api/
+!packages/contracts/
+!nx.json
+!tsconfig.json
+!jest.preset.js
+!eslint-shared.js
 
-# build outputs
+# Exclude unnecessary files from included directories
+apps/api/dist/
+apps/api/node_modules/
+apps/api/.env
+apps/api/*.log
+apps/api/coverage/
 
-**/dist
-**/build
-**/.turbo
-**/.nx
+packages/contracts/dist/
+packages/contracts/node_modules/
 
-# VCS & editor
+# Exclude other apps
+apps/web/
 
-.git
+# Exclude other packages
+packages/eslint-config/
+
+# Exclude development files
+.git/
 .gitignore
-.vscode
-.idea
-
-# misc
-
-Dockerfile
-**/Dockerfile
-**/.DS_Store
-**/coverage
-**/.cache
-\*\*/.pnpm-store
+README.md
+Makefile
+docker-compose*.yml
+Dockerfile*
+.dockerignore

@@ -7,23 +7,29 @@
     "packages/*"
   ],
   "scripts": {
-    "nx": "nx",
     "build": "nx run-many -t build",
     "db:migrate": "NODE_OPTIONS=--import=tsx npm exec --workspace @app/api -- knex --knexfile src/knexfile.ts migrate:latest",
     "db:migrate:prod": "NODE_OPTIONS=--import=tsx npm exec --workspace @app/api -- knex --knexfile src/knexfile.ts migrate:latest",
+    "db:seed": "NODE_OPTIONS=--import=tsx npm exec --workspace @app/api -- knex --knexfile src/knexfile.ts seed:run",
     "dev:api": "nx run api:serve",
     "dev:web": "nx run web:serve",
+    "format": "nx run-many --target=format --all",
+    "format:check": "prettier --check .",
     "graph": "nx graph",
     "lint": "nx run-many -t lint --projects=api,web,contracts",
     "lint:fix": "nx run-many -t lint --projects=api,web,contracts -- --fix",
+    "nx": "nx",
     "test": "nx run-many -t test --all",
-    "test:watch": "nx run-many -t test --all -- --watch",
     "test:ci": "nx run-many -t test --all -- --runInBand",
-    "format": "nx format:write --all",
-    "format:check": "nx format:check --all"
+    "test:watch": "nx run-many -t test --all -- --watch"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",
+    "@jest/globals": "^30.1.2",
     "@nx/esbuild": "21.4.1",
     "@nx/eslint": "^21.4.1",
     "@nx/jest": "^21.4.1",
@@ -34,16 +40,20 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/bcryptjs": "^2.4.6",
-    "@types/jest": "^29.5.14",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
     "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-formatter-stylish": "^8.40.0",
     "eslint-plugin-import-x": "^4.16.1",
+    "eslint-plugin-jest": "^28.11.0",
+    "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
-    "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
+    "jest": "^30.1.3",
+    "jest-environment-jsdom": "^30.1.2",
     "nx": "21.4.1",
     "prettier": "^3.6.2",
     "prettier-plugin-organize-imports": "^4.2.0",
@@ -51,11 +61,7 @@
     "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
     "tslib": "^2.6.3",
-    "typescript": "^5.5.4",
+    "typescript": "^5.8.2",
     "typescript-eslint": "^8.42.0"
-  },
-  "dependencies": {
-    "bcryptjs": "^3.0.2",
-    "jsonwebtoken": "^9.0.2"
   }
 }

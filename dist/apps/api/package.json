@@ -17,7 +17,7 @@
     "db:make": "tsx node_modules/knex/bin/cli.js --knexfile src/knexfile.ts migrate:make",
     "db:seed": "tsx node_modules/knex/bin/cli.js --knexfile src/knexfile.ts seed:run",
     "test": "nx jest:test --runInBand --detectOpenHandles",
-    "lint": "eslint 'src/**/*.ts' --fix"
+    "lint": "nx run api:lint"
   },
   "keywords": [],
   "author": "",
@@ -54,6 +54,7 @@
     "@typescript-eslint/parser": "^8.27.0",
     "eslint": "^9.22.0",
     "eslint-config-prettier": "^10.1.1",
+    "eslint-formatter-stylish": "^8.40.0",
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-prettier": "^5.2.3",
     "jest": "^29.7.0",

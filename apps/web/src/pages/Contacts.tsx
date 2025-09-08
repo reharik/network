@@ -1,21 +1,13 @@
+import { ContactMethod } from '@network/contracts';
 import { useQuery } from '@tanstack/react-query';
-import { fetchContacts } from '../services/contactListService';
-import {
-  Badge,
-  Card,
-  HStack,
-  Input,
-  Select,
-  Table,
-  VStack,
-  Button,
-} from '../ui/Primitives';
-import { Container } from '../Layout';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ContactMethod } from '@network/contracts';
+import { useContactListService } from '../hooks';
+import { Container } from '../Layout';
+import { Badge, Button, Card, HStack, Input, Select, Table, VStack } from '../ui/Primitives';
 
 export const Contacts = () => {
+  const { fetchContacts } = useContactListService();
   const { data, isLoading } = useQuery({
     queryKey: ['contacts'],
     queryFn: fetchContacts,
@@ -53,9 +45,7 @@ export const Contacts = () => {
             />
             <Select
               value={channel.value}
-              onChange={(e) =>
-                setChannel(ContactMethod.fromValue(e.target.value))
-              }
+              onChange={(e) => setChannel(ContactMethod.fromValue(e.target.value))}
             >
               <option value="">All channels</option>
               {ContactMethod.toOptions().map((x) => (
@@ -82,9 +72,7 @@ export const Contacts = () => {
                 {filtered.map((c) => (
                   <tr key={c.id}>
                     <td>
-                      <Link
-                        to={`/contacts/${c.id}`}
-                      >{`${c.firstName} ${c.lastName}`}</Link>
+                      <Link to={`/contacts/${c.id}`}>{`${c.firstName} ${c.lastName}`}</Link>
                     </td>
                     <td>{c.preferredMethod.display}</td>
                     <td>{c.intervalDays} days</td>

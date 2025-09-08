@@ -1,7 +1,7 @@
-import { createBaseTypeScriptConfig } from '../../eslint-shared.js';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import globals from 'globals';
+import { createBaseTypeScriptConfig } from '../../eslint-shared.js';
 
 export default await createBaseTypeScriptConfig({
   globals: globals.browser,
@@ -13,9 +13,6 @@ export default await createBaseTypeScriptConfig({
   },
   additionalRules: {
     ...reactHooks.configs.recommended.rules,
-    'react-refresh/only-export-components': [
-      'warn',
-      { allowConstantExport: true },
-    ],
+    'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
   },
 });
