@@ -20,13 +20,30 @@
             "output": "assets"
           }
         ],
-        "external": []
+        "external": [
+          "pg",
+          "mysql",
+          "mysql2",
+          "sqlite3",
+          "better-sqlite3",
+          "tedious",
+          "oracledb",
+          "pg-query-stream"
+        ]
+      },
+      "configurations": {
+        "development": {
+          "sourcemap": true
+        },
+        "production": {
+          "minify": true
+        }
       }
     },
     "serve": {
       "executor": "@nx/js:node",
       "options": {
-        "buildTarget": "api:build",
+        "buildTarget": "api:build:development",
         "watch": true
       }
     },
@@ -34,6 +51,8 @@
       "executor": "@nx/eslint:lint",
       "options": {
         "lintFilePatterns": ["apps/api/**/*.{ts,tsx,js,mjs,cjs}"],
+        "format": "tools/eslint-formatters/stylish-linkify.js",
+        "forceColor": true,
         "fix": false
       }
     },

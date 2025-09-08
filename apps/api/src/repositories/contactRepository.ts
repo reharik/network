@@ -17,13 +17,16 @@ export interface ContactRepository {
   ) => Promise<Contact | undefined>;
 }
 
-export const createContactRepository = (
-  db: Knex,
-  mappers: Mappers,
-): ContactRepository => ({
+export const createContactRepository = ({
+  connection,
+  mappers,
+}: {
+  connection: Knex;
+  mappers: Mappers;
+}): ContactRepository => ({
   listContacts: async (userId: string, opts?: ListContactsOpts) => {
-    let q = db('contacts').where({ userId });
-    if (opts?.dueOnly) q = q.andWhere('nextDueAt', '<=', db.fn.now());
+    let q = connection('contacts').where({ userId });
+    if (opts?.dueOnly) q = q.andWhere('nextDueAt', '<=', connection.fn.now());
     if (opts?.q) {
       q = q.andWhere((qb) => {
         qb.whereILike('firstName', `%${opts.q}%`)
@@ -36,42 +39,35 @@ export const createContactRepository = (
       { column: 'lastName', order: 'asc' },
       { column: 'firstName', order: 'asc' },
     ]);
-
-    // Convert DB rows to entities
     const entities = rows
       .map((row) => mappers.toContactEntity(row))
       .filter((entity): entity is Contact => entity !== undefined);
     return entities;
   },
-
   createContact: async (userId: string, data: ContactDTOPartial) => {
     const payload: ContactDTOPartial = {
       ...data,
       id: v4(),
       userId,
     };
-    const [row] = await db('contacts').insert(payload).returning('*');
+    const [row] = await connection('contacts').insert(payload).returning('*');
     const entity = mappers.toContactEntity(row);
     if (!entity) throw new Error('Failed to create contact');
     return entity;
   },
-
   getContact: async (userId: string, id: string) => {
-    const dto = await db('contacts').where({ id, userId }).first();
+    const dto = await connection('contacts').where({ id, userId }).first();
     return mappers.toContactEntity(dto);
   },
-
   patchContact: async (
     userId: string,
     id: string,
     data: Partial<ContactDTOPartial>,
   ) => {
-    const existing = await db('contacts').where({ id, userId }).first();
+    const existing = await connection('contacts').where({ id, userId }).first();
     if (!existing) return undefined;
-
     const updates: Partial<ContactDTOPartial> = { ...existing, ...data };
-
-    const [row] = await db('contacts')
+    const [row] = await connection('contacts')
       .where({ id, userId })
       .update(updates, '*');
     const entity = mappers.toContactEntity(row);

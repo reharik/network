@@ -6,14 +6,17 @@ export interface SuggestionRepository {
   }) => Promise<string[]>;
 }
 
-export const createSuggestionRepository = (db: Knex): SuggestionRepository => ({
+export const createSuggestionRepository = ({
+  connection,
+}: {
+  connection: Knex;
+}): SuggestionRepository => ({
   getSuggestionsForContact: async (contact: { fullName: string }) => {
     const firstName = contact.fullName.split(' ')[0];
-    const rows = await db('suggestionTemplates')
+    const rows = await connection('suggestionTemplates')
       .select('body')
       .orderBy('createdAt', 'asc')
       .limit(10);
-
     const pool = rows.length
       ? rows.map((r) => r.body)
       : [
@@ -21,7 +24,6 @@ export const createSuggestionRepository = (db: Knex): SuggestionRepository => ({
           "Hey {{firstName}} — thought of you today. How's your week going?",
           'Hi {{firstName}}! Anything new or fun lately? Would love to catch up.',
         ];
-
     const picks: string[] = [];
     for (const s of pool) {
       const msg = s.replaceAll('{{firstName}}', firstName);

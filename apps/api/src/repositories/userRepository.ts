@@ -6,14 +6,17 @@ export interface UserRepository {
   updateDailyGoal: (id: string, dailyGoal: number) => Promise<User | undefined>;
 }
 
-export const createUserRepository = (db: Knex): UserRepository => ({
+export const createUserRepository = ({
+  connection,
+}: {
+  connection: Knex;
+}): UserRepository => ({
   getUser: async (id: string) => {
-    const result = await db<User>('users').where({ id }).first();
+    const result = await connection<User>('users').where({ id }).first();
     return result;
   },
-
   updateDailyGoal: async (id: string, dailyGoal: number) => {
-    const [row] = await db<User>('users')
+    const [row] = await connection('users')
       .where({ id })
       .update({ dailyGoal }, '*');
     return row;

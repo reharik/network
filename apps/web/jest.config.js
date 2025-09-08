@@ -3,7 +3,7 @@ export default {
   displayName: 'web',
   preset: '../../jest.preset.js',
   testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   transform: {
     '^.+\\.(ts|tsx|js|jsx|mjs)$': 'ts-jest',
   },

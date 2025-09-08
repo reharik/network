@@ -10,26 +10,29 @@ export interface PlanRepository {
   ) => Promise<{ items: Contact[]; date: string | null }>;
 }
 
-export const createPlanRepository = (
-  db: Knex,
-  mappers: Mappers,
-): PlanRepository => ({
+export const createPlanRepository = ({
+  connection,
+  mappers,
+}: {
+  connection: Knex;
+  mappers: Mappers;
+}): PlanRepository => ({
   getDailyPlan: async (userId: string, date?: string) => {
-    const user = await db('users').where({ id: userId }).first();
+    const user = await connection('users').where({ id: userId }).first();
     if (!user)
       return {
         items: [],
         date: DateTime.now().toISO() || new Date().toISOString(),
       };
-
     const dayStart = date
       ? DateTime.fromISO(date).startOf('day')
       : DateTime.now().startOf('day');
-
-    const due = await db<ContactDTO>('contacts')
+    const due = await connection<ContactDTO>('contacts')
       .where({ userId, paused: false })
       .andWhere((qb) =>
-        qb.whereNull('snoozedUntil').orWhere('snoozedUntil', '<=', db.fn.now()),
+        qb
+          .whereNull('snoozedUntil')
+          .orWhere('snoozedUntil', '<=', connection.fn.now()),
       )
       .andWhere('nextDueAt', '<=', dayStart.toJSDate())
       .orderBy([
@@ -38,18 +41,18 @@ export const createPlanRepository = (
         { column: 'fullName', order: 'asc' },
       ])
       .limit(user.dailyGoal);
-
     if (due.length >= user.dailyGoal) {
       const contactEntities = due
         .map((row) => mappers.toContactEntity(row))
         .filter((entity): entity is Contact => entity !== undefined);
       return { items: contactEntities, date: dayStart.toISO() };
     }
-
-    const topUp = await db<ContactDTO>('contacts')
+    const topUp = await connection<ContactDTO>('contacts')
       .where({ userId, paused: false })
       .andWhere((qb) =>
-        qb.whereNull('snoozedUntil').orWhere('snoozedUntil', '<=', db.fn.now()),
+        qb
+          .whereNull('snoozedUntil')
+          .orWhere('snoozedUntil', '<=', connection.fn.now()),
       )
       .andWhere('nextDueAt', '>', dayStart.toJSDate())
       .andWhere('nextDueAt', '<=', dayStart.plus({ days: 3 }).toJSDate())
@@ -59,14 +62,12 @@ export const createPlanRepository = (
         { column: 'fullName', order: 'asc' },
       ])
       .limit(user.dailyGoal - due.length);
-
     const dueEntities = due
       .map((row) => mappers.toContactEntity(row))
       .filter((entity): entity is Contact => entity !== undefined);
     const topUpEntities = topUp
       .map((row) => mappers.toContactEntity(row))
       .filter((entity): entity is Contact => entity !== undefined);
-
     return {
       items: [...dueEntities, ...topUpEntities],
       date: dayStart.toISO(),

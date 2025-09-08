@@ -17,6 +17,8 @@
       "executor": "@nx/eslint:lint",
       "options": {
         "lintFilePatterns": ["packages/contracts/**/*.{ts,js}"],
+        "format": "tools/eslint-formatters/stylish-linkify.js",
+        "forceColor": true,
         "fix": false
       }
     },

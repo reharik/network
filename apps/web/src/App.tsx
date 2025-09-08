@@ -7,6 +7,8 @@ import { theme } from './styles/theme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Layout } from './Layout';
 import { ScrollToTop } from './ui/ScrollToTop';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const Today = lazy(async () => {
   const mod = await import('./pages/Today');
@@ -36,27 +38,33 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       <QueryClientProvider client={qc}>
-        <BrowserRouter /* basename="/" */>
-          <ScrollToTop />
-          <Suspense fallback={<div style={{ padding: 16 }}>Loading…</div>}>
-            <Routes>
-              {/* all app routes share the Layout */}
-              <Route element={<Layout />}>
-                <Route index element={<Today />} />
-                <Route path="contacts" element={<Contacts />} />
-                <Route path="contacts/:id" element={<ContactDetail />} />
-                <Route path="import" element={<ImportPage />} />
-                <Route path="settings" element={<Settings />} />
-              </Route>
+        <AuthProvider>
+          <BrowserRouter /* basename="/" */>
+            <ScrollToTop />
+            <Suspense fallback={<div style={{ padding: 16 }}>Loading…</div>}>
+              <Routes>
+                {/* all app routes share the Layout and require authentication */}
+                <Route element={
+                  <ProtectedRoute>
+                    <Layout />
+                  </ProtectedRoute>
+                }>
+                  <Route index element={<Today />} />
+                  <Route path="contacts" element={<Contacts />} />
+                  <Route path="contacts/:id" element={<ContactDetail />} />
+                  <Route path="import" element={<ImportPage />} />
+                  <Route path="settings" element={<Settings />} />
+                </Route>
 
-              {/* catch-all */}
-              <Route
-                path="*"
-                element={<div style={{ padding: 16 }}>Not found</div>}
-              />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
+                {/* catch-all */}
+                <Route
+                  path="*"
+                  element={<div style={{ padding: 16 }}>Not found</div>}
+                />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </AuthProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

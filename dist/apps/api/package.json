@@ -5,8 +5,11 @@
   "main": "dist/apps/api/main.js",
   "scripts": {
     "build": "nx build api",
+    "build:dev": "nx build api --configuration=development",
+    "build:prod": "nx build api --configuration=production",
     "serve": "nx serve api",
     "start": "node dist/index.js",
+    "start:dev": "node --enable-source-maps dist/index.js",
     "dev": "tsx src/server.ts",
     "db:migrate": "tsx node_modules/knex/bin/cli.js --knexfile src/knexfile.ts migrate:latest",
     "db:migrate:prod": "knex --knexfile dist/knexfile.js migrate:latest",
@@ -23,6 +26,7 @@
   "dependencies": {
     "@koa/router": "^13.1.0",
     "@network/contracts": "*",
+    "@network/eslint-config": "^1.0.0",
     "awilix": "^12.0.5",
     "dotenv": "^16.6.1",
     "knex": "^3.1.0",

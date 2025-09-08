@@ -10,36 +10,35 @@ export interface TouchesRepository {
   ) => Promise<Touch | undefined>;
 }
 
-export const createTouchesRepository = (
-  db: Knex,
-  mappers: Mappers,
-): TouchesRepository => ({
+export const createTouchesRepository = ({
+  connection,
+  mappers,
+}: {
+  connection: Knex;
+  mappers: Mappers;
+}): TouchesRepository => ({
   createTouch: async (userId: string, body: TouchDTOPartial) => {
-    const contact = await db('contacts')
+    const contact = await connection('contacts')
       .where({ id: body.contactId, userId })
       .first();
     if (!contact) return undefined;
-
-    const [touch] = await db('touch_logs')
+    const [touch] = await connection('touch_logs')
       .insert({
-        id: db.raw('gen_random_uuid()'),
+        id: connection.raw('gen_random_uuid()'),
         userId,
         contactId: body.contactId,
         method: body.method,
         message: body.message,
         outcome: body.outcome,
-        createdAt: db.fn.now(),
+        createdAt: connection.fn.now(),
       })
       .returning('*');
-
     const nextDueAt = new Date(
       Date.now() + (contact.intervalDays ?? 0) * 86_400_000,
     ).toISOString();
-
-    await db('contacts')
+    await connection('contacts')
       .where({ id: contact.id })
-      .update({ lastTouchedAt: db.fn.now(), nextDueAt });
-
+      .update({ lastTouchedAt: connection.fn.now(), nextDueAt });
     const entity = mappers.toTouchEntity(touch);
     return entity || undefined;
   },

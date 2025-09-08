@@ -1,32 +1,32 @@
-import type Koa from 'koa';
 import Router from '@koa/router';
 import type { ContactRoutes } from './contactRoutes';
 import type { TouchesRoutes } from './touchesRoutes';
 import type { PlanRoutes } from './planRoutes';
 import type { UserRoutes } from './userRoutes';
+import type { AuthRoutes } from './authRoutes';
 
 export interface Routes {
-  mountRoutes: (app: Koa) => void;
+  mountRoutes: (router: Router) => void;
 }
 
-export const createRoutes = (
-  contactRoutes: ContactRoutes,
-  touchesRoutes: TouchesRoutes,
-  planRoutes: PlanRoutes,
-  userRoutes: UserRoutes,
-): Routes => ({
-  mountRoutes: (app: Koa) => {
-    const root = new Router();
-    root.use(
-      contactRoutes.router.routes(),
-      contactRoutes.router.allowedMethods(),
-    );
-    root.use(
-      touchesRoutes.router.routes(),
-      touchesRoutes.router.allowedMethods(),
-    );
-    root.use(planRoutes.router.routes(), planRoutes.router.allowedMethods());
-    root.use(userRoutes.router.routes(), userRoutes.router.allowedMethods());
-    app.use(root.routes()).use(root.allowedMethods());
+export const createRoutes = ({
+  userRoutes,
+  contactRoutes,
+  planRoutes,
+  touchesRoutes,
+  authRoutes,
+}: {
+  userRoutes: UserRoutes;
+  contactRoutes: ContactRoutes;
+  planRoutes: PlanRoutes;
+  touchesRoutes: TouchesRoutes;
+  authRoutes: AuthRoutes;
+}): Routes => ({
+  mountRoutes: (router: Router) => {
+    authRoutes.mountRoutes(router);
+    userRoutes.mountRoutes(router);
+    contactRoutes.mountRoutes(router);
+    planRoutes.mountRoutes(router);
+    touchesRoutes.mountRoutes(router);
   },
 });

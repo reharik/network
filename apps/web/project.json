@@ -7,7 +7,7 @@
       "executor": "@nx/vite:build",
       "options": {
         "outputPath": "dist/apps/web",
-        "configFile": "apps/web/vite.config.ts"
+        "configFile": "apps/web/vite.config.js"
       }
     },
     "serve": {
@@ -28,6 +28,8 @@
       "executor": "@nx/eslint:lint",
       "options": {
         "lintFilePatterns": ["apps/web/**/*.{ts,tsx,js,jsx}"],
+        "format": "tools/eslint-formatters/stylish-linkify.js",
+        "forceColor": true,
         "fix": false
       }
     },

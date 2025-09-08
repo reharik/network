@@ -43,8 +43,12 @@ export type Touch = {
 
 export type User = {
   id: string;
+  firstName: string | null;
+  lastName: string | null;
   email: string;
   dailyGoal: number;
+  passwordHash: string;
+  lastLoginAt: string; // ISO
 };
 
 // API Response DTOs (with required string values for enum fields)

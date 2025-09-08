@@ -14,10 +14,13 @@ export interface ContactsController {
   patchContact: (ctx: Context) => Promise<Context>;
 }
 
-export const createContactsController = (
-  contactRepository: ContactRepository,
-  mappers: Mappers,
-): ContactsController => ({
+export const createContactsController = ({
+  contactRepository,
+  mappers,
+}: {
+  contactRepository: ContactRepository;
+  mappers: Mappers;
+}): ContactsController => ({
   getContacts: async (ctx: Context) => {
     const userId = ctx.user.id;
     const entities = await contactRepository.listContacts(userId, {
@@ -66,7 +69,6 @@ export const createContactsController = (
     const body: ContactDTOPartial = parsed.data;
     const userId = ctx.user.id;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
     const entity = await contactRepository.patchContact(
       userId,
       ctx.params.id,

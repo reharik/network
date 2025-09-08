@@ -3,15 +3,15 @@ import Router from '@koa/router';
 import type { TouchesController } from '../controllers/touchesController';
 
 export interface TouchesRoutes {
-  router: Router;
+  mountRoutes: (router: Router) => void;
 }
 
-export const createTouchesRoutes = (
-  touchesController: TouchesController,
-): TouchesRoutes => {
-  const router = new Router({ prefix: '/api/touches' });
-
-  router.post('/', touchesController.createTouch);
-
-  return { router };
-};
+export const createTouchesRoutes = ({
+  touchesController,
+}: {
+  touchesController: TouchesController;
+}): TouchesRoutes => ({
+  mountRoutes: (router: Router) => {
+    router.post('/touches', touchesController.createTouch);
+  },
+});
