@@ -1,7 +1,7 @@
 /* eslint-disable */
 export default {
   displayName: 'contracts',
-  preset: '../../jest.preset.js',
+  preset: '../../jest.preset.cjs',
   testEnvironment: 'node',
   transform: {
     '^.+\\.(ts|js|mjs)$': 'ts-jest',

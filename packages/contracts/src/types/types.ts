@@ -17,6 +17,7 @@ export type Contact = {
   firstName: string;
   lastName: string;
   preferredMethod: ContactMethod;
+  suggestion: string;
   email?: string;
   phone?: string;
   notes?: string;
@@ -53,6 +54,7 @@ export type User = {
 export type ContactDTO = ReplaceProp<Contact, 'preferredMethod', string, false>;
 export type TouchDTO = ReplaceProp<Touch, 'method', string, false>;
 export type UserDTO = User; // No smart-enums, so same as entity
+export type PlanDTO = { items: ContactDTO[]; date: string };
 
 export type DailyPlanDTO = {
   items: ContactDTO[];

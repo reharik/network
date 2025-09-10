@@ -4,14 +4,14 @@ import { Container } from '../Layout';
 import { usePlanService, useTouchService } from '../hooks';
 import { Badge, Button, Card, Field, HStack, TextArea, VStack } from '../ui/Primitives';
 
-export const Today = ({ count = 3 }: { count?: number }) => {
+export const Today = () => {
   const qc = useQueryClient();
-  const { getTodayReachOuts } = usePlanService();
+  const { getTodaysContacts } = usePlanService();
   const { logTouch, snoozeContact } = useTouchService();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['today', count],
-    queryFn: () => getTodayReachOuts(count),
+    queryKey: ['today'],
+    queryFn: () => getTodaysContacts(),
   });
 
   const touch = useMutation({
@@ -30,23 +30,26 @@ export const Today = ({ count = 3 }: { count?: number }) => {
       <VStack gap={3}>
         <HStack>
           <h1>Today’s Reach-outs</h1>
-          {data?.date && <Badge>{data.date}</Badge>}
+          {<Badge>{DateTime.now().toLocaleString(DateTime.DATE_FULL)}</Badge>}
         </HStack>
 
         {isLoading && <Card>Loading…</Card>}
         {error && <Card>Something went wrong.</Card>}
 
-        {(data?.picks ?? []).map((c) => (
+        {(data ?? []).map((c) => (
           <Card key={c.id}>
             <VStack gap={2}>
               <HStack>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '1.05rem' }}>{c.name}</div>
+                  <div
+                    style={{ fontWeight: 700, fontSize: '1.05rem' }}
+                  >{`${c.firstName} ${c.lastName}`}</div>
                   <div style={{ color: '#a8b3c7', fontSize: '.9rem' }}>
-                    {c.preferredChannel.display}: {c.handle} · every {c.intervalDays}d
+                    {c.preferredMethod.display}: {c.preferredMethod.handle(c)} · every{' '}
+                    {c.intervalDays}d
                   </div>
                 </div>
-                <a href={c.link}>Open {c.preferredChannel.display}</a>
+                <a href={c.preferredMethod.link(c)}>Open {c.preferredMethod.display}</a>
               </HStack>
 
               <Field label="Suggested line">
@@ -69,7 +72,7 @@ export const Today = ({ count = 3 }: { count?: number }) => {
           </Card>
         ))}
 
-        {(data?.picks?.length ?? 0) === 0 && !isLoading && <Card>you’re all caught up 🎉</Card>}
+        {(data?.length ?? 0) === 0 && !isLoading && <Card>you’re all caught up 🎉</Card>}
       </VStack>
     </Container>
   );

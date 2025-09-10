@@ -28,6 +28,7 @@ export async function up(knex: Knex): Promise<void> {
     // ✅ rename phoneE164 -> phone (you can still store E.164 formatted values)
     t.string('phone', 32);
     t.text('notes');
+    t.text('suggestion');
 
     t.integer('intervalDays').notNullable().defaultTo(14);
     t.timestamp('lastTouchedAt', { useTz: true });

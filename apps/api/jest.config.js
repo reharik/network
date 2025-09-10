@@ -1,6 +1,6 @@
 export default {
   displayName: 'api',
-  preset: '../../jest.preset.js',
+  preset: '../../jest.preset.cjs',
   testEnvironment: 'node',
   transform: {
     '^.+\\.(ts|tsx|js|mjs)$': 'ts-jest',

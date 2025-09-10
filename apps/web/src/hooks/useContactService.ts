@@ -1,10 +1,14 @@
-import type { Contact } from '../types';
+import { Contact, ContactDTO } from '@network/contracts';
+import { mappers } from '../mappers';
 import { useApiFetch } from './useApiFetch';
 
 export const useContactService = () => {
   const { apiFetch } = useApiFetch();
 
-  const getContact = (id: string) => apiFetch<Contact>(`/contacts/${encodeURIComponent(id)}`);
+  const getContact = async (id: string) => {
+    const contact = await apiFetch<ContactDTO>(`/contacts/${encodeURIComponent(id)}`);
+    return mappers.toContact(contact);
+  };
 
   const updateContact = (contact: Partial<Contact> & { id: string }) =>
     apiFetch<Contact>(`/contacts/${encodeURIComponent(contact.id)}`, {

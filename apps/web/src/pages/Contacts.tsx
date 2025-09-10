@@ -1,33 +1,47 @@
 import { ContactMethod } from '@network/contracts';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useContactListService } from '../hooks';
+import { useContactListService, useContactService } from '../hooks';
 import { Container } from '../Layout';
 import { Badge, Button, Card, HStack, Input, Select, Table, VStack } from '../ui/Primitives';
 
 export const Contacts = () => {
+  const qc = useQueryClient();
   const { fetchContacts } = useContactListService();
+  const { deleteContact } = useContactService();
   const { data, isLoading } = useQuery({
     queryKey: ['contacts'],
     queryFn: fetchContacts,
   });
   const contacts = useMemo(() => data?.contacts ?? [], [data]);
 
-  const [q, setQ] = useState('');
-  const [channel, setChannel] = useState<ContactMethod>(ContactMethod.sms);
+  const [query, querySetter] = useState('');
+  const [channel, setChannel] = useState<ContactMethod | undefined>();
+
+  const deleteMut = useMutation({
+    mutationFn: deleteContact,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['contacts'] });
+    },
+  });
+
+  const handleDelete = (id: string, name: string) => {
+    if (confirm(`Are you sure you want to delete ${name}?`)) {
+      deleteMut.mutate(id);
+    }
+  };
 
   const filtered = useMemo(() => {
     return contacts.filter((c) => {
-      const byQ = q
-        ? c.firstName.toLowerCase().includes(q.toLowerCase()) ||
-          c.lastName.toLowerCase().includes(q.toLowerCase())
+      const byName = query
+        ? c.firstName.toLowerCase().includes(query.toLowerCase()) ||
+          c.lastName.toLowerCase().includes(query.toLowerCase())
         : true;
-      const byCh = channel ? c.preferredMethod === channel : true;
-      return byQ && byCh;
+      const byChannel = !!channel ? c.preferredMethod === channel : true;
+      return byName && byChannel;
     });
-  }, [contacts, q, channel]);
-
+  }, [contacts, query, channel]);
   return (
     <Container>
       <VStack gap={3}>
@@ -40,11 +54,11 @@ export const Contacts = () => {
           <HStack wrap gap={2}>
             <Input
               placeholder="Search name or handle…"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
+              value={query}
+              onChange={(e) => querySetter(e.target.value)}
             />
             <Select
-              value={channel.value}
+              value={channel?.value}
               onChange={(e) => setChannel(ContactMethod.fromValue(e.target.value))}
             >
               <option value="">All channels</option>
@@ -63,9 +77,9 @@ export const Contacts = () => {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Preferred</th>
+                  <th>Preferred Method</th>
                   <th>Interval</th>
-                  <th style={{ width: 1 }}></th>
+                  <th style={{ width: 1 }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -77,8 +91,13 @@ export const Contacts = () => {
                     <td>{c.preferredMethod.display}</td>
                     <td>{c.intervalDays} days</td>
                     <td>
-                      <Button variant="secondary" size="sm">
-                        Edit
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleDelete(c.id, `${c.firstName} ${c.lastName}`)}
+                        disabled={deleteMut.isPending}
+                      >
+                        Delete
                       </Button>
                     </td>
                   </tr>

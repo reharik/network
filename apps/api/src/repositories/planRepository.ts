@@ -4,10 +4,7 @@ import { DateTime } from 'luxon';
 import type { Mappers } from './mappers';
 
 export interface PlanRepository {
-  getDailyPlan: (
-    userId: string,
-    date?: string,
-  ) => Promise<{ items: Contact[]; date: string | null }>;
+  getDailyPlan: (userId: string) => Promise<Contact[]>;
 }
 
 export const createPlanRepository = ({
@@ -17,14 +14,14 @@ export const createPlanRepository = ({
   connection: Knex;
   mappers: Mappers;
 }): PlanRepository => ({
-  getDailyPlan: async (userId: string, date?: string) => {
+  getDailyPlan: async (userId: string) => {
     const user = await connection('users').where({ id: userId }).first();
     if (!user)
       return {
         items: [],
-        date: DateTime.now().toISO() || new Date().toISOString(),
+        date: DateTime.now().toISO(),
       };
-    const dayStart = date ? DateTime.fromISO(date).startOf('day') : DateTime.now().startOf('day');
+    const dayStart = DateTime.now().startOf('day');
     const due = await connection<ContactDTO>('contacts')
       .where({ userId, paused: false })
       .andWhere((qb) =>
@@ -37,34 +34,9 @@ export const createPlanRepository = ({
         { column: 'lastName', order: 'asc' },
       ])
       .limit(user.dailyGoal);
-    if (due.length >= user.dailyGoal) {
-      const contactEntities = due
-        .map((row) => mappers.toContactEntity(row))
-        .filter((entity): entity is Contact => entity !== undefined);
-      return { items: contactEntities, date: dayStart.toISO() };
-    }
-    const topUp = await connection<ContactDTO>('contacts')
-      .where({ userId, paused: false })
-      .andWhere((qb) =>
-        qb.whereNull('snoozedUntil').orWhere('snoozedUntil', '<=', connection.fn.now()),
-      )
-      .andWhere('nextDueAt', '>', dayStart.toJSDate())
-      .andWhere('nextDueAt', '<=', dayStart.plus({ days: 3 }).toJSDate())
-      .orderBy([
-        { column: 'nextDueAt', order: 'asc' },
-        { column: 'updatedAt', order: 'asc' },
-        { column: 'lastName', order: 'asc' },
-      ])
-      .limit(user.dailyGoal - due.length);
-    const dueEntities = due
+    const contactEntities = due
       .map((row) => mappers.toContactEntity(row))
-      .filter((entity): entity is Contact => entity !== undefined);
-    const topUpEntities = topUp
-      .map((row) => mappers.toContactEntity(row))
-      .filter((entity): entity is Contact => entity !== undefined);
-    return {
-      items: [...dueEntities, ...topUpEntities],
-      date: dayStart.toISO(),
-    };
+      .filter((entity) => entity !== undefined);
+    return contactEntities;
   },
 });

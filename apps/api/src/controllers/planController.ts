@@ -1,20 +1,21 @@
 import type { Context } from 'koa';
+import { Mappers } from '../repositories/mappers';
 import type { PlanRepository } from '../repositories/planRepository';
-
 export interface PlanController {
   getDailyPlan: (ctx: Context) => Promise<Context>;
 }
 
 export const createPlanController = ({
   planRepository,
+  mappers,
 }: {
   planRepository: PlanRepository;
+  mappers: Mappers;
 }): PlanController => ({
   getDailyPlan: async (ctx: Context): Promise<Context> => {
     const userId = ctx.user.id;
-    const { date } = ctx.query as { date?: string };
-    const plan = await planRepository.getDailyPlan(userId, date);
-    ctx.body = plan;
+    const contacts = await planRepository.getDailyPlan(userId, new Date().toISOString());
+    ctx.body = contacts.map(mappers.toContactDTO);
     return ctx;
   },
 });

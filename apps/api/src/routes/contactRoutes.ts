@@ -15,5 +15,6 @@ export const createContactRoutes = ({
     router.get('/contacts', requireAuth(contactsController.getContacts));
     router.post('/contacts', requireAuth(contactsController.createContact));
     router.patch('/contacts/:id', requireAuth(contactsController.patchContact));
+    router.post('/contacts/import', requireAuth(contactsController.importContacts));
   },
 });

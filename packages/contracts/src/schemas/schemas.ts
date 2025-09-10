@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { parseContactMethod } from '../enums/ContactMethod';
+import { ContactMethod } from '../enums/ContactMethod';
 
 // Utility parser → normalized to enum .value
 const contactMethodValueSchema = z.string().transform((s, ctx) => {
-  const item = parseContactMethod(s);
+  const item = ContactMethod.tryFromValue(s);
   if (!item) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,

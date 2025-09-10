@@ -6,6 +6,7 @@ import type {
   TouchDTOPartial,
 } from '@network/contracts';
 import { Contact, ContactMethod, Touch } from '@network/contracts';
+import { reviveSmartEnums, serializeSmartEnums } from 'smart-enums';
 
 export interface Mappers {
   // Database to Entity (internal use)
@@ -24,52 +25,28 @@ export interface Mappers {
 
 export const createMappers = (): Mappers => ({
   // Database to Entity (internal use)
-  toContactEntity: (dto?: ContactDTO): Contact | undefined => {
-    return dto
-      ? {
-          ...dto,
-          preferredMethod: ContactMethod.fromValue(dto.preferredMethod),
-        }
-      : undefined;
-  },
-
-  toTouchEntity: (dto: TouchDTO): Touch | undefined => {
-    return dto
-      ? {
-          ...dto,
-          method: ContactMethod.fromValue(dto.method),
-        }
-      : undefined;
-  },
+  toContactEntity: (dto?: ContactDTO): Contact | undefined =>
+    reviveSmartEnums<Contact>(dto, {
+      preferredMethod: ContactMethod,
+    }),
+  toTouchEntity: (dto: TouchDTO): Touch | undefined =>
+    dto
+      ? reviveSmartEnums<Touch>(dto, {
+          method: ContactMethod,
+        })
+      : undefined,
 
   // Entity to DTO (for API responses)
-  toContactDTO: (entity: Contact): ContactDTO => {
-    return {
-      ...entity,
-      preferredMethod: entity.preferredMethod.value,
-    };
-  },
+  toContactDTO: (entity: Contact): ContactDTO => serializeSmartEnums(entity),
 
-  toTouchDTO: (entity: Touch): TouchDTO => {
-    return {
-      ...entity,
-      method: entity.method.value,
-    };
-  },
+  toTouchDTO: (entity: Touch): TouchDTO => serializeSmartEnums(entity),
 
   toContactListDTO: (entities: Contact[]): ContactListDTO => {
-    return entities.map((entity) => ({
-      ...entity,
-      preferredMethod: entity.preferredMethod.value,
-    }));
+    return entities.map(serializeSmartEnums<ContactDTO>);
   },
 
   // DTO to Entity (for API requests)
-  toContactDTOPartial: (entity: Contact): ContactDTOPartial => {
-    return { ...entity, preferredMethod: entity.preferredMethod.value };
-  },
+  toContactDTOPartial: (entity: Contact): ContactDTOPartial => serializeSmartEnums(entity),
 
-  toTouchDTOPartial: (entity: Touch): TouchDTOPartial => {
-    return { ...entity, method: entity.method.value };
-  },
+  toTouchDTOPartial: (entity: Touch): TouchDTOPartial => serializeSmartEnums(entity),
 });

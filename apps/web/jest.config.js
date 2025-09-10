@@ -1,7 +1,7 @@
 /* eslint-disable */
 export default {
   displayName: 'web',
-  preset: '../../jest.preset.js',
+  preset: '../../jest.preset.cjs',
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   transform: {

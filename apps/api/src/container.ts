@@ -13,6 +13,7 @@ import { createMappers } from './repositories/mappers';
 
 // Import service factories
 import { createAuthService } from './services/authService';
+import { createImportService } from './services/importService';
 
 // Import middleware factories
 import { createAuthMiddleware, createOptionalAuthMiddleware } from './middleware/authMiddleware';
@@ -45,6 +46,7 @@ container.register({
 // Register service factories
 container.register({
   authService: asFunction(createAuthService),
+  importService: asFunction(createImportService),
 });
 
 // Register middleware factories
