@@ -1,4 +1,3 @@
-// src/Layout.tsx
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from './contexts/AuthContext';
@@ -65,7 +64,7 @@ export const Layout = () => {
                 <span style={{ color: '#9CA3AF', fontSize: '14px' }}>
                   {user.firstName} {user.lastName}
                 </span>
-                <Button variant="outline" size="sm" onClick={logout}>
+                <Button variant="secondary" size="sm" onClick={logout}>
                   Logout
                 </Button>
               </HStack>

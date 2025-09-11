@@ -16,11 +16,7 @@ export const createPlanRepository = ({
 }): PlanRepository => ({
   getDailyPlan: async (userId: string) => {
     const user = await connection('users').where({ id: userId }).first();
-    if (!user)
-      return {
-        items: [],
-        date: DateTime.now().toISO(),
-      };
+    if (!user) return [];
     const dayStart = DateTime.now().startOf('day');
     const due = await connection<ContactDTO>('contacts')
       .where({ userId, paused: false })

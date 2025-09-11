@@ -29,12 +29,6 @@ describe('Container', () => {
     expect(typeof touchesRepository.createTouch).toBe('function');
   });
 
-  it('should resolve suggestionRepository', () => {
-    const suggestionRepository = container.resolve('suggestionRepository');
-    expect(suggestionRepository).toBeDefined();
-    expect(typeof suggestionRepository.getSuggestionsForContact).toBe('function');
-  });
-
   it('should resolve mappers', () => {
     const mappers = container.resolve('mappers');
     expect(mappers).toBeDefined();
@@ -78,8 +72,8 @@ describe('Container', () => {
     expect(typeof routes.mountRoutes).toBe('function');
   });
 
-  it('should resolve db', () => {
-    const db = container.resolve('db');
-    expect(db).toBeDefined();
+  it('should resolve connection', () => {
+    const connection = container.resolve('connection');
+    expect(connection).toBeDefined();
   });
 });

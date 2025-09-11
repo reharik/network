@@ -1,10 +1,10 @@
+import type { Contact } from '@network/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useContactService } from '../hooks';
 import { qk } from '../services/keys';
-import type { Contact } from '../types';
 
 const Card = styled.section`
   background: #0e1220;

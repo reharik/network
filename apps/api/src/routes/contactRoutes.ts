@@ -13,6 +13,7 @@ export const createContactRoutes = ({
 }): ContactRoutes => ({
   mountRoutes: (router: Router) => {
     router.get('/contacts', requireAuth(contactsController.getContacts));
+    router.get('/contacts/:id', requireAuth(contactsController.getContact));
     router.post('/contacts', requireAuth(contactsController.createContact));
     router.patch('/contacts/:id', requireAuth(contactsController.patchContact));
     router.post('/contacts/import', requireAuth(contactsController.importContacts));

@@ -59,7 +59,10 @@ export const Contacts = () => {
             />
             <Select
               value={channel?.value}
-              onChange={(e) => setChannel(ContactMethod.fromValue(e.target.value))}
+              onChange={(e) => {
+                const value = e.target.value;
+                setChannel(value ? ContactMethod.tryFromValue(value) : undefined);
+              }}
             >
               <option value="">All channels</option>
               {ContactMethod.toOptions().map((x) => (

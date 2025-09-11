@@ -14,7 +14,7 @@ export const createPlanController = ({
 }): PlanController => ({
   getDailyPlan: async (ctx: Context): Promise<Context> => {
     const userId = ctx.user.id;
-    const contacts = await planRepository.getDailyPlan(userId, new Date().toISOString());
+    const contacts = await planRepository.getDailyPlan(userId);
     ctx.body = contacts.map(mappers.toContactDTO);
     return ctx;
   },

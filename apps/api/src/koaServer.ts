@@ -4,55 +4,67 @@ import dotenv from 'dotenv';
 import http from 'http';
 import Koa, { Context } from 'koa';
 import { koaBody } from 'koa-body';
-import { container } from './container';
 import { database } from './knex';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
+
 dotenv.config();
 
-const app = new Koa();
-app.context.db = database;
+export interface KoaServerDependencies {
+  smartEnumReviver: (key: string, value: unknown) => unknown;
+  routes: { mountRoutes: (router: Router) => void };
+  optionalAuthMiddleware: (ctx: Context, next: () => Promise<void>) => Promise<void>;
+}
 
-app.on('error', (err: Error, ctx: Context) => {
-  console.error(`Unhandled error on ${ctx.method} ${ctx.path}`, {
-    status: ctx.status,
-    requestId: ctx.get('x-request-id') || undefined,
+export const createKoaServer = ({
+  smartEnumReviver,
+  routes,
+  optionalAuthMiddleware,
+}: KoaServerDependencies) => {
+  const app = new Koa();
+  app.context.db = database;
+
+  app.on('error', (err: Error, ctx: Context) => {
+    console.error(`Unhandled error on ${ctx.method} ${ctx.path}`, {
+      status: ctx.status,
+      requestId: ctx.get('x-request-id') || undefined,
+    });
+    if (err?.stack) console.error(err.stack);
+    else console.error(err);
   });
-  if (err?.stack) console.error(err.stack);
-  else console.error(err);
-});
 
-process.on('unhandledRejection', (reason) => {
-  console.error('unhandledRejection:', reason);
-});
+  process.on('unhandledRejection', (reason) => {
+    console.error('unhandledRejection:', reason);
+  });
 
-process.on('uncaughtException', (err) => {
-  console.error('uncaughtException:', err);
-});
+  process.on('uncaughtException', (err) => {
+    console.error('uncaughtException:', err);
+  });
 
-app.use(errorHandler);
-app.use(requestLogger);
-app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
-    credentials: true,
-    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  }),
-);
-app.use(koaBody());
+  app.use(errorHandler);
+  app.use(requestLogger);
 
-// Mount routes using the container
-const routes = container.resolve('routes');
-const optionalAuthMiddleware = container.resolve('optionalAuthMiddleware');
+  app.use(
+    cors({
+      origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
+      credentials: true,
+      allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    }),
+  );
 
-const router = new Router({ prefix: '/api' });
-routes.mountRoutes(router);
+  // Use enhanced koa-bodyparser with custom reviver for smart enum transformation
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
+  app.use(koaBody({ customReviver: smartEnumReviver } as any));
 
-// Apply optional auth middleware globally - adds isLoggedIn flag to context
-app.use(optionalAuthMiddleware);
+  // Mount routes using the container
+  const router = new Router({ prefix: '/api' });
+  routes.mountRoutes(router);
 
-app.use(router.routes()).use(router.allowedMethods());
+  // Apply optional auth middleware globally - adds isLoggedIn flag to context
+  app.use(optionalAuthMiddleware);
 
-const server = http.createServer(app.callback());
-export { server };
+  app.use(router.routes()).use(router.allowedMethods());
+
+  return http.createServer(app.callback());
+};

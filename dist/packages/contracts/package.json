@@ -15,7 +15,7 @@
     "build": "nx build contracts"
   },
   "dependencies": {
-    "smart-enums": "^0.0.5",
+    "smart-enums": "github:reharik/smart-enums#simplification",
     "zod": "^3.25.76"
   },
   "module": "./src/index.js"

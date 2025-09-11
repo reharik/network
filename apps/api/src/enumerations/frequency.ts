@@ -24,7 +24,7 @@ const input = {
   },
 };
 
-export type Frequency = Enumeration<typeof Frequency, typeof input>;
+export type Frequency = Enumeration<typeof Frequency>;
 export const Frequency = enumeration<
   typeof input,
   { eligible: (lastContacted: DateTime) => boolean }

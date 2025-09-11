@@ -12,7 +12,7 @@ export const useContactService = () => {
 
   const updateContact = (contact: Partial<Contact> & { id: string }) =>
     apiFetch<Contact>(`/contacts/${encodeURIComponent(contact.id)}`, {
-      method: 'PUT',
+      method: 'PATCH',
       body: contact,
     });
 

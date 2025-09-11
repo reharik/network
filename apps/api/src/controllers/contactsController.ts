@@ -1,12 +1,11 @@
-import type { ContactDTO, ContactListDTO } from '@network/contracts';
 import { ContactDTOPartial, ContactMethod, upsertContactSchema } from '@network/contracts';
 import type { Context } from 'koa';
 import type { ContactRepository } from '../repositories/contactRepository';
-import type { Mappers } from '../repositories/mappers';
 import type { ImportService } from '../services/importService';
 
 export interface ContactsController {
   getContacts: (ctx: Context) => Promise<Context>;
+  getContact: (ctx: Context) => Promise<Context>;
   createContact: (ctx: Context) => Promise<Context>;
   patchContact: (ctx: Context) => Promise<Context>;
   importContacts: (ctx: Context) => Promise<Context>;
@@ -14,11 +13,9 @@ export interface ContactsController {
 
 export const createContactsController = ({
   contactRepository,
-  mappers,
   importService,
 }: {
   contactRepository: ContactRepository;
-  mappers: Mappers;
   importService: ImportService;
 }): ContactsController => ({
   getContacts: async (ctx: Context) => {
@@ -26,9 +23,27 @@ export const createContactsController = ({
     const entities = await contactRepository.listContacts(userId, {
       /* dueOnly, q parsed elsewhere if needed */
     });
-    const rows: ContactListDTO = mappers.toContactListDTO(entities);
+
+    // Smart enums middleware will handle serialization
     ctx.status = 200;
-    ctx.body = rows;
+    ctx.body = { contacts: entities };
+    return ctx;
+  },
+
+  getContact: async (ctx: Context) => {
+    const userId = ctx.user.id;
+    const contactId = ctx.params.id;
+
+    const entity = await contactRepository.getContact(userId, contactId);
+    if (!entity) {
+      ctx.status = 404;
+      ctx.body = { error: 'Contact not found' };
+      return ctx;
+    }
+
+    // Smart enums middleware will handle serialization
+    ctx.status = 200;
+    ctx.body = entity;
     return ctx;
   },
 
@@ -49,10 +64,10 @@ export const createContactsController = ({
       ...body,
       preferredMethod: body.preferredMethod ?? ContactMethod.email.value,
     });
-    const created: ContactDTO = mappers.toContactDTO(entity);
 
+    // Smart enums middleware will handle serialization
     ctx.status = 201;
-    ctx.body = created;
+    ctx.body = entity;
     return ctx;
   },
 
@@ -76,9 +91,9 @@ export const createContactsController = ({
       return ctx;
     }
 
-    const updated: ContactDTO = mappers.toContactDTO(entity);
+    // Smart enums middleware will handle serialization
     ctx.status = 200;
-    ctx.body = updated;
+    ctx.body = entity;
     return ctx;
   },
 

@@ -4,7 +4,6 @@ import { database } from './knex';
 // Import all repository factories
 import { createContactRepository } from './repositories/contactRepository';
 import { createPlanRepository } from './repositories/planRepository';
-import { createSuggestionRepository } from './repositories/suggestionRepository';
 import { createTouchesRepository } from './repositories/touchesRepository';
 import { createUserRepository } from './repositories/userRepository';
 
@@ -26,6 +25,7 @@ import { createTouchesController } from './controllers/touchesController';
 import { createUserController } from './controllers/userController';
 
 // Import all route factories
+import { createSmartEnumJSONReviver, smartEnumRegistry } from '@network/contracts';
 import { createAuthRoutes } from './routes/authRoutes';
 import { createContactRoutes } from './routes/contactRoutes';
 import { createRoutes } from './routes/index';
@@ -33,8 +33,54 @@ import { createPlanRoutes } from './routes/planRoutes';
 import { createTouchesRoutes } from './routes/touchesRoutes';
 import { createUserRoutes } from './routes/userRoutes';
 
+// Import server factory
+import { createKoaServer } from './koaServer';
+
+// Define the container type for better type safety
+interface Container {
+  // Database
+  connection: typeof database;
+
+  // Services
+  authService: ReturnType<typeof createAuthService>;
+  importService: ReturnType<typeof createImportService>;
+
+  // Middleware
+  authMiddleware: ReturnType<typeof createAuthMiddleware>;
+  optionalAuthMiddleware: ReturnType<typeof createOptionalAuthMiddleware>;
+  smartEnumRegistry: typeof smartEnumRegistry;
+  smartEnumReviver: ReturnType<typeof createSmartEnumJSONReviver>;
+
+  // Mappers
+  mappers: ReturnType<typeof createMappers>;
+
+  // Repositories
+  userRepository: ReturnType<typeof createUserRepository>;
+  contactRepository: ReturnType<typeof createContactRepository>;
+  planRepository: ReturnType<typeof createPlanRepository>;
+  touchesRepository: ReturnType<typeof createTouchesRepository>;
+
+  // Controllers
+  userController: ReturnType<typeof createUserController>;
+  contactsController: ReturnType<typeof createContactsController>;
+  planController: ReturnType<typeof createPlanController>;
+  touchesController: ReturnType<typeof createTouchesController>;
+  authController: ReturnType<typeof createAuthController>;
+
+  // Routes
+  userRoutes: ReturnType<typeof createUserRoutes>;
+  contactRoutes: ReturnType<typeof createContactRoutes>;
+  planRoutes: ReturnType<typeof createPlanRoutes>;
+  touchesRoutes: ReturnType<typeof createTouchesRoutes>;
+  authRoutes: ReturnType<typeof createAuthRoutes>;
+  routes: ReturnType<typeof createRoutes>;
+
+  // Server
+  koaServer: ReturnType<typeof createKoaServer>;
+}
+
 // Create the container with type inference
-const container = createContainer({
+const container = createContainer<Container>({
   injectionMode: 'PROXY',
 });
 
@@ -53,6 +99,10 @@ container.register({
 container.register({
   authMiddleware: asFunction(createAuthMiddleware),
   optionalAuthMiddleware: asFunction(createOptionalAuthMiddleware),
+  smartEnumRegistry: asFunction(() => smartEnumRegistry),
+  smartEnumReviver: asFunction(createSmartEnumJSONReviver).inject(() => ({
+    registry: 'smartEnumRegistry',
+  })),
 });
 
 // Register mapper factory
@@ -67,7 +117,6 @@ container.register({
   contactRepository: asFunction(createContactRepository),
   planRepository: asFunction(createPlanRepository),
   touchesRepository: asFunction(createTouchesRepository),
-  suggestionRepository: asFunction(createSuggestionRepository),
 });
 
 // Register all controller factories
@@ -90,5 +139,14 @@ container.register({
   routes: asFunction(createRoutes),
 });
 
+// Register server factory
+container.register({
+  koaServer: asFunction(createKoaServer).inject(() => ({
+    smartEnumReviver: 'smartEnumReviver',
+    routes: 'routes',
+    optionalAuthMiddleware: 'optionalAuthMiddleware',
+  })),
+});
+
 export { container };
-export type Container = typeof container;
+export type { Container };

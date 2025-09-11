@@ -1,3 +1,4 @@
+import { createSmartEnumJSONReviver, smartEnumRegistry } from '@network/contracts';
 import { useAuth } from '../contexts/AuthContext';
 
 type JsonInit = Omit<RequestInit, 'body'> & { body?: unknown };
@@ -34,7 +35,8 @@ export const useApiFetchBase = (token?: string) => {
     // handle 204
     if (res.status === 204) return undefined as T;
 
-    return (await res.json()) as T;
+    const jsonText = await res.text();
+    return JSON.parse(jsonText, createSmartEnumJSONReviver(smartEnumRegistry)) as T;
   };
 
   return { apiFetch };

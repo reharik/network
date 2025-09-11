@@ -21,9 +21,10 @@
     "serve": "nx serve api",
     "start": "node dist/index.js",
     "start:dev": "node --enable-source-maps dist/index.js",
-    "test": "nx jest:test --runInBand --detectOpenHandles"
+    "test": "nx test api --runInBand --detectOpenHandles"
   },
   "dependencies": {
+    "@koa/bodyparser": "github:reharik/bodyparser#allow_custom_reviver_function",
     "@koa/cors": "^5.0.0",
     "@koa/router": "^13.1.0",
     "@network/contracts": "*",
@@ -36,7 +37,7 @@
     "koa-body": "^6.0.1",
     "luxon": "^3.7.1",
     "pg": "^8.16.3",
-    "smart-enums": "^0.0.9",
+    "smart-enums": "github:reharik/smart-enums#simplification",
     "uuid": "^11.1.0",
     "zod": "^3.24.2"
   },

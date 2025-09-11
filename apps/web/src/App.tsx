@@ -1,11 +1,10 @@
 // src/App.tsx
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Suspense, lazy } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
-import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
-import { Layout } from './Layout';
+import { NavRoutes } from './Routes';
 import { GlobalStyle } from './styles/globalStyle';
 import { theme } from './styles/theme';
 import { ScrollToTop } from './ui/ScrollToTop';
@@ -46,26 +45,7 @@ export default function App() {
           <BrowserRouter /* basename="/" */>
             <ScrollToTop />
             <Suspense fallback={<div style={{ padding: 16 }}>Loading…</div>}>
-              <Routes>
-                {/* all app routes share the Layout and require authentication */}
-                <Route path="login" element={<Login />} />
-                <Route
-                  element={
-                    <ProtectedRoute>
-                      <Layout />
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route index element={<Today />} />
-                  <Route path="contacts" element={<Contacts />} />
-                  <Route path="contacts/:id" element={<ContactDetail />} />
-                  <Route path="import" element={<ImportPage />} />
-                  <Route path="settings" element={<Settings />} />
-                </Route>
-
-                {/* catch-all */}
-                <Route path="*" element={<div style={{ padding: 16 }}>Not found</div>} />
-              </Routes>
+              <NavRoutes />
             </Suspense>
           </BrowserRouter>
         </AuthProvider>

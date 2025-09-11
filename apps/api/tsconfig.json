@@ -6,5 +6,5 @@
     "types": ["jest"]
   },
   "include": ["src/**/*.ts", "../../knexfile.ts"],
-  "exclude": ["**/*.spec.*", "**/*.test.*", "jest.*", "dist", "node_modules"]
+  "exclude": ["jest.*", "dist", "node_modules"]
 }
