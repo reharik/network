@@ -1,10 +1,34 @@
-import { createSmartEnumJSONReviver, smartEnumRegistry } from '@network/contracts';
+import { createSmartEnumJSONReviver, Enums } from '@network/contracts';
+import { parseFetchSafe, ParseResult } from 'parse-fetch';
+import typia from 'typia';
 import { useAuth } from '../contexts/AuthContext';
+
+// Create a typia safe validator that returns ParseResult<T>
+const createTypiaSafeValidator = <T>() => ({
+  validate: (data: unknown): ParseResult<T> => {
+    const validation = typia.validate<T>(data);
+    if (validation.success) {
+      return {
+        success: true,
+        data: validation.data,
+      };
+    }
+    // Convert validation errors to string array
+    const errorMessages = validation.errors.map((error) => error.path);
+    return {
+      success: false,
+      errors: errorMessages,
+    };
+  },
+});
 
 type JsonInit = Omit<RequestInit, 'body'> & { body?: unknown };
 
 export const useApiFetchBase = (token?: string) => {
-  const apiFetch = async <T = unknown>(path: string, init: JsonInit = {}): Promise<T> => {
+  const apiFetch = async <T = unknown>(
+    path: string,
+    init: JsonInit = {},
+  ): Promise<ParseResult<T>> => {
     const API = import.meta.env.VITE_API?.replace(/\/+$/, '') ?? '';
     const url = `${API}${path.startsWith('/') ? '' : '/'}${path}`;
 
@@ -19,7 +43,6 @@ export const useApiFetchBase = (token?: string) => {
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }
-
     const res = await fetch(url, {
       credentials: 'include',
       ...init,
@@ -27,16 +50,14 @@ export const useApiFetchBase = (token?: string) => {
       body: init.body ? JSON.stringify(init.body) : undefined,
     });
 
-    if (!res.ok) {
-      const text = await res.text().catch(() => '');
-      throw new Error(text || `HTTP ${res.status} ${res.statusText}`);
-    }
-
     // handle 204
-    if (res.status === 204) return undefined as T;
+    if (res.status === 204) return { success: true, data: undefined as T };
 
-    const jsonText = await res.text();
-    return JSON.parse(jsonText, createSmartEnumJSONReviver(smartEnumRegistry)) as T;
+    // Use parseFetchSafe with typia safe validator and smart enum reviver
+    return parseFetchSafe<T>(res, {
+      reviver: createSmartEnumJSONReviver({ Enums }),
+      validator: createTypiaSafeValidator<T>(),
+    });
   };
 
   return { apiFetch };

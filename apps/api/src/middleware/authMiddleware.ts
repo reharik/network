@@ -1,7 +1,11 @@
+import { RESOLVER } from 'awilix';
 import type { Context, Next } from 'koa';
-import type { AuthService } from '../services/authService';
+import type { Container } from '../container';
 
-export const createAuthMiddleware = ({ authService }: { authService: AuthService }) => {
+export type AuthMiddleware = (ctx: Context, next: Next) => Promise<void>;
+export type OptionalAuthMiddleware = AuthMiddleware;
+
+export const createAuthMiddleware = ({ authService }: Container) => {
   return async (ctx: Context, next: Next) => {
     const authHeader = ctx.get('Authorization');
 
@@ -26,7 +30,7 @@ export const createAuthMiddleware = ({ authService }: { authService: AuthService
   };
 };
 
-export const createOptionalAuthMiddleware = ({ authService }: { authService: AuthService }) => {
+export const createOptionalAuthMiddleware = ({ authService }: Container) => {
   return async (ctx: Context, next: Next) => {
     const authHeader = ctx.get('Authorization');
     ctx.isLoggedIn = false;
@@ -44,4 +48,10 @@ export const createOptionalAuthMiddleware = ({ authService }: { authService: Aut
     await next();
   };
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+(createAuthMiddleware as any)[RESOLVER] = {};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+(createOptionalAuthMiddleware as any)[RESOLVER] = {};
 // Test comment Mon Sep  8 02:32:06 PM CDT 2025

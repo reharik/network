@@ -10,11 +10,14 @@ export const Contacts = () => {
   const qc = useQueryClient();
   const { fetchContacts } = useContactListService();
   const { deleteContact } = useContactService();
-  const { data, isLoading } = useQuery({
+  const { data: result, isLoading } = useQuery({
     queryKey: ['contacts'],
     queryFn: fetchContacts,
   });
-  const contacts = useMemo(() => data?.contacts ?? [], [data]);
+  const contacts = useMemo(
+    () => (result?.success && result?.data.contacts ? result?.data.contacts : []),
+    [result],
+  );
 
   const [query, querySetter] = useState('');
   const [channel, setChannel] = useState<ContactMethod | undefined>();

@@ -1,9 +1,6 @@
 import Router from '@koa/router';
-import type { AuthRoutes } from './authRoutes';
-import type { ContactRoutes } from './contactRoutes';
-import type { PlanRoutes } from './planRoutes';
-import type { TouchesRoutes } from './touchesRoutes';
-import type { UserRoutes } from './userRoutes';
+import { RESOLVER } from 'awilix';
+import type { Container } from '../container';
 
 export interface Routes {
   mountRoutes: (router: Router) => void;
@@ -15,13 +12,7 @@ export const createRoutes = ({
   planRoutes,
   touchesRoutes,
   authRoutes,
-}: {
-  userRoutes: UserRoutes;
-  contactRoutes: ContactRoutes;
-  planRoutes: PlanRoutes;
-  touchesRoutes: TouchesRoutes;
-  authRoutes: AuthRoutes;
-}): Routes => ({
+}: Container): Routes => ({
   mountRoutes: (router: Router) => {
     authRoutes.mountRoutes(router);
     userRoutes.mountRoutes(router);
@@ -30,3 +21,6 @@ export const createRoutes = ({
     touchesRoutes.mountRoutes(router);
   },
 });
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+(createRoutes as any)[RESOLVER] = {};

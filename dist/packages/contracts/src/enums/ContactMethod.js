@@ -16,4 +16,5 @@ const input = {
 };
 export const ContactMethod = enumeration({
     input,
+    enumType: 'ContactMethod',
 });

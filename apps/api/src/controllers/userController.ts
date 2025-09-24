@@ -1,16 +1,13 @@
+import { RESOLVER } from 'awilix';
 import { Context } from 'koa';
-import type { UserRepository } from '../repositories/userRepository';
+import type { Container } from '../container';
 
 export interface UserController {
   getMe: (ctx: Context) => Promise<Context>;
   updateDailyGoal: (ctx: Context) => Promise<Context>;
 }
 
-export const createUserController = ({
-  userRepository,
-}: {
-  userRepository: UserRepository;
-}): UserController => ({
+export const createUserController = ({ userRepository }: Container): UserController => ({
   getMe: async (ctx: Context): Promise<Context> => {
     const user = await userRepository.getUser(ctx.user.id);
     if (!user) {
@@ -33,3 +30,6 @@ export const createUserController = ({
     return ctx;
   },
 });
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+(createUserController as any)[RESOLVER] = {};

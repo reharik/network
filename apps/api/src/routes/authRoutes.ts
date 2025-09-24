@@ -1,18 +1,18 @@
 import Router from '@koa/router';
-import type { AuthController } from '../controllers/authController';
+import { RESOLVER } from 'awilix';
+import type { Container } from '../container';
 
 export interface AuthRoutes {
   mountRoutes: (router: Router) => void;
 }
 
-export const createAuthRoutes = ({
-  authController,
-}: {
-  authController: AuthController;
-}): AuthRoutes => ({
+export const createAuthRoutes = ({ authController }: Container): AuthRoutes => ({
   mountRoutes: (router: Router) => {
     router.post('/auth/login', authController.login);
     router.post('/auth/logout', authController.logout);
     router.get('/auth/me', authController.me);
   },
 });
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+(createAuthRoutes as any)[RESOLVER] = {};

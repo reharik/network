@@ -25,5 +25,6 @@ const input = {
 
 export const ContactMethod = enumeration<typeof input, ContactMethodItem>({
   input,
+  enumType: 'ContactMethod',
 });
 export type ContactMethod = Enumeration<typeof ContactMethod>;

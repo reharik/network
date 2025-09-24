@@ -1,5 +1,6 @@
+import { RESOLVER } from 'awilix';
 import type { Context } from 'koa';
-import type { AuthService } from '../services/authService';
+import type { Container } from '../container';
 
 export interface AuthController {
   login: (ctx: Context) => Promise<Context>;
@@ -7,11 +8,7 @@ export interface AuthController {
   me: (ctx: Context) => Context;
 }
 
-export const createAuthController = ({
-  authService,
-}: {
-  authService: AuthService;
-}): AuthController => ({
+export const createAuthController = ({ authService }: Container): AuthController => ({
   login: async (ctx: Context): Promise<Context> => {
     const { email, password } = ctx.request.body as {
       email: string;
@@ -62,3 +59,6 @@ export const createAuthController = ({
     return ctx;
   },
 });
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+(createAuthController as any)[RESOLVER] = {};

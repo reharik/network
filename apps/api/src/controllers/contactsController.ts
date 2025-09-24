@@ -1,7 +1,7 @@
-import { ContactDTOPartial, ContactMethod, upsertContactSchema } from '@network/contracts';
+import { ContactMethod, ImportContactsDTO, validateUpsertContact } from '@network/contracts';
+import { RESOLVER } from 'awilix';
 import type { Context } from 'koa';
-import type { ContactRepository } from '../repositories/contactRepository';
-import type { ImportService } from '../services/importService';
+import type { Container } from '../container';
 
 export interface ContactsController {
   getContacts: (ctx: Context) => Promise<Context>;
@@ -14,10 +14,7 @@ export interface ContactsController {
 export const createContactsController = ({
   contactRepository,
   importService,
-}: {
-  contactRepository: ContactRepository;
-  importService: ImportService;
-}): ContactsController => ({
+}: Container): ContactsController => ({
   getContacts: async (ctx: Context) => {
     const userId = ctx.user.id;
     const entities = await contactRepository.listContacts(userId, {
@@ -48,43 +45,40 @@ export const createContactsController = ({
   },
 
   createContact: async (ctx: Context) => {
-    const parsed = upsertContactSchema.safeParse(ctx.request.body);
-    if (!parsed.success) {
+    const validation = validateUpsertContact(ctx.request.body);
+    if (!validation.success) {
       ctx.status = 400;
       ctx.body = {
         error: 'Invalid request format',
-        issues: parsed.error.issues,
+        issues: validation.errors,
       };
       return ctx;
     }
-    const body: ContactDTOPartial = parsed.data;
     const userId = ctx.user.id;
 
     const entity = await contactRepository.createContact(userId, {
-      ...body,
-      preferredMethod: body.preferredMethod ?? ContactMethod.email.value,
+      ...validation.data,
+      preferredMethod: validation.data.preferredMethod ?? ContactMethod.email,
     });
 
-    // Smart enums middleware will handle serialization
     ctx.status = 201;
     ctx.body = entity;
     return ctx;
   },
 
   patchContact: async (ctx: Context) => {
-    const parsed = upsertContactSchema.safeParse(ctx.request.body);
-    if (!parsed.success) {
+    const validation = validateUpsertContact(ctx.request.body);
+    if (!validation.success) {
       ctx.status = 400;
       ctx.body = {
         error: 'Invalid request format',
-        issues: parsed.error.issues,
+        issues: validation.errors,
       };
       return ctx;
     }
-    const body: ContactDTOPartial = parsed.data;
     const userId = ctx.user.id;
 
-    const entity = await contactRepository.patchContact(userId, ctx.params.id, body);
+    const entity = await contactRepository.patchContact(userId, ctx.params.id, validation.data);
     if (!entity) {
       ctx.status = 404;
       ctx.body = { error: 'Contact not found' };
@@ -99,15 +93,7 @@ export const createContactsController = ({
 
   importContacts: async (ctx: Context) => {
     const body = ctx.request.body as {
-      rows: Array<{
-        firstName?: string;
-        lastName?: string;
-        email?: string;
-        phone?: string;
-        notes?: string;
-        tags?: string | string[];
-        suggestion?: string;
-      }>;
+      rows: ImportContactsDTO[];
     };
 
     if (!body.rows || !Array.isArray(body.rows)) {
@@ -124,3 +110,6 @@ export const createContactsController = ({
     return ctx;
   },
 });
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+(createContactsController as any)[RESOLVER] = {};

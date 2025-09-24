@@ -3,8 +3,26 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc/apps/api",
     "noEmit": true,
-    "types": ["jest"]
+    "types": [
+      "jest"
+    ],
+    "plugins": [
+      {
+        "transform": "typia/lib/transform"
+      }
+    ],
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "strict": true
   },
-  "include": ["src/**/*.ts", "../../knexfile.ts"],
-  "exclude": ["jest.*", "dist", "node_modules"]
+  "include": [
+    "src/**/*.ts",
+    "../../knexfile.ts",
+    "src/di/awilix.autoload.d.ts"
+  ],
+  "exclude": [
+    "jest.*",
+    "dist",
+    "node_modules"
+  ]
 }

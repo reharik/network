@@ -1,1 +1,0 @@
-import{m as o}from"./mappers-Et_TSE1t.js";import{u as s}from"./index-BFw5mKhb.js";const i=()=>{const{apiFetch:c}=s();return{fetchContacts:async()=>({contacts:(await c("/contacts")).map(t=>o.toContact(t)).filter(t=>!!t)})}};export{i as u};

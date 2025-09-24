@@ -1,29 +1,22 @@
-import type { Contact } from '@network/contracts';
-import { ContactDTOPartial } from '@network/contracts';
-import type { Knex } from 'knex';
+import { ContactDTO, ContactDTOPartial } from '@network/contracts';
+import { RESOLVER } from 'awilix';
 import { v4 } from 'uuid';
-import type { Mappers } from './mappers';
+import type { Container } from '../container';
 
 export type ListContactsOpts = { dueOnly?: boolean; q?: string };
 
 export interface ContactRepository {
-  listContacts: (userId: string, opts?: ListContactsOpts) => Promise<Contact[]>;
-  createContact: (userId: string, data: ContactDTOPartial) => Promise<Contact>;
-  getContact: (userId: string, id: string) => Promise<Contact | undefined>;
+  listContacts: (userId: string, opts?: ListContactsOpts) => Promise<ContactDTO[]>;
+  createContact: (userId: string, data: ContactDTOPartial) => Promise<ContactDTO>;
+  getContact: (userId: string, id: string) => Promise<ContactDTO | undefined>;
   patchContact: (
     userId: string,
     id: string,
     data: Partial<ContactDTOPartial>,
-  ) => Promise<Contact | undefined>;
+  ) => Promise<ContactDTO | undefined>;
 }
 
-export const createContactRepository = ({
-  connection,
-  mappers,
-}: {
-  connection: Knex;
-  mappers: Mappers;
-}): ContactRepository => ({
+export const createContactRepository = ({ connection }: Container): ContactRepository => ({
   listContacts: async (userId: string, opts?: ListContactsOpts) => {
     let q = connection('contacts').where({ userId });
     if (opts?.dueOnly) q = q.andWhere('nextDueAt', '<=', connection.fn.now());
@@ -39,10 +32,7 @@ export const createContactRepository = ({
       { column: 'lastName', order: 'asc' },
       { column: 'firstName', order: 'asc' },
     ]);
-    const entities = rows
-      .map((row) => mappers.toContactEntity(row))
-      .filter((entity): entity is Contact => entity !== undefined);
-    return entities;
+    return rows;
   },
   createContact: async (userId: string, data: ContactDTOPartial) => {
     const payload: ContactDTOPartial = {
@@ -51,20 +41,20 @@ export const createContactRepository = ({
       userId,
     };
     const [row] = await connection('contacts').insert(payload).returning('*');
-    const entity = mappers.toContactEntity(row);
-    if (!entity) throw new Error('Failed to create contact');
-    return entity;
+    return row;
   },
   getContact: async (userId: string, id: string) => {
     const dto = await connection('contacts').where({ id, userId }).first();
-    return mappers.toContactEntity(dto);
+    return dto;
   },
   patchContact: async (userId: string, id: string, data: Partial<ContactDTOPartial>) => {
     const existing = await connection('contacts').where({ id, userId }).first();
     if (!existing) return undefined;
     const updates: Partial<ContactDTOPartial> = { ...existing, ...data };
     const [row] = await connection('contacts').where({ id, userId }).update(updates, '*');
-    const entity = mappers.toContactEntity(row);
-    return entity || undefined;
+    return row;
   },
 });
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-member-access
+(createContactRepository as any)[RESOLVER] = {};

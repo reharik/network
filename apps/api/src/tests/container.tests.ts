@@ -29,16 +29,6 @@ describe('Container', () => {
     expect(typeof touchesRepository.createTouch).toBe('function');
   });
 
-  it('should resolve mappers', () => {
-    const mappers = container.resolve('mappers');
-    expect(mappers).toBeDefined();
-    expect(typeof mappers.toContactEntity).toBe('function');
-    expect(typeof mappers.toContactDTO).toBe('function');
-    expect(typeof mappers.toContactListDTO).toBe('function');
-    expect(typeof mappers.toTouchEntity).toBe('function');
-    expect(typeof mappers.toTouchDTO).toBe('function');
-  });
-
   it('should resolve userController', () => {
     const userController = container.resolve('userController');
     expect(userController).toBeDefined();
@@ -75,5 +65,14 @@ describe('Container', () => {
   it('should resolve connection', () => {
     const connection = container.resolve('connection');
     expect(connection).toBeDefined();
+  });
+
+  it('should resolve ContactMethod enum from contracts', () => {
+    const ContactMethod = container.resolve('ContactMethod'); // Type-safe through container!
+    expect(ContactMethod).toBeDefined();
+    expect(typeof ContactMethod.email).toBe('object');
+    expect(typeof ContactMethod.sms).toBe('object');
+    expect(typeof ContactMethod.call).toBe('object');
+    expect(typeof ContactMethod.other).toBe('object');
   });
 });

@@ -5,6 +5,8 @@ ARG NODE_VERSION=22
 # =============================================================================
 FROM node:${NODE_VERSION}-slim AS base
 WORKDIR /repo
+# Install git for GitHub dependencies
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 RUN corepack enable || true
 
 # =============================================================================
@@ -14,16 +16,20 @@ RUN corepack enable || true
 # Development and staging dependencies - includes all dependencies
 FROM base AS deps-dev-staging
 COPY package.json package-lock.json ./
+# Create workspace directories first
+RUN mkdir -p apps/api packages/contracts
 COPY apps/api/package.json apps/api/package.json
 COPY packages/contracts/package.json packages/contracts/package.json
-RUN npm ci --workspaces --include-workspace-root
+RUN npm ci --workspaces --include-workspace-root --ignore-scripts
 
 # Production dependencies - only production dependencies
 FROM base AS deps-prod
 COPY package.json package-lock.json ./
+# Create workspace directories first
+RUN mkdir -p apps/api packages/contracts
 COPY apps/api/package.json apps/api/package.json
 COPY packages/contracts/package.json packages/contracts/package.json
-RUN npm ci --workspaces --include-workspace-root --only=production
+RUN npm ci --workspaces --include-workspace-root --only=production --ignore-scripts
 
 # =============================================================================
 # BUILD STAGE
@@ -34,6 +40,8 @@ FROM base AS build
 WORKDIR /repo
 COPY --from=deps-dev-staging /repo/node_modules ./node_modules
 COPY . .
+# Generate container types after source code is available
+RUN cd apps/api && npm run gen:container
 RUN npx nx build @app/api --configuration=production
 
 # =============================================================================

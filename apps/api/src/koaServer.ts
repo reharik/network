@@ -1,26 +1,24 @@
 import cors from '@koa/cors';
 import Router from '@koa/router';
+import { RESOLVER } from 'awilix';
 import dotenv from 'dotenv';
 import http from 'http';
 import Koa, { Context } from 'koa';
 import { koaBody } from 'koa-body';
+import type { Container } from './container';
 import { database } from './knex';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
 
 dotenv.config();
 
-export interface KoaServerDependencies {
-  smartEnumReviver: (key: string, value: unknown) => unknown;
-  routes: { mountRoutes: (router: Router) => void };
-  optionalAuthMiddleware: (ctx: Context, next: () => Promise<void>) => Promise<void>;
-}
+export type KoaServer = http.Server;
 
 export const createKoaServer = ({
   smartEnumReviver,
   routes,
   optionalAuthMiddleware,
-}: KoaServerDependencies) => {
+}: Container) => {
   const app = new Koa();
   app.context.db = database;
 
@@ -68,3 +66,6 @@ export const createKoaServer = ({
 
   return http.createServer(app.callback());
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+(createKoaServer as any)[RESOLVER] = {};

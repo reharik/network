@@ -1,4 +1,4 @@
-import type { Contact } from '@network/contracts';
+import { ContactDTO } from '@network/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -61,30 +61,37 @@ export const ContactDetail = () => {
   const qc = useQueryClient();
   const { getContact, updateContact, deleteContact } = useContactService();
 
-  const { data, isLoading, isError } = useQuery({
+  const {
+    data: result,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: qk.contact(id),
     queryFn: () => getContact(id),
     enabled: Boolean(id),
   });
 
-  const [form, setForm] = useState<Contact | null>(null);
+  const [form, setForm] = useState<ContactDTO | undefined>(undefined);
   useEffect(() => {
-    if (data) setForm(data);
-  }, [data]);
+    if (result?.success) setForm(result.data);
+  }, [result]);
 
-  const onChange = (k: keyof Contact) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm((prev) => (prev ? { ...prev, [k]: e.target.value } : prev));
+  const onChange =
+    (k: keyof ContactDTO) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setForm((prev) => (prev ? { ...prev, [k]: e.target.value } : prev));
 
   const isDirty = useMemo(
-    () => JSON.stringify(data ?? {}) !== JSON.stringify(form ?? {}),
-    [data, form],
+    () => result?.success && JSON.stringify(result?.data ?? {}) !== JSON.stringify(form ?? {}),
+    [result, form],
   );
 
   const saveMut = useMutation({
     mutationFn: updateContact,
     onSuccess: (updated) => {
-      qc.setQueryData(qk.contact(updated.id), updated);
-      void qc.invalidateQueries({ queryKey: qk.contacts });
+      if (updated.success) {
+        qc.setQueryData(qk.contact(updated.data.id), updated);
+        void qc.invalidateQueries({ queryKey: qk.contacts });
+      }
     },
   });
 

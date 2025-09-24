@@ -1,3 +1,1230 @@
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __commonJS = (cb, mod) => function __require() {
+  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+};
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+
+// node_modules/typia/lib/transformers/NoTransformConfigurationError.js
+var require_NoTransformConfigurationError = __commonJS({
+  "node_modules/typia/lib/transformers/NoTransformConfigurationError.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.NoTransformConfigurationError = NoTransformConfigurationError;
+    function NoTransformConfigurationError(name) {
+      throw new Error([
+        `Error on typia.${name}(): no transform has been configured.`,
+        "",
+        "Read and follow https://typia.io/docs/setup please.",
+        "",
+        [
+          "If you've already completed the setup, it means there's",
+          "a bug in your code. Run `tsc` command so that check what",
+          "is wrong with your code."
+        ].join(" ")
+      ].join("\n"));
+    }
+  }
+});
+
+// node_modules/typia/lib/functional.js
+var require_functional = __commonJS({
+  "node_modules/typia/lib/functional.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.assertFunction = assertFunction;
+    exports.assertParameters = assertParameters;
+    exports.assertReturn = assertReturn;
+    exports.assertEqualsFunction = assertEqualsFunction;
+    exports.assertEqualsParameters = assertEqualsParameters;
+    exports.assertEqualsReturn = assertEqualsReturn;
+    exports.isFunction = isFunction;
+    exports.isParameters = isParameters;
+    exports.isReturn = isReturn;
+    exports.equalsFunction = equalsFunction;
+    exports.equalsParameters = equalsParameters;
+    exports.equalsReturn = equalsReturn;
+    exports.validateFunction = validateFunction;
+    exports.validateParameters = validateParameters;
+    exports.validateReturn = validateReturn;
+    exports.validateEqualsFunction = validateEqualsFunction;
+    exports.validateEqualsParameters = validateEqualsParameters;
+    exports.validateEqualsReturn = validateEqualsReturn;
+    var NoTransformConfigurationError_1 = require_NoTransformConfigurationError();
+    function assertFunction() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.assertFunction");
+    }
+    function assertParameters() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.assertParameters");
+    }
+    function assertReturn() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.assertReturn");
+    }
+    function assertEqualsFunction() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.assertEqualsFunction");
+    }
+    function assertEqualsParameters() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.assertEqualsParameters");
+    }
+    function assertEqualsReturn() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.assertEqualsReturn");
+    }
+    function isFunction() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.isFunction");
+    }
+    function isParameters() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.isParameters");
+    }
+    function isReturn() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.isReturn");
+    }
+    function equalsFunction() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.equalsFunction");
+    }
+    function equalsParameters() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.equalsParameters");
+    }
+    function equalsReturn() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.equalsReturn");
+    }
+    function validateFunction() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.validateFunction");
+    }
+    function validateParameters() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.validateParameters");
+    }
+    function validateReturn() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.validateReturn");
+    }
+    function validateEqualsFunction() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.validateEqualsFunction");
+    }
+    function validateEqualsParameters() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.validateEqualsParameters");
+    }
+    function validateEqualsReturn() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("functional.validateEqualsReturn");
+    }
+  }
+});
+
+// node_modules/typia/lib/http.js
+var require_http = __commonJS({
+  "node_modules/typia/lib/http.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.formData = formData;
+    exports.assertFormData = assertFormData;
+    exports.isFormData = isFormData;
+    exports.validateFormData = validateFormData;
+    exports.query = query;
+    exports.assertQuery = assertQuery;
+    exports.isQuery = isQuery;
+    exports.validateQuery = validateQuery;
+    exports.headers = headers;
+    exports.assertHeaders = assertHeaders;
+    exports.isHeaders = isHeaders;
+    exports.validateHeaders = validateHeaders;
+    exports.parameter = parameter;
+    exports.createFormData = createFormData;
+    exports.createAssertFormData = createAssertFormData;
+    exports.createIsFormData = createIsFormData;
+    exports.createValidateFormData = createValidateFormData;
+    exports.createQuery = createQuery;
+    exports.createAssertQuery = createAssertQuery;
+    exports.createIsQuery = createIsQuery;
+    exports.createValidateQuery = createValidateQuery;
+    exports.createHeaders = createHeaders;
+    exports.createAssertHeaders = createAssertHeaders;
+    exports.createIsHeaders = createIsHeaders;
+    exports.createValidateHeaders = createValidateHeaders;
+    exports.createParameter = createParameter;
+    var NoTransformConfigurationError_1 = require_NoTransformConfigurationError();
+    function formData() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.formData");
+    }
+    function assertFormData() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.assertFormData");
+    }
+    function isFormData() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.isFormData");
+    }
+    function validateFormData() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.validateFormData");
+    }
+    function query() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.query");
+    }
+    function assertQuery() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.assertQuery");
+    }
+    function isQuery() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.isQuery");
+    }
+    function validateQuery() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.validateQuery");
+    }
+    function headers() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.headers");
+    }
+    function assertHeaders() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.assertHeaders");
+    }
+    function isHeaders() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.isHeaders");
+    }
+    function validateHeaders() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.validateHeaders");
+    }
+    function parameter() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.parameter");
+    }
+    function createFormData() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.createFormData");
+    }
+    function createAssertFormData() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.createAssertFormData");
+    }
+    function createIsFormData() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.createIsFormData");
+    }
+    function createValidateFormData() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.createValidateFormData");
+    }
+    function createQuery() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.createQuery");
+    }
+    function createAssertQuery() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.createAssertQuery");
+    }
+    function createIsQuery() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.createIsQuery");
+    }
+    function createValidateQuery() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.createValidateQuery");
+    }
+    function createHeaders() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.createHeaders");
+    }
+    function createAssertHeaders() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.createAssertHeaders");
+    }
+    function createIsHeaders() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.createIsHeaders");
+    }
+    function createValidateHeaders() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.createValidateHeaders");
+    }
+    function createParameter() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("http.createParameter");
+    }
+  }
+});
+
+// node_modules/typia/lib/llm.js
+var require_llm = __commonJS({
+  "node_modules/typia/lib/llm.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.controller = controller;
+    exports.application = application;
+    exports.parameters = parameters;
+    exports.schema = schema;
+    var NoTransformConfigurationError_1 = require_NoTransformConfigurationError();
+    function controller(..._args) {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("llm.controller");
+    }
+    function application() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("llm.application");
+    }
+    function parameters() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("llm.parameters");
+    }
+    function schema() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("llm.schema");
+    }
+  }
+});
+
+// node_modules/typia/lib/json.js
+var require_json = __commonJS({
+  "node_modules/typia/lib/json.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.schemas = schemas;
+    exports.schema = schema;
+    exports.assertParse = assertParse;
+    exports.isParse = isParse;
+    exports.validateParse = validateParse;
+    exports.stringify = stringify;
+    exports.assertStringify = assertStringify;
+    exports.isStringify = isStringify;
+    exports.validateStringify = validateStringify;
+    exports.createIsParse = createIsParse;
+    exports.createAssertParse = createAssertParse;
+    exports.createValidateParse = createValidateParse;
+    exports.createStringify = createStringify;
+    exports.createAssertStringify = createAssertStringify;
+    exports.createIsStringify = createIsStringify;
+    exports.createValidateStringify = createValidateStringify;
+    var NoTransformConfigurationError_1 = require_NoTransformConfigurationError();
+    function schemas() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.schemas");
+    }
+    function schema() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.schema");
+    }
+    function assertParse() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.assertParse");
+    }
+    function isParse() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.isParse");
+    }
+    function validateParse() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.validateParse");
+    }
+    function stringify() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.stringify");
+    }
+    function assertStringify() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.assertStringify");
+    }
+    function isStringify() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.isStringify");
+    }
+    function validateStringify() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.validateStringify");
+    }
+    function createIsParse() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.createIsParse");
+    }
+    function createAssertParse() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.createAssertParse");
+    }
+    function createValidateParse() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.createValidateParse");
+    }
+    function createStringify() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.createStringify");
+    }
+    function createAssertStringify() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.createAssertStringify");
+    }
+    function createIsStringify() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.createIsStringify");
+    }
+    function createValidateStringify() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("json.createValidateStringify");
+    }
+  }
+});
+
+// node_modules/typia/lib/misc.js
+var require_misc = __commonJS({
+  "node_modules/typia/lib/misc.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.literals = literals;
+    exports.clone = clone;
+    exports.assertClone = assertClone;
+    exports.isClone = isClone;
+    exports.validateClone = validateClone;
+    exports.prune = prune;
+    exports.assertPrune = assertPrune;
+    exports.isPrune = isPrune;
+    exports.validatePrune = validatePrune;
+    exports.createClone = createClone;
+    exports.createAssertClone = createAssertClone;
+    exports.createIsClone = createIsClone;
+    exports.createValidateClone = createValidateClone;
+    exports.createPrune = createPrune;
+    exports.createAssertPrune = createAssertPrune;
+    exports.createIsPrune = createIsPrune;
+    exports.createValidatePrune = createValidatePrune;
+    var NoTransformConfigurationError_1 = require_NoTransformConfigurationError();
+    function literals() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.literals");
+    }
+    function clone() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.clone");
+    }
+    function assertClone() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.assertClone");
+    }
+    function isClone() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.isClone");
+    }
+    function validateClone() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.validateClone");
+    }
+    function prune() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.prune");
+    }
+    function assertPrune() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.assertPrune");
+    }
+    function isPrune() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.isPrune");
+    }
+    function validatePrune() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.validatePrune");
+    }
+    function createClone() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.createClone");
+    }
+    function createAssertClone() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.createAssertClone");
+    }
+    function createIsClone() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.createIsClone");
+    }
+    function createValidateClone() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.createValidateClone");
+    }
+    function createPrune() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.createPrune");
+    }
+    function createAssertPrune() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.createAssertPrune");
+    }
+    function createIsPrune() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.createIsPrune");
+    }
+    function createValidatePrune() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("misc.createValidatePrune");
+    }
+  }
+});
+
+// node_modules/typia/lib/notations.js
+var require_notations = __commonJS({
+  "node_modules/typia/lib/notations.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.camel = camel;
+    exports.assertCamel = assertCamel;
+    exports.isCamel = isCamel;
+    exports.validateCamel = validateCamel;
+    exports.pascal = pascal;
+    exports.assertPascal = assertPascal;
+    exports.isPascal = isPascal;
+    exports.validatePascal = validatePascal;
+    exports.snake = snake;
+    exports.assertSnake = assertSnake;
+    exports.isSnake = isSnake;
+    exports.validateSnake = validateSnake;
+    exports.createCamel = createCamel;
+    exports.createAssertCamel = createAssertCamel;
+    exports.createIsCamel = createIsCamel;
+    exports.createValidateCamel = createValidateCamel;
+    exports.createPascal = createPascal;
+    exports.createAssertPascal = createAssertPascal;
+    exports.createIsPascal = createIsPascal;
+    exports.createValidatePascal = createValidatePascal;
+    exports.createSnake = createSnake;
+    exports.createAssertSnake = createAssertSnake;
+    exports.createIsSnake = createIsSnake;
+    exports.createValidateSnake = createValidateSnake;
+    var NoTransformConfigurationError_1 = require_NoTransformConfigurationError();
+    function camel() {
+      return (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.camel");
+    }
+    function assertCamel() {
+      return (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.assertCamel");
+    }
+    function isCamel() {
+      return (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.isCamel");
+    }
+    function validateCamel() {
+      return (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.validateCamel");
+    }
+    function pascal() {
+      return (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.pascal");
+    }
+    function assertPascal() {
+      return (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.assertPascal");
+    }
+    function isPascal() {
+      return (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.isPascal");
+    }
+    function validatePascal() {
+      return (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.validatePascal");
+    }
+    function snake() {
+      return (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.snake");
+    }
+    function assertSnake() {
+      return (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.assertSnake");
+    }
+    function isSnake() {
+      return (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.isSnake");
+    }
+    function validateSnake() {
+      return (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.validateSnake");
+    }
+    function createCamel() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.createCamel");
+    }
+    function createAssertCamel() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.createAssertCamel");
+    }
+    function createIsCamel() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.createIsCamel");
+    }
+    function createValidateCamel() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.createValidateCamel");
+    }
+    function createPascal() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.createPascal");
+    }
+    function createAssertPascal() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.createAssertPascal");
+    }
+    function createIsPascal() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.createIsPascal");
+    }
+    function createValidatePascal() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.createValidatePascal");
+    }
+    function createSnake() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.createSnake");
+    }
+    function createAssertSnake() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.createAssertSnake");
+    }
+    function createIsSnake() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.createIsSnake");
+    }
+    function createValidateSnake() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("notations.createValidateSnake");
+    }
+  }
+});
+
+// node_modules/typia/lib/protobuf.js
+var require_protobuf = __commonJS({
+  "node_modules/typia/lib/protobuf.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.message = message;
+    exports.decode = decode;
+    exports.assertDecode = assertDecode;
+    exports.isDecode = isDecode;
+    exports.validateDecode = validateDecode;
+    exports.encode = encode;
+    exports.assertEncode = assertEncode;
+    exports.isEncode = isEncode;
+    exports.validateEncode = validateEncode;
+    exports.createDecode = createDecode;
+    exports.createIsDecode = createIsDecode;
+    exports.createAssertDecode = createAssertDecode;
+    exports.createValidateDecode = createValidateDecode;
+    exports.createEncode = createEncode;
+    exports.createIsEncode = createIsEncode;
+    exports.createAssertEncode = createAssertEncode;
+    exports.createValidateEncode = createValidateEncode;
+    var NoTransformConfigurationError_1 = require_NoTransformConfigurationError();
+    function message() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.message");
+    }
+    function decode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.decode");
+    }
+    function assertDecode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.assertDecode");
+    }
+    function isDecode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.isDecode");
+    }
+    function validateDecode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.validateDecode");
+    }
+    function encode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.encode");
+    }
+    function assertEncode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.assertEncode");
+    }
+    function isEncode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.isEncode");
+    }
+    function validateEncode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.validateEncode");
+    }
+    function createDecode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.createDecode");
+    }
+    function createIsDecode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.createIsDecode");
+    }
+    function createAssertDecode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.createAssertDecode");
+    }
+    function createValidateDecode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.createValidateDecode");
+    }
+    function createEncode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.createEncode");
+    }
+    function createIsEncode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.createIsEncode");
+    }
+    function createAssertEncode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.createAssertEncode");
+    }
+    function createValidateEncode() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("protobuf.createValidateEncode");
+    }
+  }
+});
+
+// node_modules/typia/lib/reflect.js
+var require_reflect = __commonJS({
+  "node_modules/typia/lib/reflect.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.metadata = metadata;
+    exports.name = name;
+    var NoTransformConfigurationError_1 = require_NoTransformConfigurationError();
+    function metadata() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("reflect.metadata");
+    }
+    function name() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("reflect.name");
+    }
+  }
+});
+
+// node_modules/typia/lib/tags/Constant.js
+var require_Constant = __commonJS({
+  "node_modules/typia/lib/tags/Constant.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/ContentMediaType.js
+var require_ContentMediaType = __commonJS({
+  "node_modules/typia/lib/tags/ContentMediaType.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/Default.js
+var require_Default = __commonJS({
+  "node_modules/typia/lib/tags/Default.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/Example.js
+var require_Example = __commonJS({
+  "node_modules/typia/lib/tags/Example.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/Examples.js
+var require_Examples = __commonJS({
+  "node_modules/typia/lib/tags/Examples.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/ExclusiveMaximum.js
+var require_ExclusiveMaximum = __commonJS({
+  "node_modules/typia/lib/tags/ExclusiveMaximum.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/ExclusiveMinimum.js
+var require_ExclusiveMinimum = __commonJS({
+  "node_modules/typia/lib/tags/ExclusiveMinimum.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/Format.js
+var require_Format = __commonJS({
+  "node_modules/typia/lib/tags/Format.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/JsonSchemaPlugin.js
+var require_JsonSchemaPlugin = __commonJS({
+  "node_modules/typia/lib/tags/JsonSchemaPlugin.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/Maximum.js
+var require_Maximum = __commonJS({
+  "node_modules/typia/lib/tags/Maximum.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/MaxItems.js
+var require_MaxItems = __commonJS({
+  "node_modules/typia/lib/tags/MaxItems.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/MaxLength.js
+var require_MaxLength = __commonJS({
+  "node_modules/typia/lib/tags/MaxLength.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/Minimum.js
+var require_Minimum = __commonJS({
+  "node_modules/typia/lib/tags/Minimum.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/MinItems.js
+var require_MinItems = __commonJS({
+  "node_modules/typia/lib/tags/MinItems.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/MinLength.js
+var require_MinLength = __commonJS({
+  "node_modules/typia/lib/tags/MinLength.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/MultipleOf.js
+var require_MultipleOf = __commonJS({
+  "node_modules/typia/lib/tags/MultipleOf.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/Pattern.js
+var require_Pattern = __commonJS({
+  "node_modules/typia/lib/tags/Pattern.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/Sequence.js
+var require_Sequence = __commonJS({
+  "node_modules/typia/lib/tags/Sequence.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/TagBase.js
+var require_TagBase = __commonJS({
+  "node_modules/typia/lib/tags/TagBase.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/Type.js
+var require_Type = __commonJS({
+  "node_modules/typia/lib/tags/Type.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/UniqueItems.js
+var require_UniqueItems = __commonJS({
+  "node_modules/typia/lib/tags/UniqueItems.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/tags/index.js
+var require_tags = __commonJS({
+  "node_modules/typia/lib/tags/index.js"(exports) {
+    "use strict";
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
+      var desc = Object.getOwnPropertyDescriptor(m, k);
+      if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+        desc = { enumerable: true, get: function() {
+          return m[k];
+        } };
+      }
+      Object.defineProperty(o, k2, desc);
+    } : function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
+      o[k2] = m[k];
+    });
+    var __exportStar = exports && exports.__exportStar || function(m, exports2) {
+      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p)) __createBinding(exports2, m, p);
+    };
+    Object.defineProperty(exports, "__esModule", { value: true });
+    __exportStar(require_Constant(), exports);
+    __exportStar(require_ContentMediaType(), exports);
+    __exportStar(require_Default(), exports);
+    __exportStar(require_Example(), exports);
+    __exportStar(require_Examples(), exports);
+    __exportStar(require_ExclusiveMaximum(), exports);
+    __exportStar(require_ExclusiveMinimum(), exports);
+    __exportStar(require_Format(), exports);
+    __exportStar(require_JsonSchemaPlugin(), exports);
+    __exportStar(require_Maximum(), exports);
+    __exportStar(require_MaxItems(), exports);
+    __exportStar(require_MaxLength(), exports);
+    __exportStar(require_Minimum(), exports);
+    __exportStar(require_MinItems(), exports);
+    __exportStar(require_MinLength(), exports);
+    __exportStar(require_MultipleOf(), exports);
+    __exportStar(require_Pattern(), exports);
+    __exportStar(require_Sequence(), exports);
+    __exportStar(require_TagBase(), exports);
+    __exportStar(require_Type(), exports);
+    __exportStar(require_UniqueItems(), exports);
+  }
+});
+
+// node_modules/typia/lib/schemas/metadata/IJsDocTagInfo.js
+var require_IJsDocTagInfo = __commonJS({
+  "node_modules/typia/lib/schemas/metadata/IJsDocTagInfo.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/schemas/json/IJsonApplication.js
+var require_IJsonApplication = __commonJS({
+  "node_modules/typia/lib/schemas/json/IJsonApplication.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/schemas/json/IJsonSchemaCollection.js
+var require_IJsonSchemaCollection = __commonJS({
+  "node_modules/typia/lib/schemas/json/IJsonSchemaCollection.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/schemas/json/IJsonSchemaUnit.js
+var require_IJsonSchemaUnit = __commonJS({
+  "node_modules/typia/lib/schemas/json/IJsonSchemaUnit.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/AssertionGuard.js
+var require_AssertionGuard = __commonJS({
+  "node_modules/typia/lib/AssertionGuard.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/IRandomGenerator.js
+var require_IRandomGenerator = __commonJS({
+  "node_modules/typia/lib/IRandomGenerator.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/IValidation.js
+var require_IValidation = __commonJS({
+  "node_modules/typia/lib/IValidation.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/TypeGuardError.js
+var require_TypeGuardError = __commonJS({
+  "node_modules/typia/lib/TypeGuardError.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.TypeGuardError = void 0;
+    var TypeGuardError = class extends Error {
+      /**
+       * Creates a new TypeGuardError instance.
+       *
+       * @example
+       *   ```typescript
+       *   const error = new TypeGuardError({
+       *     method: "typia.assert",
+       *     path: "input.age",
+       *     expected: "number & ExclusiveMinimum<19>",
+       *     value: 18
+       *   });
+       *   ```;
+       *
+       * @param props - Object containing the properties needed to create the error
+       */
+      constructor(props) {
+        var _a;
+        super(props.message || `Error on ${props.method}(): invalid type${props.path ? ` on ${props.path}` : ""}, expect to be ${props.expected}`);
+        const proto = new.target.prototype;
+        if (Object.setPrototypeOf)
+          Object.setPrototypeOf(this, proto);
+        else
+          this.__proto__ = proto;
+        this.method = props.method;
+        this.path = props.path;
+        this.expected = props.expected;
+        this.value = props.value;
+        if (props.description || props.value === void 0)
+          this.description = (_a = props.description) !== null && _a !== void 0 ? _a : [
+            "The value at this path is `undefined`.",
+            "",
+            `Please fill the \`${props.expected}\` typed value next time.`
+          ].join("\n");
+      }
+    };
+    exports.TypeGuardError = TypeGuardError;
+  }
+});
+
+// node_modules/typia/lib/Primitive.js
+var require_Primitive = __commonJS({
+  "node_modules/typia/lib/Primitive.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/Resolved.js
+var require_Resolved = __commonJS({
+  "node_modules/typia/lib/Resolved.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/CamelCase.js
+var require_CamelCase = __commonJS({
+  "node_modules/typia/lib/CamelCase.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/PascalCase.js
+var require_PascalCase = __commonJS({
+  "node_modules/typia/lib/PascalCase.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/SnakeCase.js
+var require_SnakeCase = __commonJS({
+  "node_modules/typia/lib/SnakeCase.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/IReadableURLSearchParams.js
+var require_IReadableURLSearchParams = __commonJS({
+  "node_modules/typia/lib/IReadableURLSearchParams.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/typia/lib/module.js
+var require_module = __commonJS({
+  "node_modules/typia/lib/module.js"(exports) {
+    "use strict";
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
+      var desc = Object.getOwnPropertyDescriptor(m, k);
+      if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+        desc = { enumerable: true, get: function() {
+          return m[k];
+        } };
+      }
+      Object.defineProperty(o, k2, desc);
+    } : function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
+      o[k2] = m[k];
+    });
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o, v) {
+      Object.defineProperty(o, "default", { enumerable: true, value: v });
+    } : function(o, v) {
+      o["default"] = v;
+    });
+    var __importStar = exports && exports.__importStar || /* @__PURE__ */ function() {
+      var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function(o2) {
+          var ar = [];
+          for (var k in o2) if (Object.prototype.hasOwnProperty.call(o2, k)) ar[ar.length] = k;
+          return ar;
+        };
+        return ownKeys(o);
+      };
+      return function(mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) {
+          for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        }
+        __setModuleDefault(result, mod);
+        return result;
+      };
+    }();
+    var __exportStar = exports && exports.__exportStar || function(m, exports2) {
+      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p)) __createBinding(exports2, m, p);
+    };
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.tags = exports.reflect = exports.protobuf = exports.notations = exports.misc = exports.json = exports.llm = exports.http = exports.functional = void 0;
+    exports.assert = assert;
+    exports.assertGuard = assertGuard;
+    exports.is = is;
+    exports.validate = validate;
+    exports.assertEquals = assertEquals;
+    exports.assertGuardEquals = assertGuardEquals;
+    exports.equals = equals;
+    exports.validateEquals = validateEquals;
+    exports.random = random;
+    exports.createAssert = createAssert;
+    exports.createAssertGuard = createAssertGuard;
+    exports.createIs = createIs;
+    exports.createValidate = createValidate;
+    exports.createAssertEquals = createAssertEquals;
+    exports.createAssertGuardEquals = createAssertGuardEquals;
+    exports.createEquals = createEquals;
+    exports.createValidateEquals = createValidateEquals;
+    exports.createRandom = createRandom;
+    var NoTransformConfigurationError_1 = require_NoTransformConfigurationError();
+    exports.functional = __importStar(require_functional());
+    exports.http = __importStar(require_http());
+    exports.llm = __importStar(require_llm());
+    exports.json = __importStar(require_json());
+    exports.misc = __importStar(require_misc());
+    exports.notations = __importStar(require_notations());
+    exports.protobuf = __importStar(require_protobuf());
+    exports.reflect = __importStar(require_reflect());
+    exports.tags = __importStar(require_tags());
+    __exportStar(require_IJsDocTagInfo(), exports);
+    __exportStar(require_IJsonApplication(), exports);
+    __exportStar(require_IJsonSchemaCollection(), exports);
+    __exportStar(require_IJsonSchemaUnit(), exports);
+    __exportStar(require_AssertionGuard(), exports);
+    __exportStar(require_IRandomGenerator(), exports);
+    __exportStar(require_IValidation(), exports);
+    __exportStar(require_TypeGuardError(), exports);
+    __exportStar(require_Primitive(), exports);
+    __exportStar(require_Resolved(), exports);
+    __exportStar(require_CamelCase(), exports);
+    __exportStar(require_PascalCase(), exports);
+    __exportStar(require_SnakeCase(), exports);
+    __exportStar(require_IReadableURLSearchParams(), exports);
+    function assert() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("assert");
+    }
+    function assertGuard() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("assertGuard");
+    }
+    function is() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("is");
+    }
+    function validate() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("validate");
+    }
+    function assertEquals() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("assertEquals");
+    }
+    function assertGuardEquals() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("assertGuardEquals");
+    }
+    function equals() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("equals");
+    }
+    function validateEquals() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("validateEquals");
+    }
+    function random() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("random");
+    }
+    function createAssert() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("createAssert");
+    }
+    function createAssertGuard() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("createAssertGuard");
+    }
+    function createIs() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("createIs");
+    }
+    function createValidate() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("createValidate");
+    }
+    function createAssertEquals() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("createAssertEquals");
+    }
+    function createAssertGuardEquals() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("createAssertGuardEquals");
+    }
+    function createEquals() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("createEquals");
+    }
+    function createValidateEquals() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("createValidateEquals");
+    }
+    function createRandom() {
+      (0, NoTransformConfigurationError_1.NoTransformConfigurationError)("createRandom");
+    }
+  }
+});
+
+// node_modules/typia/lib/index.js
+var require_lib = __commonJS({
+  "node_modules/typia/lib/index.js"(exports) {
+    "use strict";
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
+      var desc = Object.getOwnPropertyDescriptor(m, k);
+      if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+        desc = { enumerable: true, get: function() {
+          return m[k];
+        } };
+      }
+      Object.defineProperty(o, k2, desc);
+    } : function(o, m, k, k2) {
+      if (k2 === void 0) k2 = k;
+      o[k2] = m[k];
+    });
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o, v) {
+      Object.defineProperty(o, "default", { enumerable: true, value: v });
+    } : function(o, v) {
+      o["default"] = v;
+    });
+    var __importStar = exports && exports.__importStar || /* @__PURE__ */ function() {
+      var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function(o2) {
+          var ar = [];
+          for (var k in o2) if (Object.prototype.hasOwnProperty.call(o2, k)) ar[ar.length] = k;
+          return ar;
+        };
+        return ownKeys(o);
+      };
+      return function(mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) {
+          for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        }
+        __setModuleDefault(result, mod);
+        return result;
+      };
+    }();
+    var __exportStar = exports && exports.__exportStar || function(m, exports2) {
+      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p)) __createBinding(exports2, m, p);
+    };
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var typia2 = __importStar(require_module());
+    exports.default = typia2;
+    __exportStar(require_module(), exports);
+  }
+});
+
+// packages/contracts/src/enums/index.ts
+var enums_exports = {};
+__export(enums_exports, {
+  ContactMethod: () => ContactMethod
+});
+
+// packages/contracts/src/enums/ContactMethod.ts
+import { enumeration } from "smart-enums";
+var input = {
+  email: {
+    link: (contactable) => `mailto:${contactable.email}`,
+    handle: (contactable) => contactable.email
+  },
+  sms: {
+    link: (contactable) => `sms:${contactable.sms}`,
+    handle: (contactable) => contactable.sms
+  },
+  call: {
+    link: (contactable) => `tel:${contactable.call}`,
+    handle: (contactable) => contactable.call
+  },
+  other: { link: () => "#", handle: () => "" }
+};
+var ContactMethod = enumeration({
+  input,
+  enumType: "ContactMethod"
+});
+
+// packages/contracts/src/types/types.ts
+var import_typia = __toESM(require_lib(), 1);
+var validateUpsertContact = import_typia.default.createValidate();
+var validateListContactsQuery = import_typia.default.createValidate();
+var validateCreateTouch = import_typia.default.createValidate();
+var validatePlanQuery = import_typia.default.createValidate();
+var validateUpsertDailyGoal = import_typia.default.createValidate();
+
+// packages/contracts/src/utils/smartEnumUtils.ts
+var createSmartEnumJSONReviver = ({ Enums }) => {
+  return (key, value) => {
+    if (value && typeof value === "object" && "__smart_enum_type" in value && "value" in value) {
+      const { __smart_enum_type, value: v } = value;
+      const enumClass = Enums[__smart_enum_type];
+      return enumClass?.tryFromValue(v) ?? value;
+    }
+    return value;
+  };
+};
+
 // apps/api/src/container.ts
 import { asFunction, asValue, createContainer } from "awilix";
 
@@ -9,9 +1236,9 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 var __filename = fileURLToPath(import.meta.url);
-var __dirname = path.dirname(__filename);
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
-var ROOT = path.resolve(__dirname, "..");
+var __dirname2 = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname2, "../.env") });
+var ROOT = path.resolve(__dirname2, "..");
 var MIGRATIONS_DIR = path.join(ROOT, "db/migrations");
 var SEEDS_DIR = path.join(ROOT, "db/seeds");
 var connection = {
@@ -46,709 +1273,6 @@ process.on("SIGTERM", async () => {
   process.exit(0);
 });
 
-// apps/api/src/repositories/contactRepository.ts
-import { v4 } from "uuid";
-var createContactRepository = ({
-  connection: connection2,
-  mappers
-}) => ({
-  listContacts: async (userId, opts) => {
-    let q = connection2("contacts").where({ userId });
-    if (opts?.dueOnly) q = q.andWhere("nextDueAt", "<=", connection2.fn.now());
-    if (opts?.q) {
-      q = q.andWhere((qb) => {
-        qb.whereILike("firstName", `%${opts.q}%`).orWhereILike("lastName", `%${opts.q}%`).orWhereILike("email", `%${opts.q}%`).orWhereILike("phone", `%${opts.q}%`);
-      });
-    }
-    const rows = await q.orderBy([
-      { column: "lastName", order: "asc" },
-      { column: "firstName", order: "asc" }
-    ]);
-    const entities = rows.map((row) => mappers.toContactEntity(row)).filter((entity) => entity !== void 0);
-    return entities;
-  },
-  createContact: async (userId, data) => {
-    const payload = {
-      ...data,
-      id: v4(),
-      userId
-    };
-    const [row] = await connection2("contacts").insert(payload).returning("*");
-    const entity = mappers.toContactEntity(row);
-    if (!entity) throw new Error("Failed to create contact");
-    return entity;
-  },
-  getContact: async (userId, id) => {
-    const dto = await connection2("contacts").where({ id, userId }).first();
-    return mappers.toContactEntity(dto);
-  },
-  patchContact: async (userId, id, data) => {
-    const existing = await connection2("contacts").where({ id, userId }).first();
-    if (!existing) return void 0;
-    const updates = { ...existing, ...data };
-    const [row] = await connection2("contacts").where({ id, userId }).update(updates, "*");
-    const entity = mappers.toContactEntity(row);
-    return entity || void 0;
-  }
-});
-
-// apps/api/src/repositories/planRepository.ts
-import { DateTime } from "luxon";
-var createPlanRepository = ({
-  connection: connection2,
-  mappers
-}) => ({
-  getDailyPlan: async (userId) => {
-    const user = await connection2("users").where({ id: userId }).first();
-    if (!user) return [];
-    const dayStart = DateTime.now().startOf("day");
-    const due = await connection2("contacts").where({ userId, paused: false }).andWhere(
-      (qb) => qb.whereNull("snoozedUntil").orWhere("snoozedUntil", "<=", connection2.fn.now())
-    ).andWhere("nextDueAt", "<=", dayStart.toJSDate()).orderBy([
-      { column: "nextDueAt", order: "asc" },
-      { column: "updatedAt", order: "asc" },
-      { column: "lastName", order: "asc" }
-    ]).limit(user.dailyGoal);
-    const contactEntities = due.map((row) => mappers.toContactEntity(row)).filter((entity) => entity !== void 0);
-    return contactEntities;
-  }
-});
-
-// apps/api/src/repositories/touchesRepository.ts
-var createTouchesRepository = ({
-  connection: connection2,
-  mappers
-}) => ({
-  createTouch: async (userId, body) => {
-    const contact = await connection2("contacts").where({ id: body.contactId, userId }).first();
-    if (!contact) return void 0;
-    const [touch] = await connection2("touch_logs").insert({
-      id: connection2.raw("gen_random_uuid()"),
-      userId,
-      contactId: body.contactId,
-      method: body.method,
-      message: body.message,
-      outcome: body.outcome,
-      createdAt: connection2.fn.now()
-    }).returning("*");
-    const nextDueAt = new Date(Date.now() + (contact.intervalDays ?? 0) * 864e5).toISOString();
-    await connection2("contacts").where({ id: contact.id }).update({ lastTouchedAt: connection2.fn.now(), nextDueAt });
-    const entity = mappers.toTouchEntity(touch);
-    return entity || void 0;
-  }
-});
-
-// apps/api/src/repositories/userRepository.ts
-var createUserRepository = ({ connection: connection2 }) => ({
-  getUser: async (id) => {
-    const result = await connection2("users").where({ id }).first();
-    return result;
-  },
-  updateDailyGoal: async (id, dailyGoal) => {
-    const [row] = await connection2("users").where({ id }).update({ dailyGoal }, "*");
-    return row;
-  }
-});
-
-// packages/contracts/src/enums/ContactMethod.ts
-import { enumeration } from "smart-enums";
-var input = {
-  email: {
-    link: (contactable) => `mailto:${contactable.email}`,
-    handle: (contactable) => contactable.email
-  },
-  sms: {
-    link: (contactable) => `sms:${contactable.sms}`,
-    handle: (contactable) => contactable.sms
-  },
-  call: {
-    link: (contactable) => `tel:${contactable.call}`,
-    handle: (contactable) => contactable.call
-  },
-  other: { link: () => "#", handle: () => "" }
-};
-var ContactMethod = enumeration({
-  input
-});
-
-// packages/contracts/src/schemas/schemas.ts
-import { z } from "zod";
-var contactMethodValueSchema = z.string().transform((s, ctx) => {
-  const item = ContactMethod.tryFromValue(s);
-  if (!item) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: `Invalid contact method: ${s}`
-    });
-    return z.NEVER;
-  }
-  return item.value;
-});
-var contactSchema = z.object({
-  id: z.string().uuid(),
-  userId: z.string().uuid(),
-  firstName: z.string().min(1).max(200),
-  lastName: z.string().min(1).max(200),
-  preferredMethod: contactMethodValueSchema,
-  email: z.string().email().optional(),
-  phone: z.string().trim().optional(),
-  notes: z.string().trim().optional(),
-  intervalDays: z.number().int().min(1).max(365),
-  paused: z.boolean().optional(),
-  snoozedUntil: z.string().datetime().optional(),
-  nextDueAt: z.string().datetime().optional(),
-  lastTouchedAt: z.string().datetime().optional(),
-  createdAt: z.string().datetime().optional(),
-  updatedAt: z.string().datetime().optional()
-});
-var touchSchema = z.object({
-  id: z.string().uuid(),
-  userId: z.string().uuid(),
-  contactId: z.string().uuid(),
-  method: contactMethodValueSchema,
-  message: z.string().trim().optional(),
-  outcome: z.string().trim().optional(),
-  createdAt: z.string().datetime().optional()
-});
-var userSchema = z.object({
-  id: z.string().uuid(),
-  email: z.string().email(),
-  dailyGoal: z.number().int().min(0).max(500)
-});
-var upsertContactSchema = z.object({
-  id: z.string().uuid().optional(),
-  userId: z.string().uuid().optional(),
-  firstName: z.string().min(1).max(200).optional(),
-  lastName: z.string().min(1).max(200).optional(),
-  preferredMethod: contactMethodValueSchema.optional(),
-  email: z.string().email().optional(),
-  phone: z.string().trim().optional(),
-  notes: z.string().trim().optional(),
-  paused: z.boolean().optional(),
-  snoozedUntil: z.string().datetime().optional(),
-  intervalDays: z.coerce.number().int().min(1).max(365).optional()
-}).refine((v) => Object.keys(v).length > 0, {
-  message: "At least one field must be provided"
-});
-var dailyPlanSchema = z.object({
-  items: z.array(contactSchema),
-  date: z.string().datetime()
-});
-var uuidParam = z.string().uuid();
-var listContactsQuerySchema = z.object({
-  dueOnly: z.union([z.literal("true"), z.literal("false")]).optional().transform((v) => v === "true"),
-  q: z.string().trim().min(1).optional()
-});
-var createTouchSchema = z.object({
-  contactId: uuidParam,
-  method: z.enum(["EMAIL", "SMS", "CALL", "OTHER"]),
-  message: z.string().trim().optional(),
-  outcome: z.string().trim().optional()
-});
-var planQuerySchema = z.object({
-  date: z.string().datetime().optional()
-});
-var upsertDailyGoalSchema = z.object({
-  dailyGoal: z.coerce.number().int().min(0).max(500)
-});
-
-// packages/contracts/src/utils/smartEnumUtils.ts
-var smartEnumRegistry = {
-  ContactMethod
-  // Add other smart enum types here as they are created
-};
-var createSmartEnumJSONReviver = (registry) => {
-  return (key, value) => {
-    if (value && typeof value === "object" && "__smart_enum_type" in value && "value" in value) {
-      const { __smart_enum_type, value: v } = value;
-      const enumClass = registry[__smart_enum_type];
-      return enumClass?.tryFromValue(v) ?? value;
-    }
-    return value;
-  };
-};
-
-// apps/api/src/repositories/mappers.ts
-import { reviveSmartEnums, serializeSmartEnums } from "smart-enums";
-var createMappers = () => ({
-  // Database to Entity (internal use)
-  toContactEntity: (dto) => reviveSmartEnums(dto, {
-    preferredMethod: ContactMethod
-  }),
-  toTouchEntity: (dto) => dto ? reviveSmartEnums(dto, {
-    method: ContactMethod
-  }) : void 0,
-  // Entity to DTO (for API responses)
-  toContactDTO: (entity) => serializeSmartEnums(entity),
-  toTouchDTO: (entity) => serializeSmartEnums(entity),
-  toContactListDTO: (entities) => {
-    return entities.map(serializeSmartEnums);
-  },
-  // DTO to Entity (for API requests)
-  toContactDTOPartial: (entity) => serializeSmartEnums(entity),
-  toTouchDTOPartial: (entity) => serializeSmartEnums(entity)
-});
-
-// apps/api/src/services/authService.ts
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-var createAuthService = ({ connection: connection2 }) => {
-  const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
-  const JWT_EXPIRES_IN = "30d";
-  return {
-    login: async (credentials) => {
-      const { email, password } = credentials;
-      const user = await connection2("users").where({ email }).first();
-      if (!user || !user.passwordHash) {
-        return null;
-      }
-      const isValidPassword = await bcrypt.compare(password, user.passwordHash);
-      if (!isValidPassword) {
-        return null;
-      }
-      await connection2("users").where({ id: user.id }).update({ lastLoginAt: (/* @__PURE__ */ new Date()).toISOString() });
-      const token = jwt.sign(
-        {
-          userId: user.id,
-          email: user.email
-        },
-        JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN }
-      );
-      return { user, token };
-    },
-    verifyToken: async (token) => {
-      try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        const user = await connection2("users").where({ id: decoded.userId }).first();
-        if (!user) {
-          return null;
-        }
-        return user;
-      } catch (err) {
-        return null;
-      }
-    },
-    hashPassword: async (password) => {
-      return bcrypt.hash(password, 12);
-    },
-    comparePassword: async (password, hash) => {
-      return bcrypt.compare(password, hash);
-    }
-  };
-};
-
-// apps/api/src/services/importService.ts
-var createImportService = ({
-  contactRepository
-}) => ({
-  importContacts: async (userId, rows) => {
-    let inserted = 0;
-    let skipped = 0;
-    for (const row of rows) {
-      if (!row.firstName || !row.lastName) {
-        skipped++;
-        continue;
-      }
-      try {
-        const contactData = {
-          firstName: row.firstName,
-          lastName: row.lastName,
-          email: row.email || void 0,
-          phone: row.phone || void 0,
-          notes: row.notes || void 0,
-          preferredMethod: ContactMethod.email.value,
-          // Default to email
-          suggestion: "Hi {{firstName}}, just checking in to see how you're doing.",
-          intervalDays: 30,
-          // Default interval
-          paused: false
-        };
-        await contactRepository.createContact(userId, contactData);
-        inserted++;
-      } catch (error) {
-        console.error("Error importing contact:", error);
-        skipped++;
-      }
-    }
-    return { inserted, skipped };
-  }
-});
-
-// apps/api/src/middleware/authMiddleware.ts
-var createAuthMiddleware = ({ authService }) => {
-  return async (ctx, next) => {
-    const authHeader = ctx.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      ctx.status = 401;
-      ctx.body = { error: "Authorization header required" };
-      return;
-    }
-    const token = authHeader.substring(7);
-    const user = await authService.verifyToken(token);
-    if (!user) {
-      ctx.status = 401;
-      ctx.body = { error: "Invalid or expired token" };
-      return;
-    }
-    ctx.user = user;
-    await next();
-  };
-};
-var createOptionalAuthMiddleware = ({ authService }) => {
-  return async (ctx, next) => {
-    const authHeader = ctx.get("Authorization");
-    ctx.isLoggedIn = false;
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      const token = authHeader.substring(7);
-      const user = await authService.verifyToken(token);
-      if (user) {
-        ctx.user = user;
-        ctx.isLoggedIn = true;
-      }
-    }
-    await next();
-  };
-};
-
-// apps/api/src/controllers/authController.ts
-var createAuthController = ({
-  authService
-}) => ({
-  login: async (ctx) => {
-    const { email, password } = ctx.request.body;
-    if (!email || !password) {
-      ctx.status = 400;
-      ctx.body = { error: "Email and password are required" };
-      return ctx;
-    }
-    const result = await authService.login({ email, password });
-    if (!result) {
-      ctx.status = 401;
-      ctx.body = { error: "Invalid email or password" };
-      return ctx;
-    }
-    ctx.status = 200;
-    ctx.body = {
-      user: result.user,
-      token: result.token
-    };
-    return ctx;
-  },
-  logout: (ctx) => {
-    ctx.status = 200;
-    ctx.body = { message: "Logged out successfully" };
-    return ctx;
-  },
-  me: (ctx) => {
-    const user = ctx.user;
-    if (!user) {
-      ctx.status = 401;
-      ctx.body = { error: "Not authenticated" };
-      return ctx;
-    }
-    ctx.status = 200;
-    ctx.body = { user };
-    return ctx;
-  }
-});
-
-// apps/api/src/controllers/contactsController.ts
-var createContactsController = ({
-  contactRepository,
-  importService
-}) => ({
-  getContacts: async (ctx) => {
-    const userId = ctx.user.id;
-    const entities = await contactRepository.listContacts(userId, {
-      /* dueOnly, q parsed elsewhere if needed */
-    });
-    ctx.status = 200;
-    ctx.body = { contacts: entities };
-    return ctx;
-  },
-  getContact: async (ctx) => {
-    const userId = ctx.user.id;
-    const contactId = ctx.params.id;
-    const entity = await contactRepository.getContact(userId, contactId);
-    if (!entity) {
-      ctx.status = 404;
-      ctx.body = { error: "Contact not found" };
-      return ctx;
-    }
-    ctx.status = 200;
-    ctx.body = entity;
-    return ctx;
-  },
-  createContact: async (ctx) => {
-    const parsed = upsertContactSchema.safeParse(ctx.request.body);
-    if (!parsed.success) {
-      ctx.status = 400;
-      ctx.body = {
-        error: "Invalid request format",
-        issues: parsed.error.issues
-      };
-      return ctx;
-    }
-    const body = parsed.data;
-    const userId = ctx.user.id;
-    const entity = await contactRepository.createContact(userId, {
-      ...body,
-      preferredMethod: body.preferredMethod ?? ContactMethod.email.value
-    });
-    ctx.status = 201;
-    ctx.body = entity;
-    return ctx;
-  },
-  patchContact: async (ctx) => {
-    const parsed = upsertContactSchema.safeParse(ctx.request.body);
-    if (!parsed.success) {
-      ctx.status = 400;
-      ctx.body = {
-        error: "Invalid request format",
-        issues: parsed.error.issues
-      };
-      return ctx;
-    }
-    const body = parsed.data;
-    const userId = ctx.user.id;
-    const entity = await contactRepository.patchContact(userId, ctx.params.id, body);
-    if (!entity) {
-      ctx.status = 404;
-      ctx.body = { error: "Contact not found" };
-      return ctx;
-    }
-    ctx.status = 200;
-    ctx.body = entity;
-    return ctx;
-  },
-  importContacts: async (ctx) => {
-    const body = ctx.request.body;
-    if (!body.rows || !Array.isArray(body.rows)) {
-      ctx.status = 400;
-      ctx.body = { error: "Invalid request format. Expected { rows: ImportRow[] }" };
-      return ctx;
-    }
-    const userId = ctx.user.id;
-    const result = await importService.importContacts(userId, body.rows);
-    ctx.status = 200;
-    ctx.body = result;
-    return ctx;
-  }
-});
-
-// apps/api/src/controllers/planController.ts
-var createPlanController = ({
-  planRepository,
-  mappers
-}) => ({
-  getDailyPlan: async (ctx) => {
-    const userId = ctx.user.id;
-    const contacts = await planRepository.getDailyPlan(userId);
-    ctx.body = contacts.map(mappers.toContactDTO);
-    return ctx;
-  }
-});
-
-// apps/api/src/controllers/touchesController.ts
-var createTouchesController = ({
-  touchesRepository
-}) => ({
-  createTouch: async (ctx) => {
-    const userId = ctx.user.id;
-    const touchData = ctx.request.body;
-    const touch = await touchesRepository.createTouch(userId, touchData);
-    if (!touch) {
-      ctx.status = 404;
-      ctx.body = { error: "Contact not found" };
-      return ctx;
-    }
-    ctx.status = 201;
-    ctx.body = touch;
-    return ctx;
-  }
-});
-
-// apps/api/src/controllers/userController.ts
-var createUserController = ({
-  userRepository
-}) => ({
-  getMe: async (ctx) => {
-    const user = await userRepository.getUser(ctx.user.id);
-    if (!user) {
-      ctx.status = 404;
-      ctx.body = { error: "User not found" };
-      return ctx;
-    }
-    ctx.body = user;
-    return ctx;
-  },
-  updateDailyGoal: async (ctx) => {
-    const { dailyGoal } = ctx.request.body;
-    const user = await userRepository.updateDailyGoal(ctx.user.id, dailyGoal);
-    if (!user) {
-      ctx.status = 404;
-      ctx.body = { error: "User not found" };
-      return ctx;
-    }
-    ctx.body = user;
-    return ctx;
-  }
-});
-
-// apps/api/src/routes/authRoutes.ts
-var createAuthRoutes = ({
-  authController
-}) => ({
-  mountRoutes: (router) => {
-    router.post("/auth/login", authController.login);
-    router.post("/auth/logout", authController.logout);
-    router.get("/auth/me", authController.me);
-  }
-});
-
-// apps/api/src/middleware/routeGuards.ts
-var requireAuth = (controller) => {
-  return async (ctx) => {
-    if (!ctx.isLoggedIn) {
-      ctx.status = 401;
-      ctx.body = { error: "Authentication required" };
-      return;
-    }
-    await controller(ctx);
-  };
-};
-
-// apps/api/src/routes/contactRoutes.ts
-var createContactRoutes = ({
-  contactsController
-}) => ({
-  mountRoutes: (router) => {
-    router.get("/contacts", requireAuth(contactsController.getContacts));
-    router.get("/contacts/:id", requireAuth(contactsController.getContact));
-    router.post("/contacts", requireAuth(contactsController.createContact));
-    router.patch("/contacts/:id", requireAuth(contactsController.patchContact));
-    router.post("/contacts/import", requireAuth(contactsController.importContacts));
-  }
-});
-
-// apps/api/src/routes/index.ts
-var createRoutes = ({
-  userRoutes,
-  contactRoutes,
-  planRoutes,
-  touchesRoutes,
-  authRoutes
-}) => ({
-  mountRoutes: (router) => {
-    authRoutes.mountRoutes(router);
-    userRoutes.mountRoutes(router);
-    contactRoutes.mountRoutes(router);
-    planRoutes.mountRoutes(router);
-    touchesRoutes.mountRoutes(router);
-  }
-});
-
-// apps/api/src/routes/planRoutes.ts
-var createPlanRoutes = ({
-  planController
-}) => ({
-  mountRoutes: (router) => {
-    router.get("/plan", requireAuth(planController.getDailyPlan));
-  }
-});
-
-// apps/api/src/routes/touchesRoutes.ts
-var createTouchesRoutes = ({
-  touchesController
-}) => ({
-  mountRoutes: (router) => {
-    router.post("/touches", requireAuth(touchesController.createTouch));
-  }
-});
-
-// apps/api/src/routes/userRoutes.ts
-var createUserRoutes = ({
-  userController
-}) => ({
-  mountRoutes: (router) => {
-    router.get("/me", requireAuth(userController.getMe));
-    router.put("/me/daily-goal", requireAuth(userController.updateDailyGoal));
-  }
-});
-
-// apps/api/src/koaServer.ts
-import cors from "@koa/cors";
-import Router from "@koa/router";
-import dotenv2 from "dotenv";
-import http from "http";
-import Koa from "koa";
-import { koaBody } from "koa-body";
-
-// apps/api/src/middleware/errorHandler.ts
-import { HttpError } from "koa";
-async function errorHandler(ctx, next) {
-  try {
-    await next();
-  } catch (err) {
-    if (err instanceof HttpError) {
-      ctx.status = err.status || 500;
-      ctx.body = { error: err.expose ? err.message : "Internal Server Error" };
-    } else if (err instanceof Error) {
-      ctx.body = { error: err.message ? err.message : "Internal Server Error" };
-    }
-    ctx.app.emit("error", err, ctx);
-  }
-}
-
-// apps/api/src/middleware/requestLogger.ts
-async function requestLogger(ctx, next) {
-  console.log("REQ", ctx.method, ctx.path);
-  await next();
-  console.log("RES", ctx.status, ctx.path);
-}
-
-// apps/api/src/koaServer.ts
-dotenv2.config();
-var createKoaServer = ({
-  smartEnumReviver,
-  routes,
-  optionalAuthMiddleware
-}) => {
-  const app = new Koa();
-  app.context.db = database;
-  app.on("error", (err, ctx) => {
-    console.error(`Unhandled error on ${ctx.method} ${ctx.path}`, {
-      status: ctx.status,
-      requestId: ctx.get("x-request-id") || void 0
-    });
-    if (err?.stack) console.error(err.stack);
-    else console.error(err);
-  });
-  process.on("unhandledRejection", (reason) => {
-    console.error("unhandledRejection:", reason);
-  });
-  process.on("uncaughtException", (err) => {
-    console.error("uncaughtException:", err);
-  });
-  app.use(errorHandler);
-  app.use(requestLogger);
-  app.use(
-    cors({
-      origin: process.env.CORS_ORIGIN || "http://localhost:8080",
-      credentials: true,
-      allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
-    })
-  );
-  app.use(koaBody({ customReviver: smartEnumReviver }));
-  const router = new Router({ prefix: "/api" });
-  routes.mountRoutes(router);
-  app.use(optionalAuthMiddleware);
-  app.use(router.routes()).use(router.allowedMethods());
-  return http.createServer(app.callback());
-};
-
 // apps/api/src/container.ts
 var container = createContainer({
   injectionMode: "PROXY"
@@ -757,50 +1281,36 @@ container.register({
   connection: asValue(database)
 });
 container.register({
-  authService: asFunction(createAuthService),
-  importService: asFunction(createImportService)
+  smartEnumReviver: asFunction(createSmartEnumJSONReviver)
 });
 container.register({
-  authMiddleware: asFunction(createAuthMiddleware),
-  optionalAuthMiddleware: asFunction(createOptionalAuthMiddleware),
-  smartEnumRegistry: asFunction(() => smartEnumRegistry),
-  smartEnumReviver: asFunction(createSmartEnumJSONReviver).inject(() => ({
-    registry: "smartEnumRegistry"
-  }))
+  Enums: asValue(enums_exports),
+  // Register the full Enums object for createSmartEnumJSONReviver
+  ...Object.fromEntries(Object.entries(enums_exports).map(([key, value]) => [key, asValue(value)]))
 });
-container.register({
-  mappers: asFunction(createMappers)
-});
-container.register({
-  // Repository instances
-  userRepository: asFunction(createUserRepository),
-  contactRepository: asFunction(createContactRepository),
-  planRepository: asFunction(createPlanRepository),
-  touchesRepository: asFunction(createTouchesRepository)
-});
-container.register({
-  // Controller instances
-  userController: asFunction(createUserController),
-  contactsController: asFunction(createContactsController),
-  planController: asFunction(createPlanController),
-  touchesController: asFunction(createTouchesController),
-  authController: asFunction(createAuthController)
-});
-container.register({
-  userRoutes: asFunction(createUserRoutes),
-  contactRoutes: asFunction(createContactRoutes),
-  planRoutes: asFunction(createPlanRoutes),
-  touchesRoutes: asFunction(createTouchesRoutes),
-  authRoutes: asFunction(createAuthRoutes),
-  routes: asFunction(createRoutes)
-});
-container.register({
-  koaServer: asFunction(createKoaServer).inject(() => ({
-    smartEnumReviver: "smartEnumReviver",
-    routes: "routes",
-    optionalAuthMiddleware: "optionalAuthMiddleware"
-  }))
-});
+container.loadModules(
+  [
+    "services/**/*.@(ts|js)",
+    "repositories/**/*.@(ts|js)",
+    "controllers/**/*.@(ts|js)",
+    "middleware/**/*.@(ts|js)",
+    "routes/**/*.@(ts|js)",
+    "koaServer.@(ts|js)"
+  ],
+  {
+    cwd: __dirname,
+    resolverOptions: {
+      register: asFunction
+    },
+    // Configure naming strategy to remove 'create' prefix
+    formatName: (name) => {
+      if (name.startsWith("create")) {
+        return name.substring(6).charAt(0).toLowerCase() + name.substring(7);
+      }
+      return name;
+    }
+  }
+);
 
 // apps/api/src/index.ts
 var PORT = process.env.PORT || 3e3;

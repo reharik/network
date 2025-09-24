@@ -1,19 +1,13 @@
-import { Contact, ContactDTO } from '@network/contracts';
-import type { Knex } from 'knex';
+import { ContactDTO } from '@network/contracts';
+import { RESOLVER } from 'awilix';
 import { DateTime } from 'luxon';
-import type { Mappers } from './mappers';
+import type { Container } from '../container';
 
 export interface PlanRepository {
-  getDailyPlan: (userId: string) => Promise<Contact[]>;
+  getDailyPlan: (userId: string) => Promise<ContactDTO[]>;
 }
 
-export const createPlanRepository = ({
-  connection,
-  mappers,
-}: {
-  connection: Knex;
-  mappers: Mappers;
-}): PlanRepository => ({
+export const createPlanRepository = ({ connection }: Container): PlanRepository => ({
   getDailyPlan: async (userId: string) => {
     const user = await connection('users').where({ id: userId }).first();
     if (!user) return [];
@@ -30,9 +24,9 @@ export const createPlanRepository = ({
         { column: 'lastName', order: 'asc' },
       ])
       .limit(user.dailyGoal);
-    const contactEntities = due
-      .map((row) => mappers.toContactEntity(row))
-      .filter((entity) => entity !== undefined);
-    return contactEntities;
+    return due;
   },
 });
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+(createPlanRepository as any)[RESOLVER] = {};

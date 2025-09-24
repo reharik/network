@@ -1,17 +1,16 @@
-import { Contact, ContactDTO } from '@network/contracts';
-import { mappers } from '../mappers';
+import { ContactDTO, ImportContactsDTO } from '@network/contracts';
+import { ParseResult } from 'parse-fetch';
 import { useApiFetch } from './useApiFetch';
 
 export const useContactService = () => {
   const { apiFetch } = useApiFetch();
 
-  const getContact = async (id: string) => {
-    const contact = await apiFetch<ContactDTO>(`/contacts/${encodeURIComponent(id)}`);
-    return mappers.toContact(contact);
+  const getContact = async (id: string): Promise<ParseResult<ContactDTO>> => {
+    return apiFetch<ContactDTO>(`/contacts/${encodeURIComponent(id)}`);
   };
 
-  const updateContact = (contact: Partial<Contact> & { id: string }) =>
-    apiFetch<Contact>(`/contacts/${encodeURIComponent(contact.id)}`, {
+  const updateContact = (contact: Partial<ContactDTO> & { id: string }) =>
+    apiFetch<ContactDTO>(`/contacts/${encodeURIComponent(contact.id)}`, {
       method: 'PATCH',
       body: contact,
     });
@@ -21,7 +20,7 @@ export const useContactService = () => {
       method: 'DELETE',
     });
 
-  const importContacts = (rows: ImportRow[]) =>
+  const importContacts = (rows: ImportContactsDTO[]) =>
     apiFetch<{ inserted: number; skipped?: number }>(`/contacts/import`, {
       method: 'POST',
       body: { rows },
@@ -33,13 +32,4 @@ export const useContactService = () => {
     deleteContact,
     importContacts,
   };
-};
-
-export type ImportRow = {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
-  notes?: string;
-  tags?: string | string[];
 };

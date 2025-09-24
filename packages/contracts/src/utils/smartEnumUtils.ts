@@ -1,3 +1,4 @@
+import * as EnumRegistry from '../enums';
 import { ContactMethod } from '../enums/ContactMethod';
 
 // Smart enum registry for both frontend and backend
@@ -7,14 +8,14 @@ export const smartEnumRegistry: Record<string, { tryFromValue: (value: string) =
 };
 
 // Generic reviver function for smart enums
-export const createSmartEnumJSONReviver = (registry: typeof smartEnumRegistry) => {
+export const createSmartEnumJSONReviver = ({ Enums }: { Enums: typeof EnumRegistry }) => {
   return (key: string, value: unknown): unknown => {
     if (value && typeof value === 'object' && '__smart_enum_type' in value && 'value' in value) {
       const { __smart_enum_type, value: v } = value as {
         __smart_enum_type: string;
         value: string;
       };
-      const enumClass = registry[__smart_enum_type];
+      const enumClass = Enums[__smart_enum_type as keyof typeof Enums];
       return enumClass?.tryFromValue(v) ?? value;
     }
     return value;

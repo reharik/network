@@ -42,14 +42,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const verifyToken = async (tokenToVerify: string) => {
     try {
-      const user = await apiFetch<User>(`/auth/me`, {
+      const result = await apiFetch<User>(`/auth/me`, {
         headers: {
           Authorization: `Bearer ${tokenToVerify}`,
         },
       });
 
-      if (user) {
-        setUser(user);
+      if (result.success) {
+        setUser(result.data);
         setToken(tokenToVerify);
       } else {
         // Token is invalid, remove it
@@ -74,10 +74,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         body: { email, password },
       });
 
-      if (data) {
-        setUser(data.user);
-        setToken(data.token);
-        localStorage.setItem('authToken', data.token);
+      if (data.success) {
+        setUser(data.data.user);
+        setToken(data.data.token);
+        localStorage.setItem('authToken', data.data.token);
         return true;
       }
       return false;

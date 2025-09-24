@@ -14,7 +14,10 @@
   "compilerOptions": {
     "module": "ESNext",
     "target": "ES2022",
-    "lib": ["ES2022", "DOM"],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
     "moduleResolution": "bundler",
     "strict": true,
     "noEmit": true,
@@ -23,8 +26,18 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@network/contracts": ["packages/contracts/src/index.ts"]
-    }
+      "@network/contracts": [
+        "packages/contracts/src/index.ts"
+      ]
+    },
+    "plugins": [
+      {
+        "transform": "typia/lib/transform"
+      }
+    ],
+    "strictNullChecks": true
   },
-  "include": ["types/**/*.d.ts"]
+  "include": [
+    "types/**/*.d.ts"
+  ]
 }

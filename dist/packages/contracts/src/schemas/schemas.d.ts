@@ -209,6 +209,7 @@ export declare const dailyPlanSchema: z.ZodObject<{
     }>, "many">;
     date: z.ZodString;
 }, "strip", z.ZodTypeAny, {
+    date: string;
     items: {
         id: string;
         userId: string;
@@ -226,8 +227,8 @@ export declare const dailyPlanSchema: z.ZodObject<{
         createdAt?: string | undefined;
         updatedAt?: string | undefined;
     }[];
-    date: string;
 }, {
+    date: string;
     items: {
         id: string;
         userId: string;
@@ -245,7 +246,6 @@ export declare const dailyPlanSchema: z.ZodObject<{
         createdAt?: string | undefined;
         updatedAt?: string | undefined;
     }[];
-    date: string;
 }>;
 export declare const uuidParam: z.ZodString;
 export declare const listContactsQuerySchema: z.ZodObject<{

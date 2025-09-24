@@ -1,19 +1,12 @@
-import type { Touch } from '@network/contracts';
-import { TouchDTOPartial } from '@network/contracts';
-import type { Knex } from 'knex';
-import type { Mappers } from './mappers';
+import { TouchDTO, TouchDTOPartial } from '@network/contracts';
+import { RESOLVER } from 'awilix';
+import type { Container } from '../container';
 
 export interface TouchesRepository {
-  createTouch: (userId: string, body: TouchDTOPartial) => Promise<Touch | undefined>;
+  createTouch: (userId: string, body: TouchDTOPartial) => Promise<TouchDTO | undefined>;
 }
 
-export const createTouchesRepository = ({
-  connection,
-  mappers,
-}: {
-  connection: Knex;
-  mappers: Mappers;
-}): TouchesRepository => ({
+export const createTouchesRepository = ({ connection }: Container): TouchesRepository => ({
   createTouch: async (userId: string, body: TouchDTOPartial) => {
     const contact = await connection('contacts').where({ id: body.contactId, userId }).first();
     if (!contact) return undefined;
@@ -32,7 +25,9 @@ export const createTouchesRepository = ({
     await connection('contacts')
       .where({ id: contact.id })
       .update({ lastTouchedAt: connection.fn.now(), nextDueAt });
-    const entity = mappers.toTouchEntity(touch);
-    return entity || undefined;
+    return touch;
   },
 });
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+(createTouchesRepository as any)[RESOLVER] = {};

@@ -1,5 +1,6 @@
 import { ContactMethod } from '@network/contracts';
-import type { ContactRepository } from '../repositories/contactRepository';
+import { RESOLVER } from 'awilix';
+import type { Container } from '../container';
 
 export interface ImportRow {
   firstName?: string;
@@ -19,11 +20,7 @@ export interface ImportService {
   importContacts: (userId: string, rows: ImportRow[]) => Promise<ImportResult>;
 }
 
-export const createImportService = ({
-  contactRepository,
-}: {
-  contactRepository: ContactRepository;
-}): ImportService => ({
+export const createImportService = ({ contactRepository }: Container): ImportService => ({
   importContacts: async (userId: string, rows: ImportRow[]): Promise<ImportResult> => {
     let inserted = 0;
     let skipped = 0;
@@ -53,7 +50,7 @@ export const createImportService = ({
           email: row.email || undefined,
           phone: row.phone || undefined,
           notes: row.notes || undefined,
-          preferredMethod: ContactMethod.email.value, // Default to email
+          preferredMethod: ContactMethod.email, // Default to email
           suggestion: "Hi {{firstName}}, just checking in to see how you're doing.",
           intervalDays: 30, // Default interval
           paused: false,
@@ -70,3 +67,6 @@ export const createImportService = ({
     return { inserted, skipped };
   },
 });
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+(createImportService as any)[RESOLVER] = {};

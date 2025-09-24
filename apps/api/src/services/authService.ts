@@ -1,7 +1,8 @@
-import { User } from '@network/contracts';
+import { RESOLVER } from 'awilix';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import type { Knex } from 'knex';
+import type { Container } from '../container';
+import { User } from '../types/entities';
 
 export interface LoginCredentials {
   email: string;
@@ -15,7 +16,7 @@ export interface AuthService {
   comparePassword: (password: string, hash: string) => Promise<boolean>;
 }
 
-export const createAuthService = ({ connection }: { connection: Knex }): AuthService => {
+export const createAuthService = ({ connection }: Container): AuthService => {
   const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
   const JWT_EXPIRES_IN = '30d'; // 30 days sliding scale
 
@@ -82,3 +83,6 @@ export const createAuthService = ({ connection }: { connection: Knex }): AuthSer
     },
   };
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+(createAuthService as any)[RESOLVER] = {};

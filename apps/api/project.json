@@ -70,6 +70,13 @@
         "command": "prettier --write apps/api/src/**/*.{ts,tsx,js,jsx,json}"
       }
     },
+    "gen:container": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx src/codeGen/gen-awilix-container.ts",
+        "cwd": "apps/api"
+      }
+    },
     "docker-build:prod": {
       "executor": "nx:run-commands",
       "options": {

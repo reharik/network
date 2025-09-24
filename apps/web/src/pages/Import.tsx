@@ -1,7 +1,8 @@
+import { ImportContactsDTO } from '@network/contracts';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { DragEvent, useState } from 'react';
 import styled from 'styled-components';
-import { useContactListService, useContactService, type ImportRow } from '../hooks';
+import { useContactListService, useContactService } from '../hooks';
 import { qk } from '../services/keys';
 
 const Section = styled.section`
@@ -149,7 +150,7 @@ const parseVCard = (text: string): CsvRow[] => {
 };
 
 // map CSV -> ImportRow your API expects
-const mapRow = (r: CsvRow): ImportRow => {
+const mapRow = (r: CsvRow): ImportContactsDTO => {
   // Handle Google Takeout format
   const firstName = r['Given Name'] || r['First Name'] || r.firstName || '';
   const lastName = r['Family Name'] || r['Last Name'] || r.lastName || '';
@@ -166,12 +167,7 @@ const mapRow = (r: CsvRow): ImportRow => {
     email: email?.trim() || undefined,
     phone: phone?.trim() || undefined,
     notes: notes?.trim() || undefined,
-    tags: tags
-      ? tags
-          .split('|')
-          .map((s) => s.trim())
-          .filter(Boolean)
-      : [],
+    tags: tags || undefined,
   };
 };
 
@@ -187,7 +183,7 @@ export const ImportPage = () => {
   // Auto-filter contacts - no user controls needed
 
   const importMut = useMutation({
-    mutationFn: (r: ImportRow[]) => importContacts(r),
+    mutationFn: (r: ImportContactsDTO[]) => importContacts(r),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: qk.contacts });
       alert('Import complete');
@@ -207,7 +203,12 @@ export const ImportPage = () => {
     const duplicateIndices = new Set<number>();
     try {
       const existingContactsResponse = await fetchContacts();
-      const existingContacts = existingContactsResponse.contacts;
+      if (!existingContactsResponse.success) {
+        throw new Error(
+          'Failed to fetch existing contacts: ' + existingContactsResponse.errors.join(', '),
+        );
+      }
+      const existingContacts = existingContactsResponse.data.contacts;
 
       parsed.forEach((row, index) => {
         const mapped = mapRow(row);
