@@ -17,17 +17,16 @@
     "format:check": "prettier --check .",
     "gen:container": "nx run api:gen:container",
     "graph": "nx graph",
-    "lint": "nx run-many -t lint --projects=api,web,contracts",
-    "lint:fix": "nx run-many -t lint --projects=api,web,contracts -- --fix",
+    "lint": "nx run-many -t lint --projects=api,web,contracts,validators",
+    "lint:fix": "nx run-many -t lint --projects=api,web,contracts,validators -- --fix",
     "nx": "nx",
     "test": "nx run-many -t test --all",
     "test:ci": "nx run-many -t test --all -- --runInBand",
-    "test:watch": "nx run-many -t test --all -- --watch",
-    "prepare": "ts-patch install"
+    "test:watch": "nx run-many -t test --all -- --watch"
   },
   "dependencies": {
     "parse-fetch": "^0.0.6",
-    "smart-enums": "^0.0.11",
+    "smart-enums": "^0.0.13",
     "typia": "^9.7.2"
   },
   "devDependencies": {
@@ -61,12 +60,13 @@
     "prettier": "^3.6.2",
     "prettier-plugin-organize-imports": "^4.2.0",
     "prettier-plugin-packagejson": "^2.5.19",
+    "rimraf": "^6.0.1",
     "sqlite3": "^5.1.7",
     "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.3.0",
     "tslib": "^2.6.3",
-    "typescript": "~5.9.2",
+    "typescript": "^5.9.2",
     "typescript-eslint": "^8.42.0"
   }
 }

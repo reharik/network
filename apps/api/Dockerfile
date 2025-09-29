@@ -6,7 +6,7 @@ ARG NODE_VERSION=22
 FROM node:${NODE_VERSION}-slim AS base
 WORKDIR /repo
 # Install git for GitHub dependencies
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y git vim && rm -rf /var/lib/apt/lists/*
 RUN corepack enable || true
 
 # =============================================================================
@@ -17,18 +17,20 @@ RUN corepack enable || true
 FROM base AS deps-dev-staging
 COPY package.json package-lock.json ./
 # Create workspace directories first
-RUN mkdir -p apps/api packages/contracts
+RUN mkdir -p apps/api packages/contracts packages/validators
 COPY apps/api/package.json apps/api/package.json
 COPY packages/contracts/package.json packages/contracts/package.json
+COPY packages/validators/package.json packages/validators/package.json
 RUN npm ci --workspaces --include-workspace-root --ignore-scripts
 
 # Production dependencies - only production dependencies
 FROM base AS deps-prod
 COPY package.json package-lock.json ./
 # Create workspace directories first
-RUN mkdir -p apps/api packages/contracts
+RUN mkdir -p apps/api packages/contracts packages/validators
 COPY apps/api/package.json apps/api/package.json
 COPY packages/contracts/package.json packages/contracts/package.json
+COPY packages/validators/package.json packages/validators/package.json
 RUN npm ci --workspaces --include-workspace-root --only=production --ignore-scripts
 
 # =============================================================================
@@ -52,6 +54,7 @@ RUN npx nx build @app/api --configuration=production
 FROM node:${NODE_VERSION}-slim AS dev
 ENV NODE_ENV=development
 WORKDIR /app
+RUN apt-get update && apt-get install -y git vim 
 COPY --from=deps-dev-staging /repo/node_modules ./node_modules
 COPY . .
 RUN npm install -g nodemon
@@ -63,8 +66,12 @@ FROM node:${NODE_VERSION}-slim AS production
 ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=build /repo/apps/api/dist ./apps/api/dist
+COPY --from=build /repo/packages/contracts/dist ./packages/contracts/dist
+COPY --from=build /repo/packages/validators/dist ./packages/validators/dist
 COPY --from=deps-prod /repo/node_modules ./node_modules
 COPY apps/api/package.json ./apps/api/package.json
+COPY packages/contracts/package.json ./packages/contracts/package.json
+COPY packages/validators/package.json ./packages/validators/package.json
 EXPOSE 3000
 CMD ["node", "apps/api/dist/server.js"]
 

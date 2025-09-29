@@ -1,4 +1,3 @@
-import typia from 'typia';
 import type { ContactMethod } from '../enums/ContactMethod';
 
 // Import typia tags for cleaner syntax
@@ -136,10 +135,3 @@ export interface ImportContactsDTO {
   tags?: string;
   suggestion?: string;
 }
-
-// Export validation functions
-export const validateUpsertContact = typia.createValidate<UpsertContactDTO>();
-export const validateListContactsQuery = typia.createValidate<ListContactsQueryDTO>();
-export const validateCreateTouch = typia.createValidate<CreateTouchDTO>();
-export const validatePlanQuery = typia.createValidate<PlanQueryDTO>();
-export const validateUpsertDailyGoal = typia.createValidate<UpsertDailyGoalDTO>();

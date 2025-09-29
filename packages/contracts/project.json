@@ -1,22 +1,22 @@
 {
   "name": "contracts",
   "projectType": "library",
-  "sourceRoot": "packages/contracts/src",
+  "sourceRoot": "{projectRoot}/src",
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
-      "outputs": ["{workspaceRoot}/dist/packages/contracts"],
+      "outputs": ["{projectRoot}/dist"],
       "options": {
-        "outputPath": "dist/packages/contracts",
-        "tsConfig": "packages/contracts/tsconfig.json",
-        "main": "packages/contracts/src/index.ts",
+        "outputPath": "dist",
+        "tsConfig": "{projectRoot}/tsconfig.json",
+        "main": "{projectRoot}/src/index.ts",
         "assets": []
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["packages/contracts/**/*.{ts,js}"],
+        "lintFilePatterns": ["{projectRoot}/**/*.{ts,js}"],
         "format": "tools/eslint-formatters/stylish-linkify.js",
         "forceColor": true,
         "fix": false
@@ -24,16 +24,16 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/packages/contracts"],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/contracts/jest.config.js",
+        "jestConfig": "{projectRoot}/jest.config.js",
         "passWithNoTests": true
       }
     },
     "format": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "prettier --write packages/contracts/src/**/*.{ts,tsx,js,jsx,json}"
+        "command": "prettier --write {projectRoot}/src/**/*.{ts,tsx,js,jsx,json}"
       }
     }
   },

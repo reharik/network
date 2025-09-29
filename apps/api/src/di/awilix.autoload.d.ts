@@ -1,7 +1,7 @@
 /* AUTO-GENERATED. DO NOT EDIT.
 Re-run `npm run gen:container` after adding/removing services.
 */
-type KoaServer = import('../koaServer').KoaServer;
+ type KoaServer = import('../koaServer').KoaServer;
 
 type AuthService = import('../services/authService').AuthService;
 

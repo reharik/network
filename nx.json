@@ -28,5 +28,8 @@
       "cache": false
     }
   },
-  "nxCloudAccessToken": ""
+  "nxCloudAccessToken": "",
+  "tui": {
+    "autoExit": true
+  }
 }

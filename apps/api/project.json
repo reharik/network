@@ -1,26 +1,29 @@
 {
   "name": "api",
   "projectType": "application",
-  "sourceRoot": "apps/api/src",
+  "sourceRoot": "{projectRoot}/src",
   "targets": {
     "build": {
       "executor": "@nx/esbuild:esbuild",
-      "outputs": ["{workspaceRoot}/dist/apps/api"],
+      "outputs": ["{workspaceRoot}/apps/api/dist"],
+      "dependsOn": ["contracts:build", "validators:build"],
       "options": {
         "platform": "node",
         "format": ["esm"],
         "bundle": true,
-        "main": "apps/api/src/index.ts",
-        "outputPath": "dist/apps/api",
-        "tsConfig": "apps/api/tsconfig.json",
+        "main": "{projectRoot}/src/index.ts",
+        "outputPath": "apps/api/dist",
+        "tsConfig": "{projectRoot}/tsconfig.json",
         "assets": [
           {
-            "input": "apps/api",
+            "input": "{projectRoot}",
             "glob": "assets/**/*",
             "output": "assets"
           }
         ],
         "external": [
+          "@network/contracts",
+          "@network/validators",
           "pg",
           "mysql",
           "mysql2",
@@ -50,7 +53,7 @@
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["apps/api/**/*.{ts,tsx,js,mjs,cjs}"],
+        "lintFilePatterns": ["{projectRoot}/**/*.{ts,tsx,js,mjs,cjs}"],
         "format": "tools/eslint-formatters/stylish-linkify.js",
         "forceColor": true,
         "fix": false
@@ -58,23 +61,23 @@
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/apps/api"],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/api/jest.config.js",
+        "jestConfig": "{projectRoot}/jest.config.js",
         "passWithNoTests": true
       }
     },
     "format": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "prettier --write apps/api/src/**/*.{ts,tsx,js,jsx,json}"
+        "command": "prettier --write {projectRoot}/src/**/*.{ts,tsx,js,jsx,json}"
       }
     },
     "gen:container": {
       "executor": "nx:run-commands",
       "options": {
         "command": "tsx src/codeGen/gen-awilix-container.ts",
-        "cwd": "apps/api"
+        "cwd": "{projectRoot}"
       }
     },
     "docker-build:prod": {

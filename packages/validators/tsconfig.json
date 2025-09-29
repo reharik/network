@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": false,
+    "outDir": "../../dist/packages/validators",
+    "noEmit": false,
+    "types": ["jest"],
+    "baseUrl": "../..",
+    "plugins": [
+      {
+        "transform": "typia/lib/transform"
+      }
+    ]
+  },
+  "references": [
+    { "path": "../contracts" } // ← depends on contracts build output
+  ],
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist", "node_modules"]
+}

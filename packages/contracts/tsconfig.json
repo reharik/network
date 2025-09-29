@@ -1,12 +1,17 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "emitDeclarationOnly": false,
-    "outDir": "../../dist/packages/contracts",
     "noEmit": false,
-    "types": ["jest"]
+    "outDir": "./dist",
+    "types": ["jest"],
+    "plugins": [
+      {
+        "transform": "typia/lib/transform"
+      }
+    ]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["**/*.spec.ts", "dist", "node_modules"]

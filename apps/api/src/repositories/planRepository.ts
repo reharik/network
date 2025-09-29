@@ -1,6 +1,7 @@
-import { ContactDTO } from '@network/contracts';
+import { ContactDTO, ContactMethod } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import { DateTime } from 'luxon';
+import { reviveSmartEnums } from 'smart-enums';
 import type { Container } from '../container';
 
 export interface PlanRepository {
@@ -24,7 +25,7 @@ export const createPlanRepository = ({ connection }: Container): PlanRepository 
         { column: 'lastName', order: 'asc' },
       ])
       .limit(user.dailyGoal);
-    return due;
+    return reviveSmartEnums<ContactDTO[]>(due, { preferredMethod: ContactMethod });
   },
 });
 

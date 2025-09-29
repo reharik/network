@@ -1,11 +1,10 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc/apps/api",
+    "outDir": "./dist",
     "noEmit": true,
-    "types": [
-      "jest"
-    ],
+    "allowJs": true,
+    "types": ["jest"],
     "plugins": [
       {
         "transform": "typia/lib/transform"
@@ -15,14 +14,6 @@
     "strictNullChecks": true,
     "strict": true
   },
-  "include": [
-    "src/**/*.ts",
-    "../../knexfile.ts",
-    "src/di/awilix.autoload.d.ts"
-  ],
-  "exclude": [
-    "jest.*",
-    "dist",
-    "node_modules"
-  ]
+  "include": ["src/**/*.ts", "../../knexfile.ts", "src/di/awilix.autoload.d.ts"],
+  "exclude": ["jest.*", "dist", "node_modules"]
 }

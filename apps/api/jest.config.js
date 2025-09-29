@@ -18,5 +18,5 @@ export default {
   moduleNameMapper: {
     '^./knexfile$': '<rootDir>/src/tests/__mocks__/knexfile.js',
   },
-  transformIgnorePatterns: ['node_modules/(?!(smart-enums|case-anything)/)'],
+  transformIgnorePatterns: ['node_modules/(?!(smart-enums|case-anything|@network)/)'],
 };

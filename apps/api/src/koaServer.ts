@@ -9,6 +9,7 @@ import type { Container } from './container';
 import { database } from './knex';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
+import { smartEnumResponseSerializer } from './middleware/smartEnumResponseSerializer';
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ export const createKoaServer = ({
 
   app.use(errorHandler);
   app.use(requestLogger);
+  app.use(smartEnumResponseSerializer);
 
   app.use(
     cors({

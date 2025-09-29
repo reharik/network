@@ -6,6 +6,7 @@
 !package-lock.json
 !apps/api/
 !packages/contracts/
+!packages/validators/
 !nx.json
 !tsconfig.json
 !jest.preset.js

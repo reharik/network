@@ -1,5 +1,6 @@
-import { TouchDTO, TouchDTOPartial } from '@network/contracts';
+import { ContactMethod, TouchDTO, TouchDTOPartial } from '@network/contracts';
 import { RESOLVER } from 'awilix';
+import { reviveSmartEnums } from 'smart-enums';
 import type { Container } from '../container';
 
 export interface TouchesRepository {
@@ -25,7 +26,7 @@ export const createTouchesRepository = ({ connection }: Container): TouchesRepos
     await connection('contacts')
       .where({ id: contact.id })
       .update({ lastTouchedAt: connection.fn.now(), nextDueAt });
-    return touch;
+    return touch ? reviveSmartEnums<TouchDTO>(touch, { method: ContactMethod }) : undefined;
   },
 });
 

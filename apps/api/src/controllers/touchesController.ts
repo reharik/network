@@ -1,7 +1,6 @@
-import type { TouchDTOPartial } from '@network/contracts';
+import { validateCreateTouch } from '@network/validators';
 import { RESOLVER } from 'awilix';
 import type { Context } from 'koa';
-import typia from 'typia';
 import type { Container } from '../container';
 
 export interface TouchesController {
@@ -11,7 +10,7 @@ export interface TouchesController {
 export const createTouchesController = ({ touchesRepository }: Container): TouchesController => ({
   createTouch: async (ctx: Context): Promise<Context> => {
     const userId = ctx.user.id;
-    const validation = typia.validate<TouchDTOPartial>(ctx.request.body);
+    const validation = validateCreateTouch(ctx.request.body);
     if (!validation.success) {
       ctx.status = 400;
       ctx.body = {
