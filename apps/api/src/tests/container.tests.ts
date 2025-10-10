@@ -20,7 +20,7 @@ describe('Container', () => {
   it('should resolve planRepository', () => {
     const planRepository = container.resolve('planRepository');
     expect(planRepository).toBeDefined();
-    expect(typeof planRepository.getDailyPlan).toBe('function');
+    expect(typeof planRepository.getDailyContacts).toBe('function');
   });
 
   it('should resolve touchesRepository', () => {

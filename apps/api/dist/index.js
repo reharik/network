@@ -1,6 +1,7 @@
 // apps/api/src/container.ts
-import { Enums, createSmartEnumJSONReviver } from "@network/contracts";
+import { Enums, enumRegistry } from "@network/contracts";
 import { asFunction, asValue, createContainer } from "awilix";
+import { initializeSmartEnumMappings } from "smart-enums";
 
 // apps/api/src/knex.ts
 import knex from "knex";
@@ -55,11 +56,10 @@ container.register({
   connection: asValue(database)
 });
 container.register({
-  smartEnumReviver: asFunction(createSmartEnumJSONReviver)
-});
-container.register({
   Enums: asValue(Enums),
-  // Register the full Enums object for createSmartEnumJSONReviver
+  // Register the full Enums object for reviveSmartEnums
+  enumRegistry: asValue(enumRegistry),
+  // Register the properly typed enum registry
   ...Object.fromEntries(Object.entries(Enums).map(([key, value]) => [key, asValue(value)]))
 });
 container.loadModules(
@@ -85,6 +85,7 @@ container.loadModules(
     }
   }
 );
+initializeSmartEnumMappings({ enumRegistry });
 
 // apps/api/src/index.ts
 var PORT = process.env.PORT || 3e3;

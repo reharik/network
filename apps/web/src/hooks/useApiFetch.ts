@@ -1,8 +1,12 @@
 // useApiFetch.ts
-import { createSmartEnumJSONReviver, Enums } from '@network/contracts';
+import * as Contracts from '@network/contracts';
 import { validate as runValidation, type ValidatorKey } from '@network/validators';
-import { parseFetchSafe, type ParseResult } from 'parse-fetch';
+import { type ParseResult, withParseSafe } from 'parse-fetch';
+import { initializeSmartEnumMappings, reviveAfterTransport } from 'smart-enums';
 import { useAuth } from '../contexts/AuthContext';
+
+// Initialize the global smart enum configuration
+initializeSmartEnumMappings({ enumRegistry: Contracts.enumRegistry });
 
 type JsonInit = Omit<RequestInit, 'body'> & {
   body?: unknown;
@@ -30,6 +34,7 @@ export const useApiFetchBase = (token?: string) => {
     path: string,
     init: JsonInit = {},
   ): Promise<ParseResult<T>> => {
+    const parseFetch = withParseSafe(fetch);
     const API = (import.meta.env.VITE_API ?? '').replace(/\/+$/, '');
     const url = `${API}${path.startsWith('/') ? '' : '/'}${path}`;
 
@@ -40,23 +45,19 @@ export const useApiFetchBase = (token?: string) => {
     };
 
     if (token) headers.Authorization = `Bearer ${token}`;
+    const validator = init.validatorKey ? createTypiaValidator<T>(init.validatorKey) : undefined;
 
-    const res = await fetch(url, {
+    const data = await parseFetch(url, {
       credentials: 'include',
       ...init,
       headers,
       body: init.body ? JSON.stringify(init.body) : undefined,
-    });
-
-    if (res.status === 204) return { success: true, data: undefined as T };
-
-    // choose validator if provided; otherwise just parse/return without validation
-    const validator = init.validatorKey ? createTypiaValidator<T>(init.validatorKey) : undefined;
-
-    return parseFetchSafe<T>(res, {
-      reviver: createSmartEnumJSONReviver({ Enums }),
+    }).parse<T>({
+      validator,
+      reviver: (key, value) => reviveAfterTransport<T>(value),
       ...(validator ? { validator } : {}),
     });
+    return data;
   };
 
   return { apiFetch };

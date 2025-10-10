@@ -1,20 +1,23 @@
-import { ContactMethod, ImportContactsDTO } from '@network/contracts';
-import { validateUpsertContact } from '@network/validators';
+import { ImportContactsDTO } from '@network/contracts';
+import { validateUpdateContact } from '@network/validators';
 import { RESOLVER } from 'awilix';
 import type { Context } from 'koa';
 import type { Container } from '../container';
+import type { TypedContext } from '../types/koa';
 
 export interface ContactsController {
   getContacts: (ctx: Context) => Promise<Context>;
-  getContact: (ctx: Context) => Promise<Context>;
+  getContact: (ctx: TypedContext<{ id: string }>) => Promise<Context>;
   createContact: (ctx: Context) => Promise<Context>;
-  patchContact: (ctx: Context) => Promise<Context>;
+  patchContact: (ctx: TypedContext<{ id: string }>) => Promise<Context>;
+  deleteContact: (ctx: TypedContext<{ id: string }>) => Promise<Context>;
   importContacts: (ctx: Context) => Promise<Context>;
 }
 
 export const createContactsController = ({
   contactRepository,
   importService,
+  ContactMethod,
 }: Container): ContactsController => ({
   getContacts: async (ctx: Context) => {
     const userId = ctx.user.id;
@@ -28,7 +31,7 @@ export const createContactsController = ({
     return ctx;
   },
 
-  getContact: async (ctx: Context) => {
+  getContact: async (ctx: TypedContext<{ id: string }>) => {
     const userId = ctx.user.id;
     const contactId = ctx.params.id;
 
@@ -46,7 +49,7 @@ export const createContactsController = ({
   },
 
   createContact: async (ctx: Context) => {
-    const validation = validateUpsertContact(ctx.request.body);
+    const validation = validateUpdateContact(ctx.request.body);
     if (!validation.success) {
       ctx.status = 400;
       ctx.body = {
@@ -56,7 +59,6 @@ export const createContactsController = ({
       return ctx;
     }
     const userId = ctx.user.id;
-
     const entity = await contactRepository.createContact(userId, {
       ...validation.data,
       preferredMethod: validation.data.preferredMethod ?? ContactMethod.email,
@@ -67,8 +69,8 @@ export const createContactsController = ({
     return ctx;
   },
 
-  patchContact: async (ctx: Context) => {
-    const validation = validateUpsertContact(ctx.request.body);
+  patchContact: async (ctx: TypedContext<{ id: string }>) => {
+    const validation = validateUpdateContact(ctx.request.body);
     if (!validation.success) {
       ctx.status = 400;
       ctx.body = {
@@ -89,6 +91,21 @@ export const createContactsController = ({
     // Smart enums middleware will handle serialization
     ctx.status = 200;
     ctx.body = entity;
+    return ctx;
+  },
+
+  deleteContact: async (ctx: TypedContext<{ id: string }>) => {
+    const userId = ctx.user.id;
+    const contactId = ctx.params.id;
+
+    const deleted = await contactRepository.deleteContact(userId, contactId);
+    if (!deleted) {
+      ctx.status = 404;
+      ctx.body = { error: 'Contact not found' };
+      return ctx;
+    }
+
+    ctx.status = 204;
     return ctx;
   },
 

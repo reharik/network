@@ -1,26 +1,25 @@
-import {
-  CreateTouchDTO,
-  ListContactsQueryDTO,
-  PlanQueryDTO,
-  UpsertContactDTO,
-  UpsertDailyGoalDTO,
-} from '@network/contracts';
+import { Contact, Touch, UpdateContact, UpdateUser, User } from '@network/contracts';
 import typia from 'typia';
 
 // Export validation functions using typia.validate for runtime validation
-export const validateUpsertContact = (data: unknown) => typia.validate<UpsertContactDTO>(data);
-export const validateListContactsQuery = (data: unknown) =>
-  typia.validate<ListContactsQueryDTO>(data);
-export const validateCreateTouch = (data: unknown) => typia.validate<CreateTouchDTO>(data);
-export const validatePlanQuery = (data: unknown) => typia.validate<PlanQueryDTO>(data);
-export const validateUpsertDailyGoal = (data: unknown) => typia.validate<UpsertDailyGoalDTO>(data);
+export const validateContact = (data: unknown) => typia.validate<Contact>(data);
+export const validateUpdateContact = (data: unknown) => typia.validate<UpdateContact>(data);
+export const validateInsertContact = (data: unknown) => typia.validate<Omit<Contact, 'id'>>(data);
+export const validateTouch = (data: unknown) => typia.validate<Touch>(data);
+export const validateInsertTouch = (data: unknown) => typia.validate<Omit<Touch, 'id'>>(data);
+export const validateUser = (data: unknown) => typia.validate<User>(data);
+export const validateUpdateUser = (data: unknown) => typia.validate<UpdateUser>(data);
+export const validateInsertUser = (data: unknown) => typia.validate<Omit<User, 'id'>>(data);
 
 export const validators = {
-  upsertContact: validateUpsertContact,
-  listContactsQuery: validateListContactsQuery,
-  createTouch: validateCreateTouch,
-  planQuery: validatePlanQuery,
-  upsertDailyGoal: validateUpsertDailyGoal,
+  contact: validateContact,
+  insertContact: validateInsertContact,
+  updateContact: validateUpdateContact,
+  touch: validateTouch,
+  insertTouch: validateInsertTouch,
+  user: validateUser,
+  insertUser: validateInsertUser,
+  updateUser: validateUpdateUser,
 } as const;
 
 export type ValidatorKey = keyof typeof validators;

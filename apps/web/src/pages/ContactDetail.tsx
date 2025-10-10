@@ -1,4 +1,4 @@
-import { ContactDTO } from '@network/contracts';
+import { Contact } from '@network/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -71,14 +71,13 @@ export const ContactDetail = () => {
     enabled: Boolean(id),
   });
 
-  const [form, setForm] = useState<ContactDTO | undefined>(undefined);
+  const [form, setForm] = useState<Contact | undefined>(undefined);
   useEffect(() => {
     if (result?.success) setForm(result.data);
   }, [result]);
 
-  const onChange =
-    (k: keyof ContactDTO) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      setForm((prev) => (prev ? { ...prev, [k]: e.target.value } : prev));
+  const onChange = (k: keyof Contact) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    setForm((prev) => (prev ? { ...prev, [k]: e.target.value || undefined } : prev));
 
   const isDirty = useMemo(
     () => result?.success && JSON.stringify(result?.data ?? {}) !== JSON.stringify(form ?? {}),

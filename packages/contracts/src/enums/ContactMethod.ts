@@ -23,8 +23,7 @@ const input = {
   other: { link: () => '#', handle: () => '' },
 };
 
-export const ContactMethod = enumeration<typeof input, ContactMethodItem>({
+export const ContactMethod = enumeration<typeof input, ContactMethodItem>('ContactMethod', {
   input,
-  enumType: 'ContactMethod',
 });
 export type ContactMethod = Enumeration<typeof ContactMethod>;

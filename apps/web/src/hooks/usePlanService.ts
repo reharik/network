@@ -1,12 +1,12 @@
-import { ContactDTO } from '@network/contracts';
+import { Contact } from '@network/contracts';
 import { ParseResult } from 'parse-fetch';
 import { useApiFetch } from './useApiFetch';
 
 export const usePlanService = () => {
   const { apiFetch } = useApiFetch();
 
-  const getTodaysContacts = async (): Promise<ParseResult<ContactDTO[]>> =>
-    apiFetch<ContactDTO[]>(`/plan`);
+  const getTodaysContacts = async (): Promise<ParseResult<Contact[]>> =>
+    apiFetch<Contact[]>(`/plan`);
 
   return {
     getTodaysContacts,

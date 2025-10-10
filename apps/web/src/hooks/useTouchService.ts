@@ -1,21 +1,18 @@
-import { ContactDTO, TouchDTO } from '@network/contracts';
+import { Contact, Touch, UpdateTouch } from '@network/contracts';
 import { ParseResult } from 'parse-fetch';
 import { useApiFetch } from './useApiFetch';
 
 export const useTouchService = () => {
   const { apiFetch } = useApiFetch();
 
-  // If you want to log the *actual* method, you can extend this to fetch contact first.
-  const logTouch = async (contactId: string): Promise<ParseResult<TouchDTO>> =>
-    apiFetch<TouchDTO>(`/touches`, {
+  // Create a touch with full data
+  const logTouch = async (touchData: UpdateTouch): Promise<ParseResult<Touch>> =>
+    apiFetch<Touch>(`/touches`, {
       method: 'POST',
-      body: { contactId, method: 'OTHER' },
+      body: touchData,
     });
 
-  const snoozeContact = async (
-    contactId: string,
-    days: number,
-  ): Promise<ParseResult<ContactDTO>> => {
+  const snoozeContact = async (contactId: string, days: number): Promise<ParseResult<Contact>> => {
     const until = new Date(Date.now() + days * 86_400_000).toISOString();
     return apiFetch(`/contacts/${encodeURIComponent(contactId)}`, {
       method: 'PATCH',

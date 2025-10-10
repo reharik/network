@@ -6,7 +6,7 @@ export const smartEnumResponseSerializer = async (ctx: Context, next: Next) => {
 
   // Only serialize if there's a response body
   if (ctx.body && typeof ctx.body === 'object') {
-    // Force JSON.stringify to call toJSON() on smart enums
+    // Use JSON.stringify to call toJSON() on smart enums, which produces the correct serialized format
     const jsonString = JSON.stringify(ctx.body);
     ctx.body = jsonString;
     ctx.type = 'application/json';

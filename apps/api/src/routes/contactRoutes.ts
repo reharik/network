@@ -13,6 +13,7 @@ export const createContactRoutes = ({ contactsController }: Container): ContactR
     router.get('/contacts/:id', requireAuth(contactsController.getContact));
     router.post('/contacts', requireAuth(contactsController.createContact));
     router.patch('/contacts/:id', requireAuth(contactsController.patchContact));
+    router.delete('/contacts/:id', requireAuth(contactsController.deleteContact));
     router.post('/contacts/import', requireAuth(contactsController.importContacts));
   },
 });

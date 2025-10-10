@@ -1,4 +1,4 @@
-import { validateCreateTouch } from '@network/validators';
+import { validateInsertTouch } from '@network/validators';
 import { RESOLVER } from 'awilix';
 import type { Context } from 'koa';
 import type { Container } from '../container';
@@ -10,7 +10,7 @@ export interface TouchesController {
 export const createTouchesController = ({ touchesRepository }: Container): TouchesController => ({
   createTouch: async (ctx: Context): Promise<Context> => {
     const userId = ctx.user.id;
-    const validation = validateCreateTouch(ctx.request.body);
+    const validation = validateInsertTouch({ userId, ...ctx.request.body });
     if (!validation.success) {
       ctx.status = 400;
       ctx.body = {

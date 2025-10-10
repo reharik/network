@@ -1,19 +1,16 @@
-import { ContactDTO, ContactMethod } from '@network/contracts';
+import { Contact } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import { DateTime } from 'luxon';
-import { reviveSmartEnums } from 'smart-enums';
+import { DatabaseFormat, reviveFromDatabase } from 'smart-enums';
 import type { Container } from '../container';
 
 export interface PlanRepository {
-  getDailyPlan: (userId: string) => Promise<ContactDTO[]>;
+  getDailyContacts: (userId: string, dayStart: DateTime, dailyGoal: number) => Promise<Contact[]>;
 }
 
 export const createPlanRepository = ({ connection }: Container): PlanRepository => ({
-  getDailyPlan: async (userId: string) => {
-    const user = await connection('users').where({ id: userId }).first();
-    if (!user) return [];
-    const dayStart = DateTime.now().startOf('day');
-    const due = await connection<ContactDTO>('contacts')
+  getDailyContacts: async (userId: string, dayStart: DateTime, dailyGoal: number) => {
+    const due = await connection<DatabaseFormat<Contact>>('contacts')
       .where({ userId, paused: false })
       .andWhere((qb) =>
         qb.whereNull('snoozedUntil').orWhere('snoozedUntil', '<=', connection.fn.now()),
@@ -24,8 +21,12 @@ export const createPlanRepository = ({ connection }: Container): PlanRepository 
         { column: 'updatedAt', order: 'asc' },
         { column: 'lastName', order: 'asc' },
       ])
-      .limit(user.dailyGoal);
-    return reviveSmartEnums<ContactDTO[]>(due, { preferredMethod: ContactMethod });
+      .limit(dailyGoal);
+    return reviveFromDatabase<Contact[]>(due, {
+      fieldEnumMapping: {
+        preferredMethod: ['ContactMethod'],
+      },
+    });
   },
 });
 

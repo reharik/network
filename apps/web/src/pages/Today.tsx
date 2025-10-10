@@ -1,13 +1,27 @@
+import { ContactMethod, UpdateTouch } from '@network/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
+import { useState } from 'react';
 import { Container } from '../Layout';
 import { usePlanService, useTouchService } from '../hooks';
+import { Modal } from '../ui/Modal';
 import { Badge, Button, Card, Field, HStack, TextArea, VStack } from '../ui/Primitives';
+import { TouchForm } from '../ui/TouchForm';
 
 export const Today = () => {
   const qc = useQueryClient();
   const { getTodaysContacts } = usePlanService();
   const { logTouch, snoozeContact } = useTouchService();
+
+  // State for the touch modal
+  const [selectedContact, setSelectedContact] = useState<
+    | {
+        id: string;
+        name: string;
+        message: string;
+      }
+    | undefined
+  >(undefined);
 
   const {
     data: result,
@@ -19,8 +33,11 @@ export const Today = () => {
   });
 
   const touch = useMutation({
-    mutationFn: (contactId: string) => logTouch(contactId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['today'] }),
+    mutationFn: (touchData: UpdateTouch) => logTouch(touchData),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['today'] });
+      setSelectedContact(undefined);
+    },
   });
 
   const snooze = useMutation({
@@ -28,6 +45,37 @@ export const Today = () => {
       snoozeContact(contactId, days),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['today'] }),
   });
+
+  const handleMarkDoneClick = (contact: any) => {
+    setSelectedContact({
+      id: contact.id,
+      name: `${contact.firstName} ${contact.lastName}`,
+      message: contact.suggestion,
+    });
+  };
+
+  const handleTouchSubmit = (data: { method: string; message: string; outcome: string }) => {
+    if (!selectedContact) return;
+
+    const methodEnum = ContactMethod.tryFromValue(data.method);
+    if (!methodEnum) {
+      console.error('Invalid method:', data.method);
+      return;
+    }
+
+    const touchData: UpdateTouch = {
+      contactId: selectedContact.id,
+      method: methodEnum,
+      message: data.message,
+      outcome: data.outcome || undefined,
+    };
+
+    touch.mutate(touchData);
+  };
+
+  const handleTouchCancel = () => {
+    setSelectedContact(undefined);
+  };
 
   return (
     <Container>
@@ -62,7 +110,7 @@ export const Today = () => {
                 </Field>
 
                 <HStack>
-                  <Button onClick={() => touch.mutate(c.id)}>Mark Done</Button>
+                  <Button onClick={() => handleMarkDoneClick(c)}>Mark Done</Button>
                   <Button
                     variant="secondary"
                     onClick={() => snooze.mutate({ contactId: c.id, days: 7 })}
@@ -82,8 +130,24 @@ export const Today = () => {
         })}
 
         {(result?.success && result?.data?.length ? result?.data?.length : 0) === 0 &&
-          !isLoading && <Card>you’re all caught up 🎉</Card>}
+          !isLoading && <Card>you're all caught up 🎉</Card>}
       </VStack>
+
+      <Modal
+        isOpen={selectedContact !== undefined}
+        onClose={handleTouchCancel}
+        title="Mark Contact Done"
+      >
+        {selectedContact && (
+          <TouchForm
+            contactName={selectedContact.name}
+            initialMessage={selectedContact.message}
+            onSubmit={handleTouchSubmit}
+            onCancel={handleTouchCancel}
+            isLoading={touch.isPending}
+          />
+        )}
+      </Modal>
     </Container>
   );
 };

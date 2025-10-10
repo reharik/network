@@ -1,16 +1,32 @@
-import { ContactDTO, ImportContactsDTO } from '@network/contracts';
+import { Contact, ImportContactsDTO, UpdateContact } from '@network/contracts';
+import { validateUpdateContact } from '@network/validators';
 import { ParseResult } from 'parse-fetch';
 import { useApiFetch } from './useApiFetch';
 
 export const useContactService = () => {
   const { apiFetch } = useApiFetch();
 
-  const getContact = async (id: string): Promise<ParseResult<ContactDTO>> => {
-    return apiFetch<ContactDTO>(`/contacts/${encodeURIComponent(id)}`);
+  const getContact = async (id: string): Promise<ParseResult<Contact>> => {
+    return apiFetch<Contact>(`/contacts/${encodeURIComponent(id)}`);
   };
 
-  const updateContact = (contact: Partial<ContactDTO> & { id: string }) =>
-    apiFetch<ContactDTO>(`/contacts/${encodeURIComponent(contact.id)}`, {
+  const createContact = async (contact: UpdateContact): Promise<ParseResult<Contact>> => {
+    const result = validateUpdateContact(contact);
+    if (!result.success) {
+      return {
+        success: false,
+        errors: result.errors.map((error) => `${error.path} expected ${error.expected}`),
+      };
+    }
+
+    return apiFetch<Contact>(`/contacts`, {
+      method: 'POST',
+      body: result.data,
+    });
+  };
+
+  const updateContact = (contact: UpdateContact & { id: string }) =>
+    apiFetch<Contact>(`/contacts/${encodeURIComponent(contact.id)}`, {
       method: 'PATCH',
       body: contact,
     });
@@ -28,6 +44,7 @@ export const useContactService = () => {
 
   return {
     getContact,
+    createContact,
     updateContact,
     deleteContact,
     importContacts,

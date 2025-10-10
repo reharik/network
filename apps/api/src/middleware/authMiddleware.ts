@@ -54,4 +54,3 @@ export const createOptionalAuthMiddleware = ({ authService }: Container) => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
 (createOptionalAuthMiddleware as any)[RESOLVER] = {};
-// Test comment Mon Sep  8 02:32:06 PM CDT 2025

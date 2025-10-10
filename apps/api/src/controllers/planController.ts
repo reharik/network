@@ -5,10 +5,10 @@ export interface PlanController {
   getDailyPlan: (ctx: Context) => Promise<Context>;
 }
 
-export const createPlanController = ({ planRepository }: Container): PlanController => ({
+export const createPlanController = ({ planService }: Container): PlanController => ({
   getDailyPlan: async (ctx: Context): Promise<Context> => {
     const userId = ctx.user.id;
-    const contacts = await planRepository.getDailyPlan(userId);
+    const contacts = await planService.getDailyPlan(userId);
     ctx.body = contacts;
     return ctx;
   },

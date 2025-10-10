@@ -9,19 +9,48 @@ import type { Container } from './container';
 import { database } from './knex';
 import { errorHandler } from './middleware/errorHandler';
 import { requestLogger } from './middleware/requestLogger';
+import { smartEnumRequestReviver } from './middleware/smartEnumRequestReviver';
 import { smartEnumResponseSerializer } from './middleware/smartEnumResponseSerializer';
 
 dotenv.config();
 
 export type KoaServer = http.Server;
 
-export const createKoaServer = ({
-  smartEnumReviver,
-  routes,
-  optionalAuthMiddleware,
-}: Container) => {
+export const createKoaServer = ({ routes, optionalAuthMiddleware }: Container) => {
   const app = new Koa();
   app.context.db = database;
+  // 1. Error handling (should be first)
+  app.use(errorHandler);
+
+  // 2. Request logging (early in pipeline)
+  app.use(requestLogger);
+
+  // 3. CORS (before body parsing)
+  app.use(
+    cors({
+      origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
+      credentials: true,
+      allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    }),
+  );
+
+  // 4. Body parsing (must be before request processing)
+  app.use(koaBody());
+
+  // 5. Smart enum request revival (after body parsing)
+  app.use(smartEnumRequestReviver);
+
+  // 6. Auth middleware (before routes)
+  app.use(optionalAuthMiddleware);
+
+  // 7. Routes (the actual request handling)
+  const router = new Router({ prefix: '/api' });
+  routes.mountRoutes(router);
+  app.use(router.routes()).use(router.allowedMethods());
+
+  // 8. Smart enum response serialization (LAST - after routes)
+  app.use(smartEnumResponseSerializer);
 
   app.on('error', (err: Error, ctx: Context) => {
     console.error(`Unhandled error on ${ctx.method} ${ctx.path}`, {
@@ -39,32 +68,6 @@ export const createKoaServer = ({
   process.on('uncaughtException', (err) => {
     console.error('uncaughtException:', err);
   });
-
-  app.use(errorHandler);
-  app.use(requestLogger);
-  app.use(smartEnumResponseSerializer);
-
-  app.use(
-    cors({
-      origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
-      credentials: true,
-      allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    }),
-  );
-
-  // Use enhanced koa-bodyparser with custom reviver for smart enum transformation
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-explicit-any
-  app.use(koaBody({ customReviver: smartEnumReviver } as any));
-
-  // Mount routes using the container
-  const router = new Router({ prefix: '/api' });
-  routes.mountRoutes(router);
-
-  // Apply optional auth middleware globally - adds isLoggedIn flag to context
-  app.use(optionalAuthMiddleware);
-
-  app.use(router.routes()).use(router.allowedMethods());
 
   return http.createServer(app.callback());
 };

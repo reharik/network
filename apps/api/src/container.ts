@@ -1,6 +1,7 @@
-import { Enums, createSmartEnumJSONReviver } from '@network/contracts';
+import { Enums, enumRegistry, type EnumRegistry } from '@network/contracts';
 import { asFunction, asValue, createContainer } from 'awilix';
 import type { Knex } from 'knex';
+import { initializeSmartEnumMappings } from 'smart-enums';
 import { AutoLoadedContainer } from './di/awilix.autoload';
 import { database } from './knex';
 
@@ -12,8 +13,8 @@ type EnumContainerTypes = {
 // Base container for manually registered services
 interface BaseContainer extends EnumContainerTypes {
   connection: Knex;
-  smartEnumReviver: (key: string, value: unknown) => unknown;
   Enums: typeof Enums; // All enums as a single object
+  enumRegistry: EnumRegistry; // Properly typed enum registry for smart-enums functions
 }
 
 // Create the container with type inference
@@ -26,14 +27,10 @@ container.register({
   connection: asValue(database),
 });
 
-// Register smart enum utilities manually (they need special injection)
-container.register({
-  smartEnumReviver: asFunction(createSmartEnumJSONReviver),
-});
-
 // Register the Enums object and individual enums from contracts
 container.register({
-  Enums: asValue(Enums), // Register the full Enums object for createSmartEnumJSONReviver
+  Enums: asValue(Enums), // Register the full Enums object for reviveSmartEnums
+  enumRegistry: asValue(enumRegistry), // Register the properly typed enum registry
   ...Object.fromEntries(Object.entries(Enums).map(([key, value]) => [key, asValue(value)])),
 });
 
@@ -62,6 +59,9 @@ container.loadModules(
     },
   },
 );
+
+// Initialize the global smart enum configuration early, before any services are created
+initializeSmartEnumMappings({ enumRegistry });
 
 // Type-safe enum resolver using __smart_enum_type metadata
 export { container };

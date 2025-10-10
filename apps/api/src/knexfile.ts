@@ -20,9 +20,23 @@ const connection: Knex.StaticConnectionConfig = {
   database: process.env.POSTGRES_DB || 'network',
 };
 
+// Convert null values to undefined in query results while preserving Date objects
+const convertNullsToUndefined = (obj: unknown): unknown => {
+  if (obj === null) return undefined;
+  if (obj instanceof Date) return obj; // Preserve Date objects
+  if (Array.isArray(obj)) return obj.map(convertNullsToUndefined);
+  if (typeof obj === 'object' && obj !== null) {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, convertNullsToUndefined(value)]),
+    );
+  }
+  return obj;
+};
+
 export const knexConfig = {
   client: 'pg',
   connection,
+  postProcessResponse: (result: unknown) => convertNullsToUndefined(result),
   migrations: {
     directory: MIGRATIONS_DIR,
     tableName: 'knex_migrations',

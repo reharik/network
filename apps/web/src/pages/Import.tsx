@@ -190,7 +190,7 @@ export const ImportPage = () => {
     },
   });
 
-  const onFile = async (file: File | null) => {
+  const onFile = async (file: File | undefined) => {
     if (!file) return;
     setFileName(file.name);
     const text = await file.text();
@@ -246,7 +246,7 @@ export const ImportPage = () => {
   const onDrop = (e: DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
-    void onFile(file ?? null);
+    void onFile(file ?? undefined);
   };
 
   const mapped = rows.map(mapRow).filter((row) => row.firstName && row.lastName);
@@ -347,7 +347,7 @@ export const ImportPage = () => {
           type="file"
           accept=".csv,.vcf,text/csv,text/vcard"
           style={{ display: 'none' }}
-          onChange={(e) => void onFile(e.target.files?.[0] ?? null)}
+          onChange={(e) => void onFile(e.target.files?.[0] ?? undefined)}
         />
         Drag & drop vCard (.vcf) or CSV file here, or click to select
       </DropZone>
@@ -392,7 +392,7 @@ export const ImportPage = () => {
               const isSelected = selectedRows.has(originalIndex);
               const isValid = mapped.firstName && mapped.lastName;
 
-              if (!isValid) return null;
+              if (!isValid) return undefined;
 
               return (
                 <ContactItem

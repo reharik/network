@@ -1,6 +1,6 @@
+import type { User } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import type { Container } from '../container';
-import type { User } from '../types/entities';
 
 export interface UserRepository {
   getUser: (id: string) => Promise<User | undefined>;
@@ -12,7 +12,11 @@ export const createUserRepository = ({ connection }: Container): UserRepository 
     return connection<User>('users').where({ id }).first();
   },
   updateDailyGoal: async (id: string, dailyGoal: number) => {
-    return connection('users').where({ id }).update({ dailyGoal }, '*');
+    const result = await connection<User>('users')
+      .where({ id })
+      .update({ dailyGoal })
+      .returning('*');
+    return result ? result[0] : undefined;
   },
 });
 

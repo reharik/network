@@ -1,15 +1,17 @@
-import { ContactMethod } from '@network/contracts';
+import { ContactMethod, UpdateContact } from '@network/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useContactListService, useContactService } from '../hooks';
 import { Container } from '../Layout';
+import { AddContactForm } from '../ui/AddContactForm';
+import { Modal } from '../ui/Modal';
 import { Badge, Button, Card, HStack, Input, Select, Table, VStack } from '../ui/Primitives';
 
 export const Contacts = () => {
   const qc = useQueryClient();
   const { fetchContacts } = useContactListService();
-  const { deleteContact } = useContactService();
+  const { deleteContact, createContact } = useContactService();
   const { data: result, isLoading } = useQuery({
     queryKey: ['contacts'],
     queryFn: fetchContacts,
@@ -21,6 +23,7 @@ export const Contacts = () => {
 
   const [query, querySetter] = useState('');
   const [channel, setChannel] = useState<ContactMethod | undefined>();
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const deleteMut = useMutation({
     mutationFn: deleteContact,
@@ -29,10 +32,26 @@ export const Contacts = () => {
     },
   });
 
+  const createMut = useMutation({
+    mutationFn: createContact,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['contacts'] });
+      setShowAddModal(false);
+    },
+  });
+
   const handleDelete = (id: string, name: string) => {
     if (confirm(`Are you sure you want to delete ${name}?`)) {
       deleteMut.mutate(id);
     }
+  };
+
+  const handleAddContact = (data: UpdateContact) => {
+    createMut.mutate(data);
+  };
+
+  const handleCancelAdd = () => {
+    setShowAddModal(false);
   };
 
   const filtered = useMemo(() => {
@@ -51,6 +70,7 @@ export const Contacts = () => {
         <HStack>
           <h1>Contacts</h1>
           <Badge>{contacts.length} total</Badge>
+          <Button onClick={() => setShowAddModal(true)}>Add Contact</Button>
         </HStack>
 
         <Card>
@@ -112,6 +132,14 @@ export const Contacts = () => {
             </Table>
           </Card>
         )}
+
+        <Modal isOpen={showAddModal} onClose={handleCancelAdd} title="Add New Contact">
+          <AddContactForm
+            onSubmit={handleAddContact}
+            onCancel={handleCancelAdd}
+            isLoading={createMut.isPending}
+          />
+        </Modal>
       </VStack>
     </Container>
   );

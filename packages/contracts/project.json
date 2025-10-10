@@ -7,7 +7,7 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{projectRoot}/dist"],
       "options": {
-        "outputPath": "dist",
+        "outputPath": "{projectRoot}/dist",
         "tsConfig": "{projectRoot}/tsconfig.json",
         "main": "{projectRoot}/src/index.ts",
         "assets": []

@@ -2,8 +2,7 @@
 export * from './enums';
 
 // Export other modules
-export * from './types/types';
-export * from './utils/smartEnumUtils';
+export * from './enumRegistry';
+export * from './types/entities';
 
-// Re-export enums as a named export for easier importing
 export * as Enums from './enums';

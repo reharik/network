@@ -4,11 +4,16 @@
 export type { ValidatorKey } from './registry/registry';
 
 export {
-  validateCreateTouch,
-  validateListContactsQuery,
-  validatePlanQuery,
-  validateUpsertContact,
-  validateUpsertDailyGoal,
+  validate,
+  validateContact,
+  validateInsertContact,
+  validateInsertTouch,
+  validateInsertUser,
+  validateTouch,
+  validateUpdateContact,
+  validateUpdateUser,
+  validateUser,
+  validators,
 } from './registry/registry';
 
 // Re-export generated validators for tree-shaking and direct imports.

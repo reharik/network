@@ -1,8 +1,8 @@
+import { User } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import type { Container } from '../container';
-import { User } from '../types/entities';
 
 export interface LoginCredentials {
   email: string;
@@ -10,8 +10,8 @@ export interface LoginCredentials {
 }
 
 export interface AuthService {
-  login: (credentials: LoginCredentials) => Promise<{ user: User; token: string } | null>;
-  verifyToken: (token: string) => Promise<User | null>;
+  login: (credentials: LoginCredentials) => Promise<{ user: User; token: string } | undefined>;
+  verifyToken: (token: string) => Promise<User | undefined>;
   hashPassword: (password: string) => Promise<string>;
   comparePassword: (password: string, hash: string) => Promise<boolean>;
 }
@@ -27,13 +27,13 @@ export const createAuthService = ({ connection }: Container): AuthService => {
       // Find user by email
       const user = await connection('users').where({ email }).first();
       if (!user || !user.passwordHash) {
-        return null;
+        return undefined;
       }
 
       // Verify password
       const isValidPassword = await bcrypt.compare(password, user.passwordHash);
       if (!isValidPassword) {
-        return null;
+        return undefined;
       }
 
       // Update last login
@@ -64,13 +64,13 @@ export const createAuthService = ({ connection }: Container): AuthService => {
         const user = await connection('users').where({ id: decoded.userId }).first();
 
         if (!user) {
-          return null;
+          return undefined;
         }
 
         return user;
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err: unknown) {
-        return null;
+        return undefined;
       }
     },
 

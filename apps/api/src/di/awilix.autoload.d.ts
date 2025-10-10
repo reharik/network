@@ -7,6 +7,8 @@ type AuthService = import('../services/authService').AuthService;
 
 type ImportService = import('../services/importService').ImportService;
 
+type PlanService = import('../services/planService').PlanService;
+
 type ContactRepository = import('../repositories/contactRepository').ContactRepository;
 
 type PlanRepository = import('../repositories/planRepository').PlanRepository;
@@ -45,6 +47,7 @@ export interface AutoLoadedContainer {
   koaServer: KoaServer;
   authService: AuthService;
   importService: ImportService;
+  planService: PlanService;
   contactRepository: ContactRepository;
   planRepository: PlanRepository;
   touchesRepository: TouchesRepository;

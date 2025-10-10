@@ -50,8 +50,11 @@ export const createImportService = ({ contactRepository }: Container): ImportSer
           email: row.email || undefined,
           phone: row.phone || undefined,
           notes: row.notes || undefined,
-          preferredMethod: ContactMethod.email, // Default to email
-          suggestion: "Hi {{firstName}}, just checking in to see how you're doing.",
+          preferredMethod: ContactMethod.EMAIL, // Default to email
+          suggestion: "Hi {{firstName}}, just checking in to see how you're doing.".replaceAll(
+            '{{firstName}}',
+            row.firstName,
+          ),
           intervalDays: 30, // Default interval
           paused: false,
         };

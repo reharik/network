@@ -1,20 +1,21 @@
-import { ContactDTO, ContactDTOPartial, ContactMethod } from '@network/contracts';
+import { Contact, UpdateContact } from '@network/contracts';
 import { RESOLVER } from 'awilix';
-import { reviveSmartEnums } from 'smart-enums';
+import { prepareForDatabase, reviveFromDatabase } from 'smart-enums';
 import { v4 } from 'uuid';
 import type { Container } from '../container';
 
 export type ListContactsOpts = { dueOnly?: boolean; q?: string };
 
 export interface ContactRepository {
-  listContacts: (userId: string, opts?: ListContactsOpts) => Promise<ContactDTO[]>;
-  createContact: (userId: string, data: ContactDTOPartial) => Promise<ContactDTO>;
-  getContact: (userId: string, id: string) => Promise<ContactDTO | undefined>;
+  listContacts: (userId: string, opts?: ListContactsOpts) => Promise<Contact[]>;
+  createContact: (userId: string, data: UpdateContact) => Promise<Contact>;
+  getContact: (userId: string, id: string) => Promise<Contact | undefined>;
   patchContact: (
     userId: string,
     id: string,
-    data: Partial<ContactDTOPartial>,
-  ) => Promise<ContactDTO | undefined>;
+    data: Partial<UpdateContact>,
+  ) => Promise<Contact | undefined>;
+  deleteContact: (userId: string, id: string) => Promise<boolean>;
 }
 
 export const createContactRepository = ({ connection }: Container): ContactRepository => ({
@@ -33,30 +34,50 @@ export const createContactRepository = ({ connection }: Container): ContactRepos
       { column: 'lastName', order: 'asc' },
       { column: 'firstName', order: 'asc' },
     ]);
-    return reviveSmartEnums<ContactDTO[]>(rows, { preferredMethod: ContactMethod });
+    return reviveFromDatabase<Contact[]>(rows);
   },
-  createContact: async (userId: string, data: ContactDTOPartial) => {
-    const payload: ContactDTOPartial = {
+  createContact: async (userId: string, data: UpdateContact) => {
+    const payload: UpdateContact = {
       ...data,
       id: v4(),
       userId,
     };
-    const [row] = await connection('contacts').insert(payload).returning('*');
-    return reviveSmartEnums<ContactDTO>(row, { preferredMethod: ContactMethod });
+    const dbPayload = prepareForDatabase(payload);
+    const [row] = await connection('contacts').insert(dbPayload).returning('*');
+    return reviveFromDatabase<Contact>(row, {
+      fieldEnumMapping: {
+        preferredMethod: ['ContactMethod'],
+      },
+    });
   },
   getContact: async (userId: string, id: string) => {
     const dto = await connection('contacts').where({ id, userId }).first();
-    return dto ? reviveSmartEnums<ContactDTO>(dto, { preferredMethod: ContactMethod }) : undefined;
+    return dto
+      ? reviveFromDatabase<Contact>(dto, {
+          fieldEnumMapping: {
+            preferredMethod: ['ContactMethod'],
+          },
+        })
+      : undefined;
   },
-  patchContact: async (userId: string, id: string, data: Partial<ContactDTOPartial>) => {
+  patchContact: async (userId: string, id: string, data: Partial<UpdateContact>) => {
     const existing = await connection('contacts').where({ id, userId }).first();
     if (!existing) return undefined;
-    const updates: Partial<ContactDTOPartial> = { ...existing, ...data };
-    await connection('contacts').where({ id, userId }).update(updates);
+    const updates = { ...existing, ...data };
+    const dbUpdates = prepareForDatabase(updates);
+    await connection('contacts').where({ id, userId }).update(dbUpdates);
     const updated = await connection('contacts').where({ id, userId }).first();
     return updated
-      ? reviveSmartEnums<ContactDTO>(updated, { preferredMethod: ContactMethod })
+      ? reviveFromDatabase<Contact>(updated, {
+          fieldEnumMapping: {
+            preferredMethod: ['ContactMethod'],
+          },
+        })
       : undefined;
+  },
+  deleteContact: async (userId: string, id: string) => {
+    const deletedCount = await connection('contacts').where({ id, userId }).del();
+    return deletedCount > 0;
   },
 });
 

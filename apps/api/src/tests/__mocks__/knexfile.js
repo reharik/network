@@ -3,7 +3,6 @@ const knexConfig = {
   connection: {
     filename: ':memory:',
   },
-  useNullAsDefault: true,
 };
 
 module.exports = { knexConfig };
