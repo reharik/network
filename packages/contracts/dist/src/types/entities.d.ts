@@ -29,8 +29,8 @@ export interface PlainTouch {
 }
 export interface PlainUser {
     id: string;
-    firstName: string | null;
-    lastName: string | null;
+    firstName: string | undefined;
+    lastName: string | undefined;
     passwordHash: string;
     email: string;
     dailyGoal: number;

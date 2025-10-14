@@ -2,6 +2,7 @@ import { User } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { config } from '../config';
 import type { Container } from '../container';
 
 export interface LoginCredentials {
@@ -17,9 +18,6 @@ export interface AuthService {
 }
 
 export const createAuthService = ({ connection }: Container): AuthService => {
-  const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-  const JWT_EXPIRES_IN = '30d'; // 30 days sliding scale
-
   return {
     login: async (credentials: LoginCredentials) => {
       const { email, password } = credentials;
@@ -47,8 +45,8 @@ export const createAuthService = ({ connection }: Container): AuthService => {
           userId: user.id,
           email: user.email,
         },
-        JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN },
+        config.jwtSecret,
+        { expiresIn: config.jwtExpiresIn } as jwt.SignOptions,
       );
 
       return { user, token };
@@ -56,7 +54,7 @@ export const createAuthService = ({ connection }: Container): AuthService => {
 
     verifyToken: async (token: string) => {
       try {
-        const decoded = jwt.verify(token, JWT_SECRET) as {
+        const decoded = jwt.verify(token, config.jwtSecret) as {
           userId: string;
           email: string;
         };

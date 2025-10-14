@@ -13,7 +13,8 @@
   "targetDefaults": {
     "build": {
       "cache": true,
-      "inputs": ["prod", "^prod"]
+      "inputs": ["prod", "^prod"],
+      "dependsOn": ["^build"]
     },
     "test": {
       "cache": true,

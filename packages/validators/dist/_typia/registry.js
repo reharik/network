@@ -834,7 +834,7 @@ export const validateInsertTouch = (data) => (() => {
     };
 })()(data);
 export const validateUser = (data) => (() => {
-    const _io0 = (input) => "string" === typeof input.email && __typia_transform__isFormatEmail._isFormatEmail(input.email) && ("number" === typeof input.dailyGoal && (__typia_transform__isTypeInt32._isTypeInt32(input.dailyGoal) && 0 <= input.dailyGoal && input.dailyGoal <= 500)) && (undefined === input.createdAt || "string" === typeof input.createdAt && __typia_transform__isFormatDateTime._isFormatDateTime(input.createdAt)) && ("string" === typeof input.lastLoginAt && __typia_transform__isFormatDateTime._isFormatDateTime(input.lastLoginAt)) && "string" === typeof input.id && (null === input.firstName || "string" === typeof input.firstName) && (null === input.lastName || "string" === typeof input.lastName) && "string" === typeof input.passwordHash;
+    const _io0 = (input) => "string" === typeof input.email && __typia_transform__isFormatEmail._isFormatEmail(input.email) && ("number" === typeof input.dailyGoal && (__typia_transform__isTypeInt32._isTypeInt32(input.dailyGoal) && 0 <= input.dailyGoal && input.dailyGoal <= 500)) && (undefined === input.createdAt || "string" === typeof input.createdAt && __typia_transform__isFormatDateTime._isFormatDateTime(input.createdAt)) && ("string" === typeof input.lastLoginAt && __typia_transform__isFormatDateTime._isFormatDateTime(input.lastLoginAt)) && "string" === typeof input.id && (undefined === input.firstName || "string" === typeof input.firstName) && (undefined === input.lastName || "string" === typeof input.lastName) && "string" === typeof input.passwordHash;
     const _vo0 = (input, _path, _exceptionable = true) => ["string" === typeof input.email && (__typia_transform__isFormatEmail._isFormatEmail(input.email) || _report(_exceptionable, {
             path: _path + ".email",
             expected: "string & Format<\"email\">",
@@ -879,13 +879,13 @@ export const validateUser = (data) => (() => {
             path: _path + ".id",
             expected: "string",
             value: input.id
-        }), null === input.firstName || "string" === typeof input.firstName || _report(_exceptionable, {
+        }), undefined === input.firstName || "string" === typeof input.firstName || _report(_exceptionable, {
             path: _path + ".firstName",
-            expected: "(null | string)",
+            expected: "(string | undefined)",
             value: input.firstName
-        }), null === input.lastName || "string" === typeof input.lastName || _report(_exceptionable, {
+        }), undefined === input.lastName || "string" === typeof input.lastName || _report(_exceptionable, {
             path: _path + ".lastName",
-            expected: "(null | string)",
+            expected: "(string | undefined)",
             value: input.lastName
         }), "string" === typeof input.passwordHash || _report(_exceptionable, {
             path: _path + ".passwordHash",
@@ -925,7 +925,7 @@ export const validateUser = (data) => (() => {
     };
 })()(data);
 export const validateUpdateUser = (data) => (() => {
-    const _io0 = (input) => (undefined === input.email || "string" === typeof input.email && __typia_transform__isFormatEmail._isFormatEmail(input.email)) && (undefined === input.dailyGoal || "number" === typeof input.dailyGoal && (__typia_transform__isTypeInt32._isTypeInt32(input.dailyGoal) && 0 <= input.dailyGoal && input.dailyGoal <= 500)) && (undefined === input.createdAt || "string" === typeof input.createdAt && __typia_transform__isFormatDateTime._isFormatDateTime(input.createdAt)) && (undefined === input.lastLoginAt || "string" === typeof input.lastLoginAt && __typia_transform__isFormatDateTime._isFormatDateTime(input.lastLoginAt)) && (undefined === input.id || "string" === typeof input.id) && (null === input.firstName || undefined === input.firstName || "string" === typeof input.firstName) && (null === input.lastName || undefined === input.lastName || "string" === typeof input.lastName) && (undefined === input.passwordHash || "string" === typeof input.passwordHash);
+    const _io0 = (input) => (undefined === input.email || "string" === typeof input.email && __typia_transform__isFormatEmail._isFormatEmail(input.email)) && (undefined === input.dailyGoal || "number" === typeof input.dailyGoal && (__typia_transform__isTypeInt32._isTypeInt32(input.dailyGoal) && 0 <= input.dailyGoal && input.dailyGoal <= 500)) && (undefined === input.createdAt || "string" === typeof input.createdAt && __typia_transform__isFormatDateTime._isFormatDateTime(input.createdAt)) && (undefined === input.lastLoginAt || "string" === typeof input.lastLoginAt && __typia_transform__isFormatDateTime._isFormatDateTime(input.lastLoginAt)) && (undefined === input.id || "string" === typeof input.id) && (undefined === input.firstName || "string" === typeof input.firstName) && (undefined === input.lastName || "string" === typeof input.lastName) && (undefined === input.passwordHash || "string" === typeof input.passwordHash);
     const _vo0 = (input, _path, _exceptionable = true) => [undefined === input.email || "string" === typeof input.email && (__typia_transform__isFormatEmail._isFormatEmail(input.email) || _report(_exceptionable, {
             path: _path + ".email",
             expected: "string & Format<\"email\">",
@@ -970,13 +970,13 @@ export const validateUpdateUser = (data) => (() => {
             path: _path + ".id",
             expected: "(string | undefined)",
             value: input.id
-        }), null === input.firstName || undefined === input.firstName || "string" === typeof input.firstName || _report(_exceptionable, {
+        }), undefined === input.firstName || "string" === typeof input.firstName || _report(_exceptionable, {
             path: _path + ".firstName",
-            expected: "(null | string | undefined)",
+            expected: "(string | undefined)",
             value: input.firstName
-        }), null === input.lastName || undefined === input.lastName || "string" === typeof input.lastName || _report(_exceptionable, {
+        }), undefined === input.lastName || "string" === typeof input.lastName || _report(_exceptionable, {
             path: _path + ".lastName",
-            expected: "(null | string | undefined)",
+            expected: "(string | undefined)",
             value: input.lastName
         }), undefined === input.passwordHash || "string" === typeof input.passwordHash || _report(_exceptionable, {
             path: _path + ".passwordHash",
@@ -1016,7 +1016,7 @@ export const validateUpdateUser = (data) => (() => {
     };
 })()(data);
 export const validateInsertUser = (data) => (() => {
-    const _io0 = (input) => "string" === typeof input.email && __typia_transform__isFormatEmail._isFormatEmail(input.email) && (null === input.firstName || "string" === typeof input.firstName) && (null === input.lastName || "string" === typeof input.lastName) && (undefined === input.createdAt || "string" === typeof input.createdAt && __typia_transform__isFormatDateTime._isFormatDateTime(input.createdAt)) && ("number" === typeof input.dailyGoal && (__typia_transform__isTypeInt32._isTypeInt32(input.dailyGoal) && 0 <= input.dailyGoal && input.dailyGoal <= 500)) && ("string" === typeof input.lastLoginAt && __typia_transform__isFormatDateTime._isFormatDateTime(input.lastLoginAt)) && "string" === typeof input.passwordHash;
+    const _io0 = (input) => "string" === typeof input.email && __typia_transform__isFormatEmail._isFormatEmail(input.email) && (undefined === input.firstName || "string" === typeof input.firstName) && (undefined === input.lastName || "string" === typeof input.lastName) && (undefined === input.createdAt || "string" === typeof input.createdAt && __typia_transform__isFormatDateTime._isFormatDateTime(input.createdAt)) && ("number" === typeof input.dailyGoal && (__typia_transform__isTypeInt32._isTypeInt32(input.dailyGoal) && 0 <= input.dailyGoal && input.dailyGoal <= 500)) && ("string" === typeof input.lastLoginAt && __typia_transform__isFormatDateTime._isFormatDateTime(input.lastLoginAt)) && "string" === typeof input.passwordHash;
     const _vo0 = (input, _path, _exceptionable = true) => ["string" === typeof input.email && (__typia_transform__isFormatEmail._isFormatEmail(input.email) || _report(_exceptionable, {
             path: _path + ".email",
             expected: "string & Format<\"email\">",
@@ -1025,13 +1025,13 @@ export const validateInsertUser = (data) => (() => {
             path: _path + ".email",
             expected: "(string & Format<\"email\">)",
             value: input.email
-        }), null === input.firstName || "string" === typeof input.firstName || _report(_exceptionable, {
+        }), undefined === input.firstName || "string" === typeof input.firstName || _report(_exceptionable, {
             path: _path + ".firstName",
-            expected: "(null | string)",
+            expected: "(string | undefined)",
             value: input.firstName
-        }), null === input.lastName || "string" === typeof input.lastName || _report(_exceptionable, {
+        }), undefined === input.lastName || "string" === typeof input.lastName || _report(_exceptionable, {
             path: _path + ".lastName",
-            expected: "(null | string)",
+            expected: "(string | undefined)",
             value: input.lastName
         }), undefined === input.createdAt || "string" === typeof input.createdAt && (__typia_transform__isFormatDateTime._isFormatDateTime(input.createdAt) || _report(_exceptionable, {
             path: _path + ".createdAt",

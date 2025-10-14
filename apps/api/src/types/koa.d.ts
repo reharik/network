@@ -19,6 +19,6 @@ declare module 'koa' {
 }
 
 // Generic typed context helper for controllers
-export type TypedContext<T extends Record<string, string> = {}> = Context & {
+export type TypedContext<T extends Record<string, string> = Record<string, string>> = Context & {
   params: T;
 };

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { config } from '../config';
 
 const Section = styled.section`
   background: #0e1220;
@@ -43,7 +44,7 @@ type SettingsState = {
 
 export const Settings = () => {
   const [state, setState] = useState<SettingsState>({
-    reminderHour: '09:00',
+    reminderHour: config.defaultReminderTime,
     tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
     weeklyDigest: true,
   });

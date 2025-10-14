@@ -3,6 +3,7 @@ import * as Contracts from '@network/contracts';
 import { validate as runValidation, type ValidatorKey } from '@network/validators';
 import { type ParseResult, withParseSafe } from 'parse-fetch';
 import { initializeSmartEnumMappings, reviveAfterTransport } from 'smart-enums';
+import { config } from '../config';
 import { useAuth } from '../contexts/AuthContext';
 
 // Initialize the global smart enum configuration
@@ -35,7 +36,9 @@ export const useApiFetchBase = (token?: string) => {
     init: JsonInit = {},
   ): Promise<ParseResult<T>> => {
     const parseFetch = withParseSafe(fetch);
-    const API = (import.meta.env.VITE_API ?? '').replace(/\/+$/, '');
+    const API = config.apiBaseUrl.endsWith('/')
+      ? config.apiBaseUrl.slice(0, -1)
+      : config.apiBaseUrl;
     const url = `${API}${path.startsWith('/') ? '' : '/'}${path}`;
 
     const headers: Record<string, string> = {

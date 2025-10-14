@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import http from 'http';
 import Koa, { Context } from 'koa';
 import { koaBody } from 'koa-body';
+import { config } from './config';
 import type { Container } from './container';
 import { database } from './knex';
 import { errorHandler } from './middleware/errorHandler';
@@ -28,7 +29,7 @@ export const createKoaServer = ({ routes, optionalAuthMiddleware }: Container) =
   // 3. CORS (before body parsing)
   app.use(
     cors({
-      origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
+      origin: config.corsOrigin,
       credentials: true,
       allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
