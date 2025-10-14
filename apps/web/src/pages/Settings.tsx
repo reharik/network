@@ -2,40 +2,6 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { config } from '../config';
 
-const Section = styled.section`
-  background: #0e1220;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 16px;
-  padding: 20px;
-  display: grid;
-  gap: 18px;
-`;
-const Row = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-`;
-const Label = styled.label`
-  color: ${({ theme }) => theme.colors.subtext};
-`;
-const Input = styled.input`
-  background: #0a0d17;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 10px;
-  padding: 10px 12px;
-  color: ${({ theme }) => theme.colors.text};
-  min-width: 260px;
-`;
-const Button = styled.button`
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: #0f1424;
-  color: ${({ theme }) => theme.colors.text};
-  cursor: pointer;
-`;
-
 type SettingsState = {
   reminderHour: string;
   tz: string;
@@ -107,3 +73,42 @@ export const Settings = () => {
     </Section>
   );
 };
+
+// Styled Components
+const Section = styled.section`
+  background: #0e1220;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 16px;
+  padding: 20px;
+  display: grid;
+  gap: 18px;
+`;
+
+const Row = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+`;
+
+const Label = styled.label`
+  color: ${({ theme }) => theme.colors.subtext};
+`;
+
+const Input = styled.input`
+  background: #0a0d17;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: ${({ theme }) => theme.colors.text};
+  min-width: 260px;
+`;
+
+const Button = styled.button`
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: #0f1424;
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+`;

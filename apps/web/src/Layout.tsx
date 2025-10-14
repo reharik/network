@@ -3,6 +3,46 @@ import styled from 'styled-components';
 import { useAuth } from './contexts/AuthContext';
 import { Button, HStack, Spacer } from './ui/Primitives';
 
+export const Layout = () => {
+  const { user, logout } = useAuth();
+
+  return (
+    <>
+      <NavBar>
+        <NavInner>
+          <HStack>
+            <Brand to="/">PingPals</Brand>
+            <StyledNavLink to="/" end>
+              Today
+            </StyledNavLink>
+            <StyledNavLink to="/contacts">Contacts</StyledNavLink>
+            <StyledNavLink to="/import">Import</StyledNavLink>
+            <StyledNavLink to="/settings">Settings</StyledNavLink>
+            <Spacer />
+            {user && (
+              <HStack>
+                <span style={{ color: '#9CA3AF', fontSize: '14px' }}>
+                  {user.firstName} {user.lastName}
+                </span>
+                <Button variant="secondary" size="sm" onClick={logout}>
+                  Logout
+                </Button>
+              </HStack>
+            )}
+          </HStack>
+        </NavInner>
+      </NavBar>
+
+      <main>
+        <Container>
+          <Outlet />
+        </Container>
+      </main>
+    </>
+  );
+};
+
+// Styled Components
 export const Container = styled.div`
   max-width: 960px;
   margin: 0 auto;
@@ -42,42 +82,3 @@ export const StyledNavLink = styled(NavLink)`
     color: ${({ theme }) => theme.colors.text};
   }
 `;
-
-export const Layout = () => {
-  const { user, logout } = useAuth();
-
-  return (
-    <>
-      <NavBar>
-        <NavInner>
-          <HStack>
-            <Brand to="/">PingPals</Brand>
-            <StyledNavLink to="/" end>
-              Today
-            </StyledNavLink>
-            <StyledNavLink to="/contacts">Contacts</StyledNavLink>
-            <StyledNavLink to="/import">Import</StyledNavLink>
-            <StyledNavLink to="/settings">Settings</StyledNavLink>
-            <Spacer />
-            {user && (
-              <HStack>
-                <span style={{ color: '#9CA3AF', fontSize: '14px' }}>
-                  {user.firstName} {user.lastName}
-                </span>
-                <Button variant="secondary" size="sm" onClick={logout}>
-                  Logout
-                </Button>
-              </HStack>
-            )}
-          </HStack>
-        </NavInner>
-      </NavBar>
-
-      <main>
-        <Container>
-          <Outlet />
-        </Container>
-      </main>
-    </>
-  );
-};

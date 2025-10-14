@@ -1,6 +1,14 @@
 // src/ui/primitives.tsx
 import styled, { css } from 'styled-components';
 
+export const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <VStack gap={1}>
+    <Label>{label}</Label>
+    {children}
+  </VStack>
+);
+
+// Styled Components
 export const Card = styled.div`
   background: ${({ theme }) => theme.colors.panel};
   border: 1px solid ${({ theme }) => theme.colors.border};
@@ -54,9 +62,11 @@ const baseInput = css`
 export const Input = styled.input`
   ${baseInput}
 `;
+
 export const Select = styled.select`
   ${baseInput}
 `;
+
 export const TextArea = styled.textarea`
   ${baseInput};
   resize: vertical;
@@ -140,10 +150,3 @@ export const Table = styled.table`
     background: rgba(255, 255, 255, 0.02);
   }
 `;
-
-export const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-  <VStack gap={1}>
-    <Label>{label}</Label>
-    {children}
-  </VStack>
-);

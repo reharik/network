@@ -6,55 +6,6 @@ import styled from 'styled-components';
 import { useContactService } from '../hooks';
 import { qk } from '../services/keys';
 
-const Card = styled.section`
-  background: #0e1220;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 16px;
-  padding: 20px;
-  display: grid;
-  gap: 16px;
-`;
-const Field = styled.div`
-  display: grid;
-  gap: 6px;
-`;
-const Label = styled.label`
-  font-size: 12px;
-  color: ${({ theme }) => theme.colors.subtext};
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-`;
-const Input = styled.input`
-  background: #0a0d17;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 10px;
-  padding: 10px 12px;
-  color: ${({ theme }) => theme.colors.text};
-`;
-const TextArea = styled.textarea`
-  background: #0a0d17;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 10px;
-  padding: 10px 12px;
-  color: ${({ theme }) => theme.colors.text};
-  min-height: 96px;
-`;
-const Row = styled.div`
-  display: flex;
-  gap: 12px;
-`;
-const Button = styled.button<{ danger?: boolean }>`
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ danger }) => (danger ? '#2a0e13' : '#0f1424')};
-  color: ${({ theme }) => theme.colors.text};
-  cursor: pointer;
-  &:hover {
-    filter: brightness(1.1);
-  }
-`;
-
 export const ContactDetail = () => {
   const { id = '' } = useParams();
   const navigate = useNavigate();
@@ -155,3 +106,59 @@ export const ContactDetail = () => {
     </Card>
   );
 };
+
+// Styled Components
+const Card = styled.section`
+  background: #0e1220;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 16px;
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+`;
+
+const Field = styled.div`
+  display: grid;
+  gap: 6px;
+`;
+
+const Label = styled.label`
+  font-size: 12px;
+  color: ${({ theme }) => theme.colors.subtext};
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+`;
+
+const Input = styled.input`
+  background: #0a0d17;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: ${({ theme }) => theme.colors.text};
+`;
+
+const TextArea = styled.textarea`
+  background: #0a0d17;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: ${({ theme }) => theme.colors.text};
+  min-height: 96px;
+`;
+
+const Row = styled.div`
+  display: flex;
+  gap: 12px;
+`;
+
+const Button = styled.button<{ danger?: boolean }>`
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ danger }) => (danger ? '#2a0e13' : '#0f1424')};
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+  &:hover {
+    filter: brightness(1.1);
+  }
+`;

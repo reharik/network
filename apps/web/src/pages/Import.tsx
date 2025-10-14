@@ -5,85 +5,6 @@ import styled from 'styled-components';
 import { useContactListService, useContactService } from '../hooks';
 import { qk } from '../services/keys';
 
-const Section = styled.section`
-  background: #0e1220;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 16px;
-  padding: 20px;
-  display: grid;
-  gap: 16px;
-`;
-const DropZone = styled.label`
-  border: 2px dashed ${({ theme }) => theme.colors.border};
-  border-radius: 12px;
-  padding: 24px;
-  text-align: center;
-  cursor: pointer;
-`;
-const Button = styled.button`
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: #0f1424;
-  color: ${({ theme }) => theme.colors.text};
-  cursor: pointer;
-`;
-
-const FilterInput = styled.input`
-  background: #0a0d17;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 10px;
-  padding: 10px 12px;
-  color: ${({ theme }) => theme.colors.text};
-  width: 100%;
-  margin-bottom: 16px;
-`;
-
-const ContactList = styled.div`
-  max-height: 400px;
-  overflow-y: auto;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 10px;
-  background: #0a0d17;
-`;
-
-const ContactItem = styled.div<{ selected: boolean }>`
-  padding: 12px;
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ selected }) => (selected ? '#1a2332' : 'transparent')};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  &:hover {
-    background: #1a2332;
-  }
-
-  &:last-child {
-    border-bottom: none;
-  }
-`;
-
-const Checkbox = styled.input`
-  margin: 0;
-`;
-
-const ContactInfo = styled.div`
-  flex: 1;
-`;
-
-const ContactName = styled.div`
-  font-weight: 500;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-const ContactDetails = styled.div`
-  font-size: 0.9em;
-  color: ${({ theme }) => theme.colors.subtext};
-  margin-top: 2px;
-`;
-
 type CsvRow = Record<string, string>;
 
 const parseCsv = (text: string): CsvRow[] => {
@@ -431,3 +352,85 @@ export const ImportPage = () => {
     </Section>
   );
 };
+
+// Styled Components
+const Section = styled.section`
+  background: #0e1220;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 16px;
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+`;
+
+const DropZone = styled.label`
+  border: 2px dashed ${({ theme }) => theme.colors.border};
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+`;
+
+const Button = styled.button`
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: #0f1424;
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+`;
+
+const FilterInput = styled.input`
+  background: #0a0d17;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: ${({ theme }) => theme.colors.text};
+  width: 100%;
+  margin-bottom: 16px;
+`;
+
+const ContactList = styled.div`
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 10px;
+  background: #0a0d17;
+`;
+
+const ContactItem = styled.div<{ selected: boolean }>`
+  padding: 12px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ selected }) => (selected ? '#1a2332' : 'transparent')};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  &:hover {
+    background: #1a2332;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const Checkbox = styled.input`
+  margin: 0;
+`;
+
+const ContactInfo = styled.div`
+  flex: 1;
+`;
+
+const ContactName = styled.div`
+  font-weight: 500;
+  color: ${({ theme }) => theme.colors.text};
+`;
+
+const ContactDetails = styled.div`
+  font-size: 0.9em;
+  color: ${({ theme }) => theme.colors.subtext};
+  margin-top: 2px;
+`;

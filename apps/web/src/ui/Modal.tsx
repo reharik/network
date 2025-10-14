@@ -3,6 +3,46 @@ import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import { Button, Card } from './Primitives';
 
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+}
+
+export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose();
+    }
+  };
+
+  if (!isOpen) return undefined;
+
+  const modalContent = (
+    <Overlay onClick={handleOverlayClick} onKeyDown={handleKeyDown} tabIndex={-1}>
+      <ModalCard>
+        <ModalHeader>
+          <ModalTitle>{title}</ModalTitle>
+          <CloseButton variant="ghost" onClick={onClose}>
+            ×
+          </CloseButton>
+        </ModalHeader>
+        {children}
+      </ModalCard>
+    </Overlay>
+  );
+
+  return createPortal(modalContent, document.body);
+};
+
+// Styled Components
 const Overlay = styled.div`
   position: fixed;
   top: 0;
@@ -49,42 +89,3 @@ const CloseButton = styled(Button)`
   align-items: center;
   justify-content: center;
 `;
-
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children: React.ReactNode;
-}
-
-export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      onClose();
-    }
-  };
-
-  if (!isOpen) return undefined;
-
-  const modalContent = (
-    <Overlay onClick={handleOverlayClick} onKeyDown={handleKeyDown} tabIndex={-1}>
-      <ModalCard>
-        <ModalHeader>
-          <ModalTitle>{title}</ModalTitle>
-          <CloseButton variant="ghost" onClick={onClose}>
-            ×
-          </CloseButton>
-        </ModalHeader>
-        {children}
-      </ModalCard>
-    </Overlay>
-  );
-
-  return createPortal(modalContent, document.body);
-};
