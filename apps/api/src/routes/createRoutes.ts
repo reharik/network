@@ -12,6 +12,7 @@ export const createRoutes = ({
   planRoutes,
   touchesRoutes,
   authRoutes,
+  communicationRoutes,
 }: Container): Routes => ({
   mountRoutes: (router: Router) => {
     authRoutes.mountRoutes(router);
@@ -19,6 +20,7 @@ export const createRoutes = ({
     contactRoutes.mountRoutes(router);
     planRoutes.mountRoutes(router);
     touchesRoutes.mountRoutes(router);
+    communicationRoutes.mountRoutes(router);
   },
 });
 

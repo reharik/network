@@ -5,9 +5,15 @@ Re-run `npm run gen:container` after adding/removing services.
 
 type AuthService = import('../services/authService').AuthService;
 
+type EmailService = import('../services/emailService').EmailService;
+
 type ImportService = import('../services/importService').ImportService;
 
 type PlanService = import('../services/planService').PlanService;
+
+type SmsService = import('../services/smsService').SmsService;
+
+type VoiceService = import('../services/voiceService').VoiceService;
 
 type ContactRepository = import('../repositories/contactRepository').ContactRepository;
 
@@ -18,6 +24,8 @@ type TouchesRepository = import('../repositories/touchesRepository').TouchesRepo
 type UserRepository = import('../repositories/userRepository').UserRepository;
 
 type AuthController = import('../controllers/authController').AuthController;
+
+type CommunicationController = import('../controllers/communicationController').CommunicationController;
 
 type ContactsController = import('../controllers/contactsController').ContactsController;
 
@@ -33,6 +41,8 @@ type OptionalAuthMiddleware = import('../middleware/authMiddleware').OptionalAut
 
 type AuthRoutes = import('../routes/authRoutes').AuthRoutes;
 
+type CommunicationRoutes = import('../routes/communicationRoutes').CommunicationRoutes;
+
 type ContactRoutes = import('../routes/contactRoutes').ContactRoutes;
 
 type Routes = import('../routes/createRoutes').Routes;
@@ -46,13 +56,17 @@ type UserRoutes = import('../routes/userRoutes').UserRoutes;
 export interface AutoLoadedContainer {
   koaServer: KoaServer;
   authService: AuthService;
+  emailService: EmailService;
   importService: ImportService;
   planService: PlanService;
+  smsService: SmsService;
+  voiceService: VoiceService;
   contactRepository: ContactRepository;
   planRepository: PlanRepository;
   touchesRepository: TouchesRepository;
   userRepository: UserRepository;
   authController: AuthController;
+  communicationController: CommunicationController;
   contactsController: ContactsController;
   planController: PlanController;
   touchesController: TouchesController;
@@ -60,6 +74,7 @@ export interface AutoLoadedContainer {
   authMiddleware: AuthMiddleware;
   optionalAuthMiddleware: OptionalAuthMiddleware;
   authRoutes: AuthRoutes;
+  communicationRoutes: CommunicationRoutes;
   contactRoutes: ContactRoutes;
   routes: Routes;
   planRoutes: PlanRoutes;

@@ -1,7 +1,7 @@
 import { ContactMethod, UpdateContact } from '@network/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useContactListService, useContactService } from '../hooks';
 import { Container } from '../Layout';
 import { AddContactForm } from '../ui/AddContactForm';
@@ -10,8 +10,9 @@ import { Badge, Button, Card, HStack, Input, Select, Table, VStack } from '../ui
 
 export const Contacts = () => {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const { fetchContacts } = useContactListService();
-  const { deleteContact, createContact } = useContactService();
+  const { deleteContact, createContact, addToToday } = useContactService();
   const { data: result, isLoading } = useQuery({
     queryKey: ['contacts'],
     queryFn: fetchContacts,
@@ -32,6 +33,15 @@ export const Contacts = () => {
     },
   });
 
+  const addToTodayMut = useMutation({
+    mutationFn: addToToday,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['today'] });
+      void qc.invalidateQueries({ queryKey: ['contacts'] });
+      navigate('/');
+    },
+  });
+
   const createMut = useMutation({
     mutationFn: createContact,
     onSuccess: () => {
@@ -39,6 +49,10 @@ export const Contacts = () => {
       setShowAddModal(false);
     },
   });
+
+  const handleContactNow = (contactId: string) => {
+    addToTodayMut.mutate(contactId);
+  };
 
   const handleDelete = (id: string, name: string) => {
     if (confirm(`Are you sure you want to delete ${name}?`)) {
@@ -117,14 +131,24 @@ export const Contacts = () => {
                     <td>{c.preferredMethod.display}</td>
                     <td>{c.intervalDays} days</td>
                     <td>
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleDelete(c.id, `${c.firstName} ${c.lastName}`)}
-                        disabled={deleteMut.isPending}
-                      >
-                        Delete
-                      </Button>
+                      <HStack gap={1}>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleContactNow(c.id)}
+                          disabled={addToTodayMut.isPending}
+                        >
+                          Contact Now
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleDelete(c.id, `${c.firstName} ${c.lastName}`)}
+                          disabled={deleteMut.isPending}
+                        >
+                          Delete
+                        </Button>
+                      </HStack>
                     </td>
                   </tr>
                 ))}

@@ -15,7 +15,9 @@ export const useContactService = () => {
     if (!result.success) {
       return {
         success: false,
-        errors: result.errors.map((error) => `${error.path} expected ${error.expected}`),
+        errors: result.errors.map(
+          (error: { path: string; expected: string }) => `${error.path} expected ${error.expected}`,
+        ),
       };
     }
 
@@ -42,11 +44,21 @@ export const useContactService = () => {
       body: { rows },
     });
 
+  // Add a contact to today's list by updating their nextDueAt
+  const addToToday = async (contactId: string): Promise<ParseResult<Contact>> => {
+    const today = new Date().toISOString();
+    return apiFetch<Contact>(`/contacts/${encodeURIComponent(contactId)}`, {
+      method: 'PATCH',
+      body: { nextDueAt: today },
+    });
+  };
+
   return {
     getContact,
     createContact,
     updateContact,
     deleteContact,
     importContacts,
+    addToToday,
   };
 };

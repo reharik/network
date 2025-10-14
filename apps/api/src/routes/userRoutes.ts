@@ -12,6 +12,7 @@ export const createUserRoutes = ({ userController }: Container): UserRoutes => (
   mountRoutes: (router: Router) => {
     router.get('/me', requireAuth(userController.getMe));
     router.put('/me/daily-goal', requireAuth(userController.updateDailyGoal));
+    router.put('/me/profile', requireAuth(userController.updateProfile));
   },
 });
 

@@ -5,6 +5,7 @@ import type { Container } from '../container';
 export interface UserController {
   getMe: (ctx: Context) => Promise<Context>;
   updateDailyGoal: (ctx: Context) => Promise<Context>;
+  updateProfile: (ctx: Context) => Promise<Context>;
 }
 
 export const createUserController = ({ userRepository }: Container): UserController => ({
@@ -21,6 +22,21 @@ export const createUserController = ({ userRepository }: Container): UserControl
   updateDailyGoal: async (ctx: Context): Promise<Context> => {
     const { dailyGoal } = ctx.request.body as { dailyGoal: number };
     const user = await userRepository.updateDailyGoal(ctx.user.id, dailyGoal);
+    if (!user) {
+      ctx.status = 404;
+      ctx.body = { error: 'User not found' };
+      return ctx;
+    }
+    ctx.body = user;
+    return ctx;
+  },
+  updateProfile: async (ctx: Context): Promise<Context> => {
+    const { firstName, lastName, email } = ctx.request.body as {
+      firstName?: string;
+      lastName?: string;
+      email?: string;
+    };
+    const user = await userRepository.updateProfile(ctx.user.id, { firstName, lastName, email });
     if (!user) {
       ctx.status = 404;
       ctx.body = { error: 'User not found' };

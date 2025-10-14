@@ -10,7 +10,7 @@ export const ContactDetail = () => {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const { getContact, updateContact, deleteContact } = useContactService();
+  const { getContact, updateContact, deleteContact, addToToday } = useContactService();
 
   const {
     data: result,
@@ -45,6 +45,15 @@ export const ContactDetail = () => {
     },
   });
 
+  const addToTodayMut = useMutation({
+    mutationFn: addToToday,
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['today'] });
+      void qc.invalidateQueries({ queryKey: qk.contact(id) });
+      navigate('/');
+    },
+  });
+
   const deleteMut = useMutation({
     mutationFn: () => deleteContact(id),
     onSuccess: () => {
@@ -52,6 +61,10 @@ export const ContactDetail = () => {
       void navigate('/contacts');
     },
   });
+
+  const handleContactNow = () => {
+    addToTodayMut.mutate(id);
+  };
 
   if (isLoading) return <div>Loading…</div>;
   if (isError || !form) return <div>Contact not found.</div>;
@@ -95,6 +108,10 @@ export const ContactDetail = () => {
           disabled={!isDirty || saveMut.isPending}
         >
           {saveMut.isPending ? 'Saving…' : 'Save changes'}
+        </Button>
+
+        <Button onClick={handleContactNow} disabled={addToTodayMut.isPending}>
+          {addToTodayMut.isPending ? 'Adding to Today...' : 'Contact Now'}
         </Button>
 
         <Button danger onClick={() => deleteMut.mutate()} disabled={deleteMut.isPending}>

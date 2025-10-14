@@ -19,6 +19,17 @@ export type Config = {
   corsOrigin: string;
   // Server configuration
   serverPort: number;
+  // AWS configuration
+  awsRegion: string;
+  awsAccessKeyId: string;
+  awsSecretAccessKey: string;
+  // Email configuration
+  fromEmail: string;
+  // SMS configuration
+  smsFromNumber: string;
+  // Voice configuration
+  connectInstanceId: string;
+  connectContactFlowId: string;
 };
 
 let instantiatedDotEnv: DotenvConfigOutput;
@@ -51,6 +62,17 @@ export const setupConfig = (): Config => {
     corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:8080',
     // Server configuration
     serverPort: Number(process.env.PORT || 3000),
+    // AWS configuration
+    awsRegion: process.env.AWS_REGION || 'us-east-1',
+    awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+    awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+    // Email configuration
+    fromEmail: process.env.FROM_EMAIL || 'noreply@yourdomain.com',
+    // SMS configuration
+    smsFromNumber: process.env.SMS_FROM_NUMBER || '+1234567890',
+    // Voice configuration
+    connectInstanceId: process.env.CONNECT_INSTANCE_ID || '',
+    connectContactFlowId: process.env.CONNECT_CONTACT_FLOW_ID || '',
   };
   return config_;
 };

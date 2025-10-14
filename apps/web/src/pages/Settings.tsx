@@ -1,26 +1,65 @@
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { config } from '../config';
+import { useUserService } from '../hooks';
 
 type SettingsState = {
   reminderHour: string;
   tz: string;
   weeklyDigest: boolean;
+  firstName: string;
+  lastName: string;
+  email: string;
 };
 
 export const Settings = () => {
+  const { getMe, updateProfile } = useUserService();
+
   const [state, setState] = useState<SettingsState>({
     reminderHour: config.defaultReminderTime,
     tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
     weeklyDigest: true,
+    firstName: '',
+    lastName: '',
+    email: '',
   });
 
+  // Fetch user data
+  const { data: userResult } = useQuery({
+    queryKey: ['user'],
+    queryFn: getMe,
+  });
+
+  // Update mutation
+  const updateProfileMut = useMutation({
+    mutationFn: updateProfile,
+    onSuccess: () => {
+      alert('Profile updated successfully');
+    },
+  });
+
+  // Update state when user data loads
+  useEffect(() => {
+    if (userResult?.success && userResult.data) {
+      const user = userResult.data;
+      setState((prev) => ({
+        ...prev,
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+      }));
+    }
+  }, [userResult]);
+
+  // Load local settings
   useEffect(() => {
     const raw = localStorage.getItem('settings');
     if (raw) {
       try {
         const s = JSON.parse(raw);
         setState((old) => ({
+          ...old,
           reminderHour: s.reminderHour ?? old.reminderHour,
           tz: s.tz ?? old.tz,
           weeklyDigest: typeof s.weeklyDigest === 'boolean' ? s.weeklyDigest : old.weeklyDigest,
@@ -34,13 +73,56 @@ export const Settings = () => {
   }, []);
 
   const onSave = () => {
-    localStorage.setItem('settings', JSON.stringify(state));
-    alert('Settings saved');
+    // Save local settings
+    localStorage.setItem(
+      'settings',
+      JSON.stringify({
+        reminderHour: state.reminderHour,
+        tz: state.tz,
+        weeklyDigest: state.weeklyDigest,
+      }),
+    );
+
+    // Update user profile
+    updateProfileMut.mutate({
+      firstName: state.firstName,
+      lastName: state.lastName,
+      email: state.email,
+    });
   };
 
   return (
     <Section>
       <h2>Settings</h2>
+
+      <h3>Profile</h3>
+      <Row>
+        <Label htmlFor="firstName">First name</Label>
+        <Input
+          id="firstName"
+          value={state.firstName}
+          onChange={(e) => setState((s) => ({ ...s, firstName: e.target.value }))}
+        />
+      </Row>
+      <Row>
+        <Label htmlFor="lastName">Last name</Label>
+        <Input
+          id="lastName"
+          value={state.lastName}
+          onChange={(e) => setState((s) => ({ ...s, lastName: e.target.value }))}
+        />
+      </Row>
+      <Row>
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          type="email"
+          value={state.email}
+          onChange={(e) => setState((s) => ({ ...s, email: e.target.value }))}
+        />
+      </Row>
+
+      <h3>Preferences</h3>
       <Row>
         <Label htmlFor="reminderHour">Daily reminder time</Label>
         <Input
@@ -68,7 +150,9 @@ export const Settings = () => {
         />
       </Row>
       <Row>
-        <Button onClick={onSave}>Save</Button>
+        <Button onClick={onSave} disabled={updateProfileMut.isPending}>
+          {updateProfileMut.isPending ? 'Saving...' : 'Save'}
+        </Button>
       </Row>
     </Section>
   );

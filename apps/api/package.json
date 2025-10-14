@@ -26,6 +26,9 @@
     "test": "nx test api --runInBand --detectOpenHandles"
   },
   "dependencies": {
+    "@aws-sdk/client-connect": "^3.908.0",
+    "@aws-sdk/client-ses": "^3.908.0",
+    "@aws-sdk/client-sns": "^3.908.0",
     "@koa/bodyparser": "github:reharik/bodyparser#allow_custom_reviver_function",
     "@koa/cors": "^5.0.0",
     "@koa/router": "^13.1.0",
@@ -33,6 +36,7 @@
     "@network/validators": "*",
     "awilix": "^12.0.5",
     "bcryptjs": "^3.0.2",
+    "case-anything": "^3.1.2",
     "dotenv": "^16.6.1",
     "jsonwebtoken": "^9.0.2",
     "knex": "^3.1.0",

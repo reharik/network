@@ -5,6 +5,10 @@ import type { Container } from '../container';
 export interface UserRepository {
   getUser: (id: string) => Promise<User | undefined>;
   updateDailyGoal: (id: string, dailyGoal: number) => Promise<User | undefined>;
+  updateProfile: (
+    id: string,
+    updates: { firstName?: string; lastName?: string; email?: string },
+  ) => Promise<User | undefined>;
 }
 
 export const createUserRepository = ({ connection }: Container): UserRepository => ({
@@ -16,6 +20,13 @@ export const createUserRepository = ({ connection }: Container): UserRepository 
       .where({ id })
       .update({ dailyGoal })
       .returning('*');
+    return result ? result[0] : undefined;
+  },
+  updateProfile: async (
+    id: string,
+    updates: { firstName?: string; lastName?: string; email?: string },
+  ) => {
+    const result = await connection<User>('users').where({ id }).update(updates).returning('*');
     return result ? result[0] : undefined;
   },
 });

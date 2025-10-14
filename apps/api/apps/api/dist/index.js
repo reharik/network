@@ -1,6 +1,54 @@
+// src/config.ts
+import { config as dotEnvConfig } from "dotenv";
+var nodeEnvs = ["development", "test", "production", "prod"];
+var instantiatedDotEnv;
+var config_;
+var getValidValue = (value, allowedValues) => {
+  if (allowedValues.includes(value)) {
+    return value;
+  }
+  throw new Error(`Invalid value: ${value}. Allowed values: ${allowedValues.join(", ")}`);
+};
+var setupConfig = () => {
+  if (!instantiatedDotEnv) {
+    instantiatedDotEnv = dotEnvConfig();
+  }
+  config_ = config_ || {
+    nodeEnv: getValidValue(process.env.NODE_ENV || "development", nodeEnvs),
+    // Database configuration
+    postgresHost: process.env.POSTGRES_HOST || "127.0.0.1",
+    postgresPort: Number(process.env.POSTGRES_PORT || 5432),
+    postgresUser: process.env.POSTGRES_USER || "postgres",
+    postgresPassword: process.env.POSTGRES_PASSWORD || "",
+    postgresDatabase: process.env.POSTGRES_DB || "network",
+    // JWT configuration
+    jwtSecret: process.env.JWT_SECRET || "your-secret-key-change-in-production",
+    jwtExpiresIn: "30d",
+    // 30 days sliding scale
+    // CORS configuration
+    corsOrigin: process.env.CORS_ORIGIN || "http://localhost:8080",
+    // Server configuration
+    serverPort: Number(process.env.PORT || 3e3),
+    // AWS configuration
+    awsRegion: process.env.AWS_REGION || "us-east-1",
+    awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
+    awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
+    // Email configuration
+    fromEmail: process.env.FROM_EMAIL || "noreply@yourdomain.com",
+    // SMS configuration
+    smsFromNumber: process.env.SMS_FROM_NUMBER || "+1234567890",
+    // Voice configuration
+    connectInstanceId: process.env.CONNECT_INSTANCE_ID || "",
+    connectContactFlowId: process.env.CONNECT_CONTACT_FLOW_ID || ""
+  };
+  return config_;
+};
+var config = setupConfig();
+
 // src/container.ts
-import { Enums } from "@network/contracts";
+import { Enums, enumRegistry } from "@network/contracts";
 import { asFunction, asValue, createContainer } from "awilix";
+import { initializeSmartEnumMappings } from "smart-enums";
 
 // src/knex.ts
 import knex from "knex";
@@ -16,15 +64,27 @@ var ROOT = path.resolve(__dirname2, "..");
 var MIGRATIONS_DIR = path.join(ROOT, "db/migrations");
 var SEEDS_DIR = path.join(ROOT, "db/seeds");
 var connection = {
-  host: process.env.POSTGRES_HOST || "127.0.0.1",
-  port: Number(process.env.POSTGRES_PORT || 5432),
-  user: process.env.POSTGRES_USER || "postgres",
-  password: String(process.env.POSTGRES_PASSWORD || ""),
-  database: process.env.POSTGRES_DB || "network"
+  host: config.postgresHost,
+  port: config.postgresPort,
+  user: config.postgresUser,
+  password: config.postgresPassword,
+  database: config.postgresDatabase
+};
+var convertNullsToUndefined = (obj) => {
+  if (obj === null) return void 0;
+  if (obj instanceof Date) return obj;
+  if (Array.isArray(obj)) return obj.map(convertNullsToUndefined);
+  if (typeof obj === "object" && obj !== null) {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, convertNullsToUndefined(value)])
+    );
+  }
+  return obj;
 };
 var knexConfig = {
   client: "pg",
   connection,
+  postProcessResponse: (result) => convertNullsToUndefined(result),
   migrations: {
     directory: MIGRATIONS_DIR,
     tableName: "knex_migrations",
@@ -54,15 +114,6 @@ var container = createContainer({
 container.register({
   connection: asValue(database)
 });
-var enumRegistry = Object.entries(Enums).reduce(
-  (acc, [key, value]) => {
-    acc[key] = value;
-    return acc;
-  },
-  {}
-);
-console.log("enumRegistry:", Object.keys(enumRegistry));
-console.log("enumRegistry values:", Object.values(enumRegistry).map((v) => typeof v));
 container.register({
   Enums: asValue(Enums),
   // Register the full Enums object for reviveSmartEnums
@@ -93,10 +144,10 @@ container.loadModules(
     }
   }
 );
+initializeSmartEnumMappings({ enumRegistry });
 
 // src/index.ts
-var PORT = process.env.PORT || 3e3;
 var server = container.resolve("koaServer");
-server.listen(PORT, () => {
-  console.log(`\u{1F680} Server running on http://localhost:${PORT}`);
+server.listen(config.serverPort, () => {
+  console.log(`\u{1F680} Server running on http://localhost:${config.serverPort}`);
 });

@@ -1,17 +1,26 @@
-import { ContactMethod, UpdateTouch } from '@network/contracts';
+import { Contact, ContactMethod, UpdateTouch } from '@network/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { pascalCase } from 'case-anything';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
 import { Container } from '../Layout';
-import { usePlanService, useTouchService } from '../hooks';
+import { useCommunicationService, usePlanService, useTouchService } from '../hooks';
+import {
+  MakeCallRequest,
+  SendEmailRequest,
+  SendSmsRequest,
+} from '../hooks/useCommunicationService';
+import { EmailModal } from '../ui/EmailModal';
 import { Modal } from '../ui/Modal';
 import { Badge, Button, Card, Field, HStack, TextArea, VStack } from '../ui/Primitives';
+import { SmsModal } from '../ui/SmsModal';
 import { TouchForm } from '../ui/TouchForm';
 
 export const Today = () => {
   const qc = useQueryClient();
   const { getTodaysContacts } = usePlanService();
   const { logTouch, snoozeContact } = useTouchService();
+  const { sendMessage } = useCommunicationService();
 
   // State for the touch modal
   const [selectedContact, setSelectedContact] = useState<
@@ -22,6 +31,13 @@ export const Today = () => {
       }
     | undefined
   >(undefined);
+
+  // State for modals
+  const [modal, modalSetter] = useState<{
+    type?: 'email' | 'sms';
+    isOpen: boolean;
+    contact?: Contact;
+  }>({ isOpen: false });
 
   const {
     data: result,
@@ -54,6 +70,23 @@ export const Today = () => {
     });
   };
 
+  const handleDirectContact = (contact: Contact, method: 'email' | 'sms' | 'call') => {
+    if (method !== 'call') {
+      modalSetter({
+        type: method,
+        isOpen: true,
+        contact,
+      });
+    } else if (contact.phone) {
+      // Use AWS Connect to make the call
+      voiceMutation.mutate({ type: 'call', to: contact.phone });
+      // Automatically mark as done after initiating call
+      setTimeout(() => {
+        handleMarkDoneClick(contact);
+      }, 1000);
+    }
+  };
+
   const handleTouchSubmit = (data: { method: string; message: string; outcome: string }) => {
     if (!selectedContact) return;
 
@@ -77,11 +110,72 @@ export const Today = () => {
     setSelectedContact(undefined);
   };
 
+  const emailMutation = useMutation({
+    mutationFn: sendMessage<SendEmailRequest>,
+    onSuccess: () => {
+      handleCloseModal();
+      // Automatically mark contact as done after sending email
+      if (modal.contact) {
+        handleMarkDoneClick(modal.contact);
+      }
+    },
+  });
+
+  const smsMutation = useMutation({
+    mutationFn: sendMessage<SendSmsRequest>,
+    onSuccess: () => {
+      handleCloseModal();
+      // Automatically mark contact as done after sending email
+      if (modal.contact) {
+        handleMarkDoneClick(modal.contact);
+      }
+    },
+  });
+
+  const voiceMutation = useMutation({
+    mutationFn: sendMessage<MakeCallRequest>,
+    onSuccess: () => {
+      // Automatically mark contact as done after initiating call
+      // Note: We'll need to track which contact initiated the call
+    },
+  });
+
+  const handleEmailSubmit = (data: { subject: string; body: string }) => {
+    if (!modal.contact?.email || modal.type !== 'email') {
+      handleCloseModal();
+      return;
+    }
+
+    emailMutation.mutate({
+      type: 'email',
+      to: modal.contact.email,
+      subject: data.subject,
+      body: data.body,
+    });
+  };
+
+  const handleSmsSubmit = (data: { message: string }) => {
+    if (!modal.contact?.phone || modal.type !== 'sms') {
+      handleCloseModal();
+      return;
+    }
+
+    smsMutation.mutate({
+      type: 'sms',
+      to: modal.contact.phone,
+      message: data.message,
+    });
+  };
+
+  const handleCloseModal = () => {
+    modalSetter({ isOpen: false, contact: undefined, type: undefined });
+  };
+
   return (
     <Container>
       <VStack gap={3}>
         <HStack>
-          <h1>Today’s Reach-outs</h1>
+          <h1>Today's Reach-outs</h1>
           {<Badge>{DateTime.now().toLocaleString(DateTime.DATE_FULL)}</Badge>}
         </HStack>
 
@@ -102,7 +196,6 @@ export const Today = () => {
                       {c.intervalDays}d
                     </div>
                   </div>
-                  <a href={c.preferredMethod.link(c)}>Open {c.preferredMethod.display}</a>
                 </HStack>
 
                 <Field label="Suggested line">
@@ -111,8 +204,26 @@ export const Today = () => {
 
                 <HStack>
                   <Button onClick={() => handleMarkDoneClick(c)}>Mark Done</Button>
+
+                  {/* Direct contact buttons */}
+                  {c.email && (
+                    <Button variant="secondary" onClick={() => handleDirectContact(c, 'email')}>
+                      📧 Email
+                    </Button>
+                  )}
+                  {c.phone && (
+                    <>
+                      <Button variant="secondary" onClick={() => handleDirectContact(c, 'sms')}>
+                        💬 SMS
+                      </Button>
+                      <Button variant="secondary" onClick={() => handleDirectContact(c, 'call')}>
+                        📞 Call
+                      </Button>
+                    </>
+                  )}
+
                   <Button
-                    variant="secondary"
+                    variant="ghost"
                     onClick={() => snooze.mutate({ contactId: c.id, days: 7 })}
                   >
                     Snooze 7d
@@ -133,6 +244,7 @@ export const Today = () => {
           !isLoading && <Card>you're all caught up 🎉</Card>}
       </VStack>
 
+      {/* Mark Done Modal */}
       <Modal
         isOpen={selectedContact !== undefined}
         onClose={handleTouchCancel}
@@ -145,6 +257,37 @@ export const Today = () => {
             onSubmit={handleTouchSubmit}
             onCancel={handleTouchCancel}
             isLoading={touch.isPending}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={modal.isOpen}
+        onClose={handleCloseModal}
+        title={`Send ${modal.type ? pascalCase(modal.type) : ''}`}
+      >
+        {/* Email Modal */}
+        {modal.type === 'email' && modal.contact?.email && (
+          <EmailModal
+            contactName={`${modal.contact.firstName} ${modal.contact.lastName}`}
+            contactEmail={modal.contact.email}
+            initialSubject=""
+            initialBody={modal.contact.suggestion}
+            onSubmit={handleEmailSubmit}
+            onCancel={handleCloseModal}
+            isLoading={emailMutation.isPending}
+          />
+        )}
+
+        {/* SMS Modal */}
+        {modal.type === 'sms' && modal.contact?.phone && (
+          <SmsModal
+            contactName={`${modal.contact.firstName} ${modal.contact.lastName}`}
+            contactPhone={modal.contact.phone}
+            initialMessage={modal.contact.suggestion}
+            onSubmit={handleSmsSubmit}
+            onCancel={handleCloseModal}
+            isLoading={smsMutation.isPending}
           />
         )}
       </Modal>
