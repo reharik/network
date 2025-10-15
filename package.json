@@ -9,7 +9,7 @@
   "scripts": {
     "build": "nx run-many -t build",
     "build:clean": "nx reset && nx run-many -t build",
-    "dance": "npm run format && npm run build && npm run lint && npm run test",
+    "dance": "npm run format && npm run build && npm r  un lint && npm run test",
     "db:migrate": "NODE_OPTIONS=--import=tsx npm exec --workspace @app/api -- knex --knexfile src/knexfile.ts migrate:latest",
     "db:migrate:prod": "NODE_OPTIONS=--import=tsx npm exec --workspace @app/api -- knex --knexfile src/knexfile.ts migrate:latest",
     "db:seed": "NODE_OPTIONS=--import=tsx npm exec --workspace @app/api -- knex --knexfile src/knexfile.ts seed:run",

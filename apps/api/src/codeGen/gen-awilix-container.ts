@@ -91,7 +91,7 @@ const relImportFromDi = (absFile: string) => {
   return relFromDi;
 };
 
-async function run() {
+const run = async () => {
   const allFiles = await fg(PATTERNS, { cwd: srcDir, absolute: true });
   const excludeFiles = await fg(EXCLUDE_PATTERNS, { cwd: srcDir, absolute: true });
   const excludeSet = new Set(excludeFiles);
@@ -218,7 +218,7 @@ type ${capKey} =
       .join('\n');
     console.warn(`⚠️ The following services were missing their interface:\n${lines}`);
   }
-}
+};
 
 run().catch((e) => {
   console.error(e);

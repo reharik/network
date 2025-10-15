@@ -1,4 +1,8 @@
-import { ConnectClient, StartOutboundVoiceContactCommand } from '@aws-sdk/client-connect';
+import {
+  ConnectClient,
+  ConnectClientConfig,
+  StartOutboundVoiceContactCommand,
+} from '@aws-sdk/client-connect';
 import { Response } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import { config } from '../config';
@@ -9,13 +13,16 @@ export interface VoiceService {
 }
 
 export const createVoiceService = (): VoiceService => {
-  const connectClient = new ConnectClient({
+  const connectClientConfig: ConnectClientConfig = {
     region: config.awsRegion,
     credentials: {
       accessKeyId: config.awsAccessKeyId,
       secretAccessKey: config.awsSecretAccessKey,
     },
-  });
+    endpoint: config.awsEndpoint, // Will be undefined in production, LocalStack URL in development
+  };
+
+  const connectClient = new ConnectClient(connectClientConfig);
 
   return {
     makeCall: async (to: string, from: string): Promise<Response<{ contactId: string }>> => {

@@ -1,4 +1,4 @@
-import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+import { SESClient, SESClientConfig, SendEmailCommand } from '@aws-sdk/client-ses';
 import { Response } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import { config } from '../config';
@@ -14,13 +14,16 @@ export interface EmailService {
 }
 
 export const createEmailService = (): EmailService => {
-  const sesClient = new SESClient({
+  const sesClientConfig: SESClientConfig = {
     region: config.awsRegion,
     credentials: {
       accessKeyId: config.awsAccessKeyId,
       secretAccessKey: config.awsSecretAccessKey,
     },
-  });
+    endpoint: config.awsEndpoint, // Will be undefined in production, LocalStack URL in development
+  };
+
+  const sesClient = new SESClient(sesClientConfig);
 
   return {
     sendEmail: async (

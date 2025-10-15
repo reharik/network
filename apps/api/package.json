@@ -19,11 +19,15 @@
     "gen:container": "rimraf src/di/awilix.autoload.d.ts && tsx src/codeGen/gen-awilix-container.ts",
     "postinstall": "npm run gen:container",
     "lint": "nx run api:lint",
+    "localstack:check": "tsx src/scripts/localstack-test-utils.ts",
+    "localstack:setup": "docker-compose -f ../../docker-compose-dev.yml up localstack -d",
     "prepare": "ts-patch install",
     "serve": "nx serve api",
     "start": "node dist/index.js",
     "start:dev": "node --enable-source-maps dist/index.js",
-    "test": "nx test api --runInBand --detectOpenHandles"
+    "test": "nx test api --runInBand --detectOpenHandles",
+    "test:communication": "tsx src/scripts/test-communication-services.ts",
+    "test:retrieve:messages": "tsx src/scripts/retrieve-localstack-messages.ts"
   },
   "dependencies": {
     "@aws-sdk/client-connect": "^3.908.0",

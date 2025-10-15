@@ -1,6 +1,6 @@
 import { Context, HttpError, Next } from 'koa';
 
-export async function errorHandler(ctx: Context, next: Next) {
+export const errorHandler = async (ctx: Context, next: Next) => {
   try {
     await next();
   } catch (err) {
@@ -12,4 +12,4 @@ export async function errorHandler(ctx: Context, next: Next) {
     }
     ctx.app.emit('error', err, ctx);
   }
-}
+};

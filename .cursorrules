@@ -8,6 +8,13 @@
 - ALWAYS use `unknown` instead of `any` when type is truly unknown
 - ALWAYS prefer type guards over type assertions when possible
 
+## Function Style Rules
+
+- ALWAYS use arrow functions for all function declarations
+- NEVER use `function` keyword declarations
+- ALWAYS use arrow functions for methods, callbacks, and event handlers
+- ALWAYS use arrow functions for async functions
+
 ## Code Quality Rules
 
 - NEVER suppress TypeScript errors with `@ts-ignore` or `@ts-expect-error` without explanation
@@ -45,21 +52,30 @@ If you must use `any` or `as`, you MUST:
 3. Suggest a better alternative if possible
 4. Consider if the code can be refactored to avoid it
 
-## Example of Good vs Bad
+## Function Style Examples
 
 ```typescript
-// BAD - Don't do this
-const result = (await query()) as any;
-const data = result.someProperty;
-
-// GOOD - Do this instead
-interface QueryResult {
-  someProperty: string;
+// BAD - Don't use function declarations
+function getUser(id: string): Promise<User> {
+  return userRepository.getUser(id);
 }
-const result = (await query()) as QueryResult;
-const data = result.someProperty;
 
-// BETTER - Use proper typing
-const result: QueryResult = await query();
-const data = result.someProperty;
+// GOOD - Use arrow functions
+const getUser = (id: string): Promise<User> => {
+  return userRepository.getUser(id);
+};
+
+// BAD - Don't use function keyword in objects
+const service = {
+  getUser: function (id: string) {
+    return userRepository.getUser(id);
+  },
+};
+
+// GOOD - Use arrow functions in objects
+const service = {
+  getUser: (id: string) => {
+    return userRepository.getUser(id);
+  },
+};
 ```

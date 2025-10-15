@@ -1,4 +1,4 @@
-import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
+import { PublishCommand, SNSClient, SNSClientConfig } from '@aws-sdk/client-sns';
 import { Response } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import { config } from '../config';
@@ -9,13 +9,16 @@ export interface SmsService {
 }
 
 export const createSmsService = (): SmsService => {
-  const snsClient = new SNSClient({
+  const snsClientConfig: SNSClientConfig = {
     region: config.awsRegion,
     credentials: {
       accessKeyId: config.awsAccessKeyId,
       secretAccessKey: config.awsSecretAccessKey,
     },
-  });
+    endpoint: config.awsEndpoint, // Will be undefined in production, LocalStack URL in development
+  };
+
+  const snsClient = new SNSClient(snsClientConfig);
 
   return {
     sendSms: async (to: string, message: string): Promise<Response<{ messageId: string }>> => {

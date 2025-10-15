@@ -33,6 +33,8 @@ var setupConfig = () => {
     awsRegion: process.env.AWS_REGION || "us-east-1",
     awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
     awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
+    awsEndpoint: process.env.AWS_ENDPOINT,
+    // Optional LocalStack endpoint
     // Email configuration
     fromEmail: process.env.FROM_EMAIL || "noreply@yourdomain.com",
     // SMS configuration

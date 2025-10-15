@@ -9,6 +9,8 @@ type EmailService = import('../services/emailService').EmailService;
 
 type ImportService = import('../services/importService').ImportService;
 
+type MockVoiceService = import('../services/mockVoiceService').MockVoiceService;
+
 type PlanService = import('../services/planService').PlanService;
 
 type SmsService = import('../services/smsService').SmsService;
@@ -58,6 +60,7 @@ export interface AutoLoadedContainer {
   authService: AuthService;
   emailService: EmailService;
   importService: ImportService;
+  mockVoiceService: MockVoiceService;
   planService: PlanService;
   smsService: SmsService;
   voiceService: VoiceService;

@@ -1,0 +1,63 @@
+{
+  "emails": [
+    {
+      "id": "email-1760548027604-wpl6j1q5x",
+      "timestamp": "2025-10-15T17:07:07.604Z",
+      "from": "test@example.com",
+      "to": "recipient@example.com",
+      "subject": "Test Email from LocalStack",
+      "body": "This is a test email sent through LocalStack. No real email was sent!",
+      "messageId": "iqpofvatmyxjudkl-nimflsbs-tefk-onft-zwxd-wpnqyxjfeiwx-jaudzs"
+    },
+    {
+      "id": "email-1760548986340-efisvqvbx",
+      "timestamp": "2025-10-15T17:23:06.340Z",
+      "from": "test@example.com",
+      "to": "recipient@example.com",
+      "subject": "Test Email from LocalStack",
+      "body": "This is a test email sent through LocalStack. No real email was sent!",
+      "messageId": "ldcnegdxdzkcawsh-qmxubcxe-kytk-oazg-pyui-jkmogljqaaws-achdst"
+    }
+  ],
+  "sms": [
+    {
+      "id": "sms-1760548027610-o3u9yamyy",
+      "timestamp": "2025-10-15T17:07:07.610Z",
+      "from": "+1234567890",
+      "to": "+1234567890",
+      "message": "Test SMS from LocalStack. No real SMS was sent!",
+      "messageId": "5330f58a-0afa-4f69-8ba8-dca318746c59"
+    },
+    {
+      "id": "sms-1760548986345-exha8rza4",
+      "timestamp": "2025-10-15T17:23:06.345Z",
+      "from": "+1234567890",
+      "to": "+1234567890",
+      "message": "Test SMS from LocalStack. No real SMS was sent!",
+      "messageId": "9005e8c0-7bba-4133-8220-b07d15aa28d4"
+    }
+  ],
+  "voice": [
+    {
+      "id": "voice-1760548027610-35vltm1ht",
+      "timestamp": "2025-10-15T17:07:07.610Z",
+      "from": "+0987654321",
+      "to": "+1234567890",
+      "contactId": "mock-contact-1760548027610-faojzfy3p"
+    },
+    {
+      "id": "voice-1760548986346-7ybi95uqo",
+      "timestamp": "2025-10-15T17:23:06.346Z",
+      "from": "+0987654321",
+      "to": "+1234567890",
+      "contactId": "mock-contact-1760548986346-yyhiyfvjd"
+    },
+    {
+      "id": "voice-1760549622537-es6g80r9p",
+      "timestamp": "2025-10-15T17:33:42.537Z",
+      "from": "1234567890",
+      "to": "+1-555-123-4567",
+      "contactId": "mock-contact-1760549622537-47t6mknqe"
+    }
+  ]
+}
