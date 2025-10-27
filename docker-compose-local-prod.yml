@@ -1,0 +1,27 @@
+version: '3.9'
+name: network-local-prod
+
+# This override allows you to run the app locally but connect to real AWS services
+# Usage: docker-compose -f docker-compose-dev.yml -f docker-compose-local-prod.yml up
+
+services:
+  # Remove LocalStack dependency for production mode
+  api:
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      # Remove AWS_ENDPOINT to use real AWS services
+      # AWS_ENDPOINT will be undefined, so AWS SDK will use real endpoints
+    # Remove localstack dependency
+    # depends_on:
+    #   localstack:
+    #     condition: service_healthy
+
+  # Keep database for local development
+  db:
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data

@@ -48,8 +48,31 @@ export const setupConfig = (): Config => {
   if (!instantiatedDotEnv) {
     instantiatedDotEnv = dotEnvConfig();
   }
+
+  const nodeEnv = getValidValue<NodeEnv>(process.env.NODE_ENV || 'development', nodeEnvs);
+  const isProduction = nodeEnv === 'production' || nodeEnv === 'prod';
+
+  // Production safety checks
+  if (isProduction) {
+    if (process.env.AWS_ENDPOINT) {
+      console.warn(
+        '⚠️  WARNING: AWS_ENDPOINT is set in production! This will route AWS requests to LocalStack instead of real AWS services.',
+      );
+    }
+
+    if (process.env.JWT_SECRET === 'your-secret-key-change-in-production') {
+      console.warn('⚠️  WARNING: Using default JWT secret in production! This is a security risk.');
+    }
+
+    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+      console.warn(
+        '⚠️  WARNING: AWS credentials not configured. Communication services will fail.',
+      );
+    }
+  }
+
   config_ = config_ || {
-    nodeEnv: getValidValue<NodeEnv>(process.env.NODE_ENV || 'development', nodeEnvs),
+    nodeEnv,
     // Database configuration
     postgresHost: process.env.POSTGRES_HOST || '127.0.0.1',
     postgresPort: Number(process.env.POSTGRES_PORT || 5432),

@@ -27,6 +27,7 @@
     "start:dev": "node --enable-source-maps dist/index.js",
     "test": "nx test api --runInBand --detectOpenHandles",
     "test:communication": "tsx src/scripts/test-communication-services.ts",
+    "test:production": "tsx src/scripts/test-production-services.ts",
     "test:retrieve:messages": "tsx src/scripts/retrieve-localstack-messages.ts"
   },
   "dependencies": {
