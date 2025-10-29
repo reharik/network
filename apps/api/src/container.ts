@@ -62,7 +62,9 @@ container.loadModules(
 
 // Initialize the global smart enum configuration early, before any services are created
 initializeSmartEnumMappings({ enumRegistry });
-
+console.log(`************enumRegistry************`);
+console.log(enumRegistry);
+console.log(`********END enumRegistry************`);
 // Type-safe enum resolver using __smart_enum_type metadata
 export { container };
 export type Container = BaseContainer & AutoLoadedContainer;

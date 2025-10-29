@@ -1,5 +1,4 @@
-import { ImportContactsDTO } from '@network/contracts';
-import { validateUpdateContact } from '@network/validators';
+import { ImportContactsDTO, validateUpdateContact } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import type { Context } from 'koa';
 import type { Container } from '../container';

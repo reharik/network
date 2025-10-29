@@ -6,7 +6,7 @@
     "build": {
       "executor": "@nx/esbuild:esbuild",
       "outputs": ["{projectRoot}/dist"],
-      "dependsOn": ["contracts:build", "validators:build", "gen:container"],
+      "dependsOn": ["contracts:build", "gen:container"],
       "options": {
         "platform": "node",
         "format": ["esm"],
@@ -23,7 +23,6 @@
         ],
         "external": [
           "@network/contracts",
-          "@network/validators",
           "pg",
           "mysql",
           "mysql2",
@@ -75,7 +74,7 @@
     },
     "gen:container": {
       "executor": "nx:run-commands",
-      "dependsOn": ["contracts:build", "validators:build"],
+      "dependsOn": ["contracts:build"],
       "options": {
         "command": "tsx src/codeGen/gen-awilix-container.ts",
         "cwd": "{projectRoot}"

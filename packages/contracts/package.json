@@ -16,13 +16,18 @@
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
   "scripts": {
-    "build": "rimraf dist && nx build contracts"
+    "build": "rimraf dist src/_typia && npm run gen && nx build contracts",
+    "dev": "concurrently -k -n typia,tsc \"chokidar 'src/**/*.ts' -c 'npm run gen'\" \"tsc -w -p tsconfig.json\"",
+    "gen": "typia generate --input src/validators/registry --output src/validators/_typia --project tsconfig.json"
   },
   "dependencies": {
-    "smart-enums": "^0.0.21",
+    "smart-enums": "^0.0.22",
     "typia": "^9.7.2"
   },
   "devDependencies": {
+    "@types/node": "^24.9.1",
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^9.2.1",
     "rimraf": "^6.0.1",
     "typescript": "^5.9.2"
   }

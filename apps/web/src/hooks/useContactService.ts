@@ -1,5 +1,9 @@
-import { Contact, ImportContactsDTO, UpdateContact } from '@network/contracts';
-import { validateUpdateContact } from '@network/validators';
+import {
+  Contact,
+  ImportContactsDTO,
+  UpdateContact,
+  validateUpdateContact,
+} from '@network/contracts';
 import { ParseResult } from 'parse-fetch';
 import { useApiFetch } from './useApiFetch';
 

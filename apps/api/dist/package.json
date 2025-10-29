@@ -14,7 +14,7 @@
     "db:migrate": "tsx ../../node_modules/knex/bin/cli.js --knexfile src/knexfile.ts migrate:latest",
     "db:migrate:prod": "knex --knexfile dist/knexfile.js migrate:latest",
     "db:rollback": "tsx ../../node_modules/knex/bin/cli.js --knexfile src/knexfile.ts migrate:rollback",
-    "db:seed": "tsx ../../node_modules/knex/bin/cli.js --knexfile src/knexfile.ts seed:run",
+    "db:seed": "dotenv -e apps/api/.env -- tsx ../../node_modules/knex/bin/cli.js --knexfile src/knexfile.ts seed:run",
     "dev": "nodemon",
     "gen:container": "rimraf src/di/awilix.autoload.d.ts && tsx src/codeGen/gen-awilix-container.ts",
     "postinstall": "npm run gen:container",
@@ -27,6 +27,7 @@
     "start:dev": "node --enable-source-maps dist/index.js",
     "test": "nx test api --runInBand --detectOpenHandles",
     "test:communication": "tsx src/scripts/test-communication-services.ts",
+    "test:production": "tsx src/scripts/test-production-services.ts",
     "test:retrieve:messages": "tsx src/scripts/retrieve-localstack-messages.ts"
   },
   "dependencies": {
@@ -37,7 +38,6 @@
     "@koa/cors": "^5.0.0",
     "@koa/router": "^13.1.0",
     "@network/contracts": "*",
-    "@network/validators": "*",
     "awilix": "^12.0.5",
     "bcryptjs": "^3.0.2",
     "case-anything": "^3.1.2",
@@ -48,7 +48,7 @@
     "koa-body": "^6.0.1",
     "luxon": "^3.7.1",
     "pg": "^8.16.3",
-    "smart-enums": "^0.0.21",
+    "smart-enums": "^0.0.22",
     "uuid": "^11.1.0",
     "zod": "^3.24.2"
   },

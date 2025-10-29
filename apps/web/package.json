@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@network/contracts": "*",
-    "@network/validators": "*",
     "@tanstack/react-query": "^5.71.1",
     "case-anything": "^3.1.2",
     "parse-fetch": "^0.0.6",

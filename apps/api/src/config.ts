@@ -1,4 +1,5 @@
 import { config as dotEnvConfig, DotenvConfigOutput } from 'dotenv';
+import path from 'path';
 
 // const applicationEnvs = ['local', 'dev', 'qa', 'staging', 'prod'];
 const nodeEnvs = ['development', 'test', 'production', 'prod'];
@@ -33,8 +34,8 @@ export type Config = {
   connectContactFlowId: string;
 };
 
-let instantiatedDotEnv: DotenvConfigOutput;
 let config_: Config;
+let instantiatedDotEnv: DotenvConfigOutput;
 
 // Utility function to validate values against allowed options
 const getValidValue = <T extends string>(value: string, allowedValues: readonly T[]): T => {
@@ -46,9 +47,11 @@ const getValidValue = <T extends string>(value: string, allowedValues: readonly 
 
 export const setupConfig = (): Config => {
   if (!instantiatedDotEnv) {
-    instantiatedDotEnv = dotEnvConfig();
+    instantiatedDotEnv = dotEnvConfig({
+      path: path.resolve(__dirname, '../.env'),
+      override: false,
+    });
   }
-
   const nodeEnv = getValidValue<NodeEnv>(process.env.NODE_ENV || 'development', nodeEnvs);
   const isProduction = nodeEnv === 'production' || nodeEnv === 'prod';
 
@@ -71,7 +74,8 @@ export const setupConfig = (): Config => {
     }
   }
 
-  config_ = config_ || {
+  // Always recreate config to pick up any env vars that were loaded after module import
+  config_ = {
     nodeEnv,
     // Database configuration
     postgresHost: process.env.POSTGRES_HOST || '127.0.0.1',
@@ -102,4 +106,5 @@ export const setupConfig = (): Config => {
   return config_;
 };
 
+// Export config - dotenv is already loaded at module import time above
 export const config = setupConfig();

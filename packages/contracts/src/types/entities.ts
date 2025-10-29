@@ -1,5 +1,5 @@
 import { tags } from 'typia';
-import type { ContactMethod } from '../enums/ContactMethod';
+import { ContactMethod } from '../enumerations/enums/ContactMethod';
 
 // Plain Entity Types (for database operations without typia conflicts)
 export interface PlainContact {

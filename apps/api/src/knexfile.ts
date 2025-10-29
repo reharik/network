@@ -12,6 +12,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 const ROOT = path.resolve(__dirname, '..');
 const MIGRATIONS_DIR = path.join(ROOT, 'db/migrations');
 const SEEDS_DIR = path.join(ROOT, 'db/seeds');
+
 const connection: Knex.StaticConnectionConfig = {
   host: config.postgresHost,
   port: config.postgresPort,

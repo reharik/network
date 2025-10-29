@@ -1,8 +1,9 @@
 // apps/api/src/config.ts
 import { config as dotEnvConfig } from "dotenv";
+import path from "path";
 var nodeEnvs = ["development", "test", "production", "prod"];
-var instantiatedDotEnv;
 var config_;
+var instantiatedDotEnv;
 var getValidValue = (value, allowedValues) => {
   if (allowedValues.includes(value)) {
     return value;
@@ -11,10 +12,30 @@ var getValidValue = (value, allowedValues) => {
 };
 var setupConfig = () => {
   if (!instantiatedDotEnv) {
-    instantiatedDotEnv = dotEnvConfig();
+    instantiatedDotEnv = dotEnvConfig({
+      path: path.resolve(__dirname, "../.env"),
+      override: false
+    });
   }
-  config_ = config_ || {
-    nodeEnv: getValidValue(process.env.NODE_ENV || "development", nodeEnvs),
+  const nodeEnv = getValidValue(process.env.NODE_ENV || "development", nodeEnvs);
+  const isProduction = nodeEnv === "production" || nodeEnv === "prod";
+  if (isProduction) {
+    if (process.env.AWS_ENDPOINT) {
+      console.warn(
+        "\u26A0\uFE0F  WARNING: AWS_ENDPOINT is set in production! This will route AWS requests to LocalStack instead of real AWS services."
+      );
+    }
+    if (process.env.JWT_SECRET === "your-secret-key-change-in-production") {
+      console.warn("\u26A0\uFE0F  WARNING: Using default JWT secret in production! This is a security risk.");
+    }
+    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+      console.warn(
+        "\u26A0\uFE0F  WARNING: AWS credentials not configured. Communication services will fail."
+      );
+    }
+  }
+  config_ = {
+    nodeEnv,
     // Database configuration
     postgresHost: process.env.POSTGRES_HOST || "127.0.0.1",
     postgresPort: Number(process.env.POSTGRES_PORT || 5432),
@@ -57,14 +78,14 @@ import knex from "knex";
 
 // apps/api/src/knexfile.ts
 import dotenv from "dotenv";
-import path from "path";
+import path2 from "path";
 import { fileURLToPath } from "url";
 var __filename = fileURLToPath(import.meta.url);
-var __dirname2 = path.dirname(__filename);
-dotenv.config({ path: path.resolve(__dirname2, "../.env") });
-var ROOT = path.resolve(__dirname2, "..");
-var MIGRATIONS_DIR = path.join(ROOT, "db/migrations");
-var SEEDS_DIR = path.join(ROOT, "db/seeds");
+var __dirname2 = path2.dirname(__filename);
+dotenv.config({ path: path2.resolve(__dirname2, "../.env") });
+var ROOT = path2.resolve(__dirname2, "..");
+var MIGRATIONS_DIR = path2.join(ROOT, "db/migrations");
+var SEEDS_DIR = path2.join(ROOT, "db/seeds");
 var connection = {
   host: config.postgresHost,
   port: config.postgresPort,
@@ -147,6 +168,9 @@ container.loadModules(
   }
 );
 initializeSmartEnumMappings({ enumRegistry });
+console.log(`************enumRegistry************`);
+console.log(enumRegistry);
+console.log(`********END enumRegistry************`);
 
 // apps/api/src/index.ts
 var server = container.resolve("koaServer");

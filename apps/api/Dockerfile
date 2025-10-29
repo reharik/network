@@ -17,20 +17,18 @@ RUN corepack enable || true
 FROM base AS deps-dev-staging
 COPY package.json package-lock.json ./
 # Create workspace directories first
-RUN mkdir -p apps/api packages/contracts packages/validators
+RUN mkdir -p apps/api packages/contracts
 COPY apps/api/package.json apps/api/package.json
 COPY packages/contracts/package.json packages/contracts/package.json
-COPY packages/validators/package.json packages/validators/package.json
 RUN npm ci --workspaces --include-workspace-root --ignore-scripts
 
 # Production dependencies - only production dependencies
 FROM base AS deps-prod
 COPY package.json package-lock.json ./
 # Create workspace directories first
-RUN mkdir -p apps/api packages/contracts packages/validators
+RUN mkdir -p apps/api packages/contracts
 COPY apps/api/package.json apps/api/package.json
 COPY packages/contracts/package.json packages/contracts/package.json
-COPY packages/validators/package.json packages/validators/package.json
 RUN npm ci --workspaces --include-workspace-root --only=production --ignore-scripts
 
 # =============================================================================
@@ -67,11 +65,9 @@ ENV NODE_ENV=production
 WORKDIR /app
 COPY --from=build /repo/apps/api/dist ./apps/api/dist
 COPY --from=build /repo/packages/contracts/dist ./packages/contracts/dist
-COPY --from=build /repo/packages/validators/dist ./packages/validators/dist
 COPY --from=deps-prod /repo/node_modules ./node_modules
 COPY apps/api/package.json ./apps/api/package.json
 COPY packages/contracts/package.json ./packages/contracts/package.json
-COPY packages/validators/package.json ./packages/validators/package.json
 EXPOSE 3000
 CMD ["node", "apps/api/dist/server.js"]
 

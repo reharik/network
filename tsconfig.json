@@ -9,9 +9,6 @@
     },
     {
       "path": "packages/contracts"
-    },
-    {
-      "path": "packages/validators"
     }
   ],
   "compilerOptions": {
@@ -27,9 +24,7 @@
     "baseUrl": ".",
     "paths": {
       "@network/contracts": ["packages/contracts/dist/src/index.d.ts"],
-      "@network/contracts/*": ["packages/contracts/dist/src/*.d.ts"],
-      "@network/validators": ["packages/validators/dist/index.d.ts"],
-      "@network/validators/*": ["packages/validators/dist/*.d.ts"]
+      "@network/contracts/*": ["packages/contracts/dist/src/*.d.ts"]
     },
     "types": ["typia"],
     "plugins": [

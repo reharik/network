@@ -6,7 +6,9 @@
     "declarationMap": true,
     "noEmit": false,
     "outDir": "./dist",
-    "types": ["jest"],
+    "baseUrl": "../..",
+    "moduleResolution": "bundler",
+    "types": ["jest", "node"],
     "plugins": [
       {
         "transform": "typia/lib/transform"

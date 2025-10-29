@@ -9,6 +9,7 @@
 
 import { config } from '../config';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const testEmailService = async () => {
   console.log('📧 Testing Email Service (SES)...');
 
@@ -39,6 +40,7 @@ const testEmailService = async () => {
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const testSmsService = async () => {
   console.log('\n📱 Testing SMS Service (SNS)...');
 
@@ -67,6 +69,7 @@ const testSmsService = async () => {
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const testVoiceService = async () => {
   console.log('\n📞 Testing Voice Service (Connect)...');
 
@@ -124,6 +127,7 @@ const checkConfiguration = () => {
   console.log('\n');
 };
 
+// eslint-disable-next-line @typescript-eslint/require-await
 const main = async () => {
   console.log('🚀 Production Communication Services Tester');
   console.log('============================================');

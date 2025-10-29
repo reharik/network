@@ -1,8 +1,18 @@
+var __defProp = Object.defineProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+
 // src/config.ts
 import { config as dotEnvConfig } from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+var __filename = fileURLToPath(import.meta.url);
+var __dirname2 = path.dirname(__filename);
 var nodeEnvs = ["development", "test", "production", "prod"];
-var instantiatedDotEnv;
 var config_;
+var instantiatedDotEnv;
 var getValidValue = (value, allowedValues) => {
   if (allowedValues.includes(value)) {
     return value;
@@ -11,10 +21,30 @@ var getValidValue = (value, allowedValues) => {
 };
 var setupConfig = () => {
   if (!instantiatedDotEnv) {
-    instantiatedDotEnv = dotEnvConfig();
+    instantiatedDotEnv = dotEnvConfig({
+      path: path.resolve(__dirname2, "../.env"),
+      override: false
+    });
   }
-  config_ = config_ || {
-    nodeEnv: getValidValue(process.env.NODE_ENV || "development", nodeEnvs),
+  const nodeEnv = getValidValue(process.env.NODE_ENV || "development", nodeEnvs);
+  const isProduction = nodeEnv === "production" || nodeEnv === "prod";
+  if (isProduction) {
+    if (process.env.AWS_ENDPOINT) {
+      console.warn(
+        "\u26A0\uFE0F  WARNING: AWS_ENDPOINT is set in production! This will route AWS requests to LocalStack instead of real AWS services."
+      );
+    }
+    if (process.env.JWT_SECRET === "your-secret-key-change-in-production") {
+      console.warn("\u26A0\uFE0F  WARNING: Using default JWT secret in production! This is a security risk.");
+    }
+    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+      console.warn(
+        "\u26A0\uFE0F  WARNING: AWS credentials not configured. Communication services will fail."
+      );
+    }
+  }
+  config_ = {
+    nodeEnv,
     // Database configuration
     postgresHost: process.env.POSTGRES_HOST || "127.0.0.1",
     postgresPort: Number(process.env.POSTGRES_PORT || 5432),
@@ -33,6 +63,8 @@ var setupConfig = () => {
     awsRegion: process.env.AWS_REGION || "us-east-1",
     awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
     awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
+    awsEndpoint: process.env.AWS_ENDPOINT,
+    // Optional LocalStack endpoint
     // Email configuration
     fromEmail: process.env.FROM_EMAIL || "noreply@yourdomain.com",
     // SMS configuration
@@ -45,8 +77,61 @@ var setupConfig = () => {
 };
 var config = setupConfig();
 
+// ../../packages/enumerations/dist/src/enums/index.js
+var enums_exports = {};
+__export(enums_exports, {
+  ContactMethod: () => ContactMethod,
+  Validator: () => Validator
+});
+
+// ../../packages/enumerations/dist/src/enums/ContactMethod.js
+import { enumeration } from "smart-enums";
+var input = {
+  email: {
+    link: (contactable) => `mailto:${contactable.email}`,
+    handle: (contactable) => contactable.email
+  },
+  sms: {
+    link: (contactable) => `sms:${contactable.sms}`,
+    handle: (contactable) => contactable.sms
+  },
+  call: {
+    link: (contactable) => `tel:${contactable.call}`,
+    handle: (contactable) => contactable.call
+  },
+  other: { link: () => "#", handle: () => "" }
+};
+var ContactMethod = enumeration("ContactMethod", {
+  input
+});
+
+// ../../packages/enumerations/dist/src/enums/Validator.js
+import { validateContact, validateInsertContact, validateInsertTouch, validateInsertUser, validateTouch, validateUpdateContact, validateUpdateUser, validateUser } from "@network/validators";
+import { enumeration as enumeration2 } from "smart-enums";
+var input2 = {
+  contact: { validate: validateContact },
+  insertContact: { validate: validateInsertContact },
+  updateContact: { validate: validateUpdateContact },
+  touch: { validate: validateTouch },
+  insertTouch: { validate: validateInsertTouch },
+  user: { validate: validateUser },
+  insertUser: { validate: validateInsertUser },
+  updateUser: { validate: validateUpdateUser }
+};
+var Validator = enumeration2("Validator", {
+  input: input2
+});
+
+// ../../packages/enumerations/dist/src/enumRegistry.js
+import { isSmartEnumItem } from "smart-enums";
+var enumRegistry = Object.entries(enums_exports).reduce((acc, [key, value]) => {
+  if (isSmartEnumItem(value)) {
+    acc[key] = value;
+  }
+  return acc;
+}, {});
+
 // src/container.ts
-import { Enums, enumRegistry } from "@network/contracts";
 import { asFunction, asValue, createContainer } from "awilix";
 import { initializeSmartEnumMappings } from "smart-enums";
 
@@ -55,14 +140,14 @@ import knex from "knex";
 
 // src/knexfile.ts
 import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
-var __filename = fileURLToPath(import.meta.url);
-var __dirname2 = path.dirname(__filename);
-dotenv.config({ path: path.resolve(__dirname2, "../.env") });
-var ROOT = path.resolve(__dirname2, "..");
-var MIGRATIONS_DIR = path.join(ROOT, "db/migrations");
-var SEEDS_DIR = path.join(ROOT, "db/seeds");
+import path2 from "path";
+import { fileURLToPath as fileURLToPath2 } from "url";
+var __filename2 = fileURLToPath2(import.meta.url);
+var __dirname3 = path2.dirname(__filename2);
+dotenv.config({ path: path2.resolve(__dirname3, "../.env") });
+var ROOT = path2.resolve(__dirname3, "..");
+var MIGRATIONS_DIR = path2.join(ROOT, "db/migrations");
+var SEEDS_DIR = path2.join(ROOT, "db/seeds");
 var connection = {
   host: config.postgresHost,
   port: config.postgresPort,
@@ -115,11 +200,11 @@ container.register({
   connection: asValue(database)
 });
 container.register({
-  Enums: asValue(Enums),
+  Enums: asValue(enums_exports),
   // Register the full Enums object for reviveSmartEnums
   enumRegistry: asValue(enumRegistry),
   // Register the properly typed enum registry
-  ...Object.fromEntries(Object.entries(Enums).map(([key, value]) => [key, asValue(value)]))
+  ...Object.fromEntries(Object.entries(enums_exports).map(([key, value]) => [key, asValue(value)]))
 });
 container.loadModules(
   [

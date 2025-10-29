@@ -6,7 +6,7 @@
     "build": {
       "executor": "@nx/vite:build",
       "outputs": ["{workspaceRoot}/apps/web/dist"],
-      "dependsOn": ["validators:build"],
+      "dependsOn": ["contracts:build"],
       "options": {
         "outputPath": "apps/web/dist",
         "configFile": "{projectRoot}/vite.config.js"

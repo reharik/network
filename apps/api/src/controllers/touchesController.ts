@@ -1,4 +1,4 @@
-import { validateInsertTouch } from '@network/validators';
+import { validateInsertTouch } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import type { Context } from 'koa';
 import type { Container } from '../container';

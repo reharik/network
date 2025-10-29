@@ -1,24 +1,23 @@
 // useApiFetch.ts
-import * as Contracts from '@network/contracts';
-import { validate as runValidation, type ValidatorKey } from '@network/validators';
+import { enumRegistry, Validator } from '@network/contracts';
 import { type ParseResult, withParseSafe } from 'parse-fetch';
 import { initializeSmartEnumMappings, reviveAfterTransport } from 'smart-enums';
 import { config } from '../config';
 import { useAuth } from '../contexts/AuthContext';
 
 // Initialize the global smart enum configuration
-initializeSmartEnumMappings({ enumRegistry: Contracts.enumRegistry });
+initializeSmartEnumMappings({ enumRegistry });
 
 type JsonInit = Omit<RequestInit, 'body'> & {
   body?: unknown;
   /** which precompiled validator to use for this response */
-  validatorKey?: ValidatorKey;
+  validator?: Validator;
 };
 
-/** Curry the key so the shape matches parse-fetch's expected { validate(data) } */
-const createTypiaValidator = <T>(key: ValidatorKey) => ({
+/** Curry the validator so the shape matches parse-fetch's expected { validate(data) } */
+const createTypiaValidator = <T>(validator: Validator) => ({
   validate: (data: unknown): ParseResult<T> => {
-    const result = runValidation(key, data); // <-- uses your precompiled registry
+    const result = validator.validate(data); // <-- uses your precompiled registry
 
     if (result.success) {
       return { success: true, data: result.data as T };
@@ -48,7 +47,7 @@ export const useApiFetchBase = (token?: string) => {
     };
 
     if (token) headers.Authorization = `Bearer ${token}`;
-    const validator = init.validatorKey ? createTypiaValidator<T>(init.validatorKey) : undefined;
+    const validator = init.validator ? createTypiaValidator<T>(init.validator) : undefined;
 
     const data = await parseFetch(url, {
       credentials: 'include',
