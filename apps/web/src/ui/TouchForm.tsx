@@ -1,6 +1,9 @@
 import { ContactMethod } from '@network/contracts';
 import React, { useState } from 'react';
-import { Button, Field, HStack, Input, Select, TextArea, VStack } from './Primitives';
+import { BaseApiError } from '../types/ApiResult';
+import { FormError } from './FormError';
+import { FormInput } from './FormInput';
+import { Button, HStack, VStack } from './Primitives';
 
 interface TouchFormData {
   method: string;
@@ -14,6 +17,7 @@ interface TouchFormProps {
   onSubmit: (data: TouchFormData) => void;
   onCancel: () => void;
   isLoading?: boolean;
+  errors?: BaseApiError[];
 }
 
 export const TouchForm = ({
@@ -22,6 +26,7 @@ export const TouchForm = ({
   onSubmit,
   onCancel,
   isLoading = false,
+  errors =[]
 }: TouchFormProps) => {
   const [method, setMethod] = useState<string>('EMAIL');
   const [message, setMessage] = useState(initialMessage);
@@ -39,33 +44,44 @@ export const TouchForm = ({
           <strong>Mark Done: {contactName}</strong>
         </div>
 
-        <Field label="Method">
-          <Select value={method} onChange={(e) => setMethod(e.target.value)} disabled={isLoading}>
-            {ContactMethod.toOptions().map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </Select>
-        </Field>
+        <FormError errors={errors} />
 
-        <Field label="Message">
-          <TextArea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Enter the message you sent..."
-            disabled={isLoading}
-          />
-        </Field>
+        <FormInput
+          label="Method"
+          id="method"
+          as="select"
+          value={method}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setMethod(e.target.value)}
+          disabled={isLoading}
+          errors={errors}
+        >
+          {ContactMethod.toOptions().map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </FormInput>
 
-        <Field label="Outcome (optional)">
-          <Input
-            value={outcome}
-            onChange={(e) => setOutcome(e.target.value)}
-            placeholder="e.g., 'Had a great conversation', 'Left voicemail', 'No response'"
-            disabled={isLoading}
-          />
-        </Field>
+        <FormInput
+          label="Message"
+          id="message"
+          as="textarea"
+          value={message}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
+          placeholder="Enter the message you sent..."
+          disabled={isLoading}
+          errors={errors}
+        />
+
+        <FormInput
+          label="Outcome (optional)"
+          id="outcome"
+          value={outcome}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOutcome(e.target.value)}
+          placeholder="e.g., 'Had a great conversation', 'Left voicemail', 'No response'"
+          disabled={isLoading}
+          errors={errors}
+        />
 
         <HStack>
           <Button type="submit" disabled={isLoading}>

@@ -1,14 +1,23 @@
 import { ContactMethod, UpdateContact } from '@network/contracts';
 import React, { useState } from 'react';
-import { Button, Field, HStack, Input, Select, TextArea, VStack } from './Primitives';
+import { BaseApiError } from '../types/ApiResult';
+import { FormError } from './FormError';
+import { FormInput } from './FormInput';
+import { Button, HStack, VStack } from './Primitives';
 
 interface AddContactFormProps {
   onSubmit: (data: UpdateContact) => void;
   onCancel: () => void;
   isLoading?: boolean;
+  errors?: BaseApiError[];
 }
 
-export const AddContactForm = ({ onSubmit, onCancel, isLoading = false }: AddContactFormProps) => {
+export const AddContactForm = ({
+  onSubmit,
+  onCancel,
+  isLoading = false,
+  errors = [],
+}: AddContactFormProps) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -45,94 +54,107 @@ export const AddContactForm = ({ onSubmit, onCancel, isLoading = false }: AddCon
           <strong>Add New Contact</strong>
         </div>
 
-        <HStack gap={2}>
-          <Field label="First Name">
-            <Input
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              placeholder="First name"
-              required
-              disabled={isLoading}
-            />
-          </Field>
-          <Field label="Last Name">
-            <Input
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder="Last name"
-              required
-              disabled={isLoading}
-            />
-          </Field>
-        </HStack>
+        <FormError errors={errors} />
 
         <HStack gap={2}>
-          <Field label="Email">
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="email@example.com"
-              disabled={isLoading}
-            />
-          </Field>
-          <Field label="Phone">
-            <Input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+1 (555) 123-4567"
-              disabled={isLoading}
-            />
-          </Field>
-        </HStack>
-
-        <HStack gap={2}>
-          <Field label="Preferred Method">
-            <Select
-              value={preferredMethod.value}
-              onChange={(e) => setPreferredMethod(ContactMethod.fromValue(e.target.value))}
-              disabled={isLoading}
-            >
-              {ContactMethod.toOptions().map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <Field label="Interval (days)">
-            <Input
-              type="number"
-              min="1"
-              max="365"
-              value={intervalDays}
-              onChange={(e) => setIntervalDays(parseInt(e.target.value) || 30)}
-              disabled={isLoading}
-            />
-          </Field>
-        </HStack>
-
-        <Field label="Notes">
-          <TextArea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Any additional notes about this contact..."
+          <FormInput
+            label="First Name"
+            id="firstName"
+            value={firstName}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)}
+            placeholder="First name"
+            required
             disabled={isLoading}
+            errors={errors}
           />
-        </Field>
-
-        <Field label="Default Message">
-          <TextArea
-            value={suggestion}
-            onChange={(e) => setSuggestion(e.target.value)}
-            placeholder="Default message template (use {{firstName}} for personalization)"
+          <FormInput
+            label="Last Name"
+            id="lastName"
+            value={lastName}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)}
+            placeholder="Last name"
+            required
             disabled={isLoading}
+            errors={errors}
           />
-        </Field>
+        </HStack>
+
+        <HStack gap={2}>
+          <FormInput
+            label="Email"
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+            placeholder="email@example.com"
+            disabled={isLoading}
+            errors={errors}
+          />
+          <FormInput
+            label="Phone"
+            id="phone"
+            type="tel"
+            value={phone}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
+            placeholder="+1 (555) 123-4567"
+            disabled={isLoading}
+            errors={errors}
+          />
+        </HStack>
+
+        <HStack gap={2}>
+          <FormInput
+            label="Preferred Method"
+            id="preferredMethod"
+            as="select"
+            value={preferredMethod.value}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPreferredMethod(ContactMethod.fromValue(e.target.value))}
+            disabled={isLoading}
+            errors={errors}
+          >
+            {ContactMethod.toOptions().map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </FormInput>
+          <FormInput
+            label="Interval (days)"
+            id="intervalDays"
+            type="number"
+            min="1"
+            max="365"
+            value={intervalDays}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIntervalDays(parseInt(e.target.value) || 30)}
+            disabled={isLoading}
+            errors={errors}
+          />
+        </HStack>
+
+        <FormInput
+          label="Notes"
+          id="notes"
+          as="textarea"
+          value={notes}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value)}
+          placeholder="Any additional notes about this contact..."
+          disabled={isLoading}
+          errors={errors}
+
+        />
+
+        <FormInput
+          label="Default Message"
+          id="suggestion"
+          as="textarea"
+          value={suggestion}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSuggestion(e.target.value)}
+          placeholder="Default message template (use {{firstName}} for personalization)"
+          disabled={isLoading}
+          errors={errors}
+        />
 
         <HStack>
-          {/* TODO: validate the form using validator */}
           <Button type="submit" disabled={isLoading || !firstName || !lastName}>
             {isLoading ? 'Creating...' : 'Add Contact'}
           </Button>

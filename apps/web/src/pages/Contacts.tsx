@@ -5,8 +5,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useContactListService, useContactService } from '../hooks';
 import { Container } from '../Layout';
 import { AddContactForm } from '../ui/AddContactForm';
+import { FormInput } from '../ui/FormInput';
 import { Modal } from '../ui/Modal';
-import { Badge, Button, Card, HStack, Input, Select, Table, VStack } from '../ui/Primitives';
+import { Badge, Button, Card, HStack, Table, VStack } from '../ui/Primitives';
 
 export const Contacts = () => {
   const qc = useQueryClient();
@@ -44,9 +45,11 @@ export const Contacts = () => {
 
   const createMut = useMutation({
     mutationFn: createContact,
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['contacts'] });
-      setShowAddModal(false);
+    onSuccess: (result) => {
+      if (result.success) {
+        void qc.invalidateQueries({ queryKey: ['contacts'] });
+        setShowAddModal(false);
+      }
     },
   });
 
@@ -89,14 +92,17 @@ export const Contacts = () => {
 
         <Card>
           <HStack wrap gap={2}>
-            <Input
+            <FormInput
+              id="contactFilter"
               placeholder="Search name or handle…"
               value={query}
-              onChange={(e) => querySetter(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => querySetter(e.target.value)}
             />
-            <Select
+            <FormInput
+              as="select"
+              id="channelFilter"
               value={channel?.value}
-              onChange={(e) => {
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                 const value = e.target.value;
                 setChannel(value ? ContactMethod.tryFromValue(value) : undefined);
               }}
@@ -105,7 +111,7 @@ export const Contacts = () => {
               {ContactMethod.toOptions().map((x) => (
                 <option value={x.value}>{x.label}</option>
               ))}
-            </Select>
+            </FormInput>
           </HStack>
         </Card>
 
@@ -162,6 +168,9 @@ export const Contacts = () => {
             onSubmit={handleAddContact}
             onCancel={handleCancelAdd}
             isLoading={createMut.isPending}
+            errors={
+              createMut.data && !createMut.data.success ? createMut.data.errors : undefined
+}
           />
         </Modal>
       </VStack>

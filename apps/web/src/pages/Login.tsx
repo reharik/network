@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Button, Card, Field, Input, VStack } from '../ui/Primitives';
+import { FormInput } from '../ui/FormInput';
+import { Button, Card, VStack } from '../ui/Primitives';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -44,37 +45,35 @@ const Login: React.FC = () => {
 
             <form onSubmit={handleSubmit}>
               <VStack gap={3}>
-                {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
-                    {error}
-                  </div>
-                )}
+                <FormInput
+                  label="Email address"
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  errors={
+                    error ? [{ kind: 'parse', message: 'Invalid email or password' }] : undefined
+                  }
+                />
 
-                <Field label="Email address">
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email"
-                  />
-                </Field>
-
-                <Field label="Password">
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                  />
-                </Field>
+                <FormInput
+                  label="Password"
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  errors={
+                    error ? [{ kind: 'parse', message: 'Invalid email or password' }] : undefined
+                  }
+                />
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">

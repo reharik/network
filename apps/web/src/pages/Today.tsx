@@ -11,10 +11,42 @@ import {
   SendSmsRequest,
 } from '../hooks/useCommunicationService';
 import { EmailModal } from '../ui/EmailModal';
+import { FormInput } from '../ui/FormInput';
 import { Modal } from '../ui/Modal';
-import { Badge, Button, Card, Field, HStack, TextArea, VStack } from '../ui/Primitives';
+import { Badge, Button, Card, Field, HStack, VStack } from '../ui/Primitives';
 import { SmsModal } from '../ui/SmsModal';
 import { TouchForm } from '../ui/TouchForm';
+
+// Helper function to extract field-specific errors from API error responses
+const extractFieldErrors = (
+  error: { success: false; errors: string[] } | null | undefined,
+): Record<string, string | string[]> => {
+  if (!error || error.success) {
+    return {};
+  }
+
+  const fieldErrors: Record<string, string[]> = {};
+  error.errors.forEach((errMsg) => {
+    // Parse errors like "method expected string" or "message expected valid message"
+    const match = errMsg.match(/^(\w+) expected (.+)$/);
+    if (match) {
+      const [, fieldName] = match;
+      const normalizedField = fieldName.charAt(0).toLowerCase() + fieldName.slice(1);
+      if (!fieldErrors[normalizedField]) {
+        fieldErrors[normalizedField] = [];
+      }
+      fieldErrors[normalizedField].push(errMsg);
+    }
+  });
+
+  // Convert arrays to single string if only one error, or return as-is
+  const result: Record<string, string | string[]> = {};
+  Object.keys(fieldErrors).forEach((key) => {
+    result[key] = fieldErrors[key].length === 1 ? fieldErrors[key][0] : fieldErrors[key];
+  });
+
+  return result;
+};
 
 export const Today = () => {
   const qc = useQueryClient();
@@ -50,9 +82,11 @@ export const Today = () => {
 
   const touch = useMutation({
     mutationFn: (touchData: UpdateTouch) => logTouch(touchData),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['today'] });
-      setSelectedContact(undefined);
+    onSuccess: (result) => {
+      if (result.success) {
+        qc.invalidateQueries({ queryKey: ['today'] });
+        setSelectedContact(undefined);
+      }
     },
   });
 
@@ -199,7 +233,11 @@ export const Today = () => {
                 </HStack>
 
                 <Field label="Suggested line">
-                  <TextArea defaultValue={c.suggestion} onFocus={(e) => e.currentTarget.select()} />
+                  <FormInput
+                    as="textarea"
+                    defaultValue={c.suggestion}
+                    onFocus={(e: React.FocusEvent<HTMLTextAreaElement>) => e.currentTarget.select()}
+                  />
                 </Field>
 
                 <HStack>
@@ -257,6 +295,7 @@ export const Today = () => {
             onSubmit={handleTouchSubmit}
             onCancel={handleTouchCancel}
             isLoading={touch.isPending}
+            errors={touch.data && !touch.data.success ? touch.data.errors : []}
           />
         )}
       </Modal>

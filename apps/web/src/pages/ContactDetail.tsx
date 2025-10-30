@@ -5,6 +5,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useContactService } from '../hooks';
 import { qk } from '../services/keys';
+import { FormError } from '../ui/FormError';
+import { FormInput } from '../ui/FormInput';
 
 export const ContactDetail = () => {
   const { id = '' } = useParams();
@@ -75,32 +77,54 @@ export const ContactDetail = () => {
         {form.firstName} {form.lastName}
       </h2>
 
+      <FormError errors={saveMut.data && !saveMut.data.success ? saveMut.data.errors : []} />
+
       <Row>
-        <Field>
-          <Label htmlFor="firstName">First name</Label>
-          <Input id="firstName" value={form.firstName} onChange={onChange('firstName')} />
-        </Field>
-        <Field>
-          <Label htmlFor="lastName">Last name</Label>
-          <Input id="lastName" value={form.lastName} onChange={onChange('lastName')} />
-        </Field>
+        <FormInput
+          label="First name"
+          id="firstName"
+          value={form.firstName}
+          onChange={onChange('firstName')}
+          errors={!saveMut.data?.success ? saveMut.data?.errors : []}
+        />
+        <FormInput
+          label="Last name"
+          id="lastName"
+          value={form.lastName}
+          onChange={onChange('lastName')}
+          errors={!saveMut.data?.success ? saveMut.data?.errors : []}
+        />
       </Row>
 
       <Row>
-        <Field style={{ flex: 1 }}>
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" value={form.email ?? ''} onChange={onChange('email')} />
-        </Field>
-        <Field style={{ flex: 1 }}>
-          <Label htmlFor="phone">Phone</Label>
-          <Input id="phone" value={form.phone ?? ''} onChange={onChange('phone')} />
-        </Field>
+        <div style={{ flex: 1 }}>
+          <FormInput
+            label="Email"
+            id="email"
+            value={form.email ?? ''}
+            onChange={onChange('email')}
+            errors={!saveMut.data?.success ? saveMut.data?.errors : []}
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          <FormInput
+            label="Phone"
+            id="phone"
+            value={form.phone ?? ''}
+            onChange={onChange('phone')}
+            errors={!saveMut.data?.success ? saveMut.data?.errors : []}
+          />
+        </div>
       </Row>
 
-      <Field>
-        <Label htmlFor="notes">Notes</Label>
-        <TextArea id="notes" value={form.notes ?? ''} onChange={onChange('notes')} />
-      </Field>
+      <FormInput
+        label="Notes"
+        id="notes"
+        as="textarea"
+        value={form.notes ?? ''}
+        onChange={onChange('notes')}
+        errors={!saveMut.data?.success ? saveMut.data?.errors : []}
+      />
 
       <Row>
         <Button
@@ -132,35 +156,6 @@ const Card = styled.section`
   padding: 20px;
   display: grid;
   gap: 16px;
-`;
-
-const Field = styled.div`
-  display: grid;
-  gap: 6px;
-`;
-
-const Label = styled.label`
-  font-size: 12px;
-  color: ${({ theme }) => theme.colors.subtext};
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-`;
-
-const Input = styled.input`
-  background: #0a0d17;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 10px;
-  padding: 10px 12px;
-  color: ${({ theme }) => theme.colors.text};
-`;
-
-const TextArea = styled.textarea`
-  background: #0a0d17;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 10px;
-  padding: 10px 12px;
-  color: ${({ theme }) => theme.colors.text};
-  min-height: 96px;
 `;
 
 const Row = styled.div`

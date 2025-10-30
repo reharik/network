@@ -39,39 +39,7 @@ export const Label = styled.label`
   color: ${({ theme }) => theme.colors.subtext};
 `;
 
-const baseInput = css`
-  width: 100%;
-  padding: 10px 12px;
-  background: #0c0f15;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  color: ${({ theme }) => theme.colors.text};
-  border-radius: ${({ theme }) => theme.radius.sm};
-  outline: none;
-  transition:
-    border 120ms ease,
-    box-shadow 120ms ease;
-  &:focus {
-    border-color: ${({ theme }) => theme.colors.accent};
-    box-shadow: 0 0 0 3px rgba(124, 156, 255, 0.15);
-  }
-  &::placeholder {
-    color: ${({ theme }) => theme.colors.subtext};
-  }
-`;
-
-export const Input = styled.input`
-  ${baseInput}
-`;
-
-export const Select = styled.select`
-  ${baseInput}
-`;
-
-export const TextArea = styled.textarea`
-  ${baseInput};
-  resize: vertical;
-  min-height: 80px;
-`;
+// moved input primitives to FormInput.tsx (StyledInput/Select/TextArea)
 
 export const Button = styled.button<{
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';

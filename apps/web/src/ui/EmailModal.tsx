@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Field, HStack, Input, TextArea, VStack } from './Primitives';
+import { FormInput } from './FormInput';
+import { Button, Field, HStack, VStack } from './Primitives';
 
 interface EmailModalProps {
   contactName: string;
@@ -39,9 +40,9 @@ export const EmailModal = ({
         </div>
 
         <Field label="Subject">
-          <Input
+          <FormInput
             value={subject}
-            onChange={(e) => setSubject(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
             placeholder="Email subject"
             disabled={isLoading}
             required
@@ -49,9 +50,10 @@ export const EmailModal = ({
         </Field>
 
         <Field label="Message">
-          <TextArea
+          <FormInput
+            as="textarea"
             value={body}
-            onChange={(e) => setBody(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setBody(e.target.value)}
             placeholder="Your message here..."
             disabled={isLoading}
             required

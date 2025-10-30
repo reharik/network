@@ -1,4 +1,4 @@
-import { ParseResult } from 'parse-fetch';
+import { ApiResult } from '../types/ApiResult';
 import { useApiFetch } from './useApiFetch';
 
 export interface CommunicationRequest {
@@ -26,7 +26,7 @@ export const useCommunicationService = () => {
 
   const sendMessage = async <T extends CommunicationRequest>(
     request: T,
-  ): Promise<ParseResult<{ message: string; messageId: string }>> => {
+  ): Promise<ApiResult<{ message: string; messageId: string }>> => {
     const path =
       request.type === 'email' ? '/email' : request.type === 'sms' ? '/sms' : '/voice/call';
     return apiFetch<{ message: string; messageId: string }>(path, {

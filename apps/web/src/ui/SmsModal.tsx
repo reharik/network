@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Button, Field, HStack, TextArea, VStack } from './Primitives';
+import { FormInput } from './FormInput';
+import { Button, Field, HStack, VStack } from './Primitives';
 
 interface SmsModalProps {
   contactName: string;
@@ -36,9 +37,10 @@ export const SmsModal = ({
         </div>
 
         <Field label="Message">
-          <TextArea
+          <FormInput
+            as="textarea"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
             placeholder="Your SMS message here..."
             disabled={isLoading}
             required

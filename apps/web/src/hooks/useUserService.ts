@@ -1,5 +1,5 @@
 import { User } from '@network/contracts';
-import { ParseResult } from 'parse-fetch';
+import { ApiResult } from '../types/ApiResult';
 import { useApiFetch } from './useApiFetch';
 
 export interface UpdateUserProfileRequest {
@@ -11,18 +11,18 @@ export interface UpdateUserProfileRequest {
 export const useUserService = () => {
   const { apiFetch } = useApiFetch();
 
-  const getMe = async (): Promise<ParseResult<User>> => {
+  const getMe = async (): Promise<ApiResult<User>> => {
     return apiFetch<User>('/me');
   };
 
-  const updateProfile = async (updates: UpdateUserProfileRequest): Promise<ParseResult<User>> => {
+  const updateProfile = async (updates: UpdateUserProfileRequest): Promise<ApiResult<User>> => {
     return apiFetch<User>('/me/profile', {
       method: 'PUT',
       body: updates,
     });
   };
 
-  const updateDailyGoal = async (dailyGoal: number): Promise<ParseResult<User>> => {
+  const updateDailyGoal = async (dailyGoal: number): Promise<ApiResult<User>> => {
     return apiFetch<User>('/me/daily-goal', {
       method: 'PUT',
       body: { dailyGoal },

@@ -1,9 +1,11 @@
 // useApiFetch.ts
 import { enumRegistry, Validator } from '@network/contracts';
-import { type ParseResult, withParseSafe } from 'parse-fetch';
+import { type SuccessResult, withSafeParse } from 'parse-fetch';
 import { initializeSmartEnumMappings, reviveAfterTransport } from 'smart-enums';
 import { config } from '../config';
 import { useAuth } from '../contexts/AuthContext';
+import type { ApiError, ApiResult } from '../types/ApiResult';
+import { createValidationError } from '../types/ApiResult';
 
 // Initialize the global smart enum configuration
 initializeSmartEnumMappings({ enumRegistry });
@@ -14,27 +16,29 @@ type JsonInit = Omit<RequestInit, 'body'> & {
   validator?: Validator;
 };
 
-/** Curry the validator so the shape matches parse-fetch's expected { validate(data) } */
-const createTypiaValidator = <T>(validator: Validator) => ({
-  validate: (data: unknown): ParseResult<T> => {
-    const result = validator.validate(data); // <-- uses your precompiled registry
+/**
+ * Validate a successful safe-parse result with the provided typia validator.
+ * If parsing failed, return the original parse failure. If validation fails,
+ * map typia errors to a ParseResult failure.
+ */
+const validateResponse = <T>(validator: Validator, parseResult: SuccessResult<T>): ApiResult<T> => {
+  const validation = validator.validate(parseResult.data);
+  if (validation.success) {
+    return { success: true, data: parseResult.data };
+  }
 
-    if (result.success) {
-      return { success: true, data: result.data as T };
-    }
-
-    // Typia error has { path, expected, value }
-    const errors = result.errors.map((e) => `${e.path} expected ${e.expected}`);
-    return { success: false, errors };
-  },
-});
+  return {
+    success: false,
+    errors: validation.errors.map(createValidationError),
+  };
+};
 
 export const useApiFetchBase = (token?: string) => {
   const apiFetch = async <T = unknown>(
     path: string,
     init: JsonInit = {},
-  ): Promise<ParseResult<T>> => {
-    const parseFetch = withParseSafe(fetch);
+  ): Promise<ApiResult<T>> => {
+    const parseFetch = withSafeParse(fetch);
     const API = config.apiBaseUrl.endsWith('/')
       ? config.apiBaseUrl.slice(0, -1)
       : config.apiBaseUrl;
@@ -47,19 +51,28 @@ export const useApiFetchBase = (token?: string) => {
     };
 
     if (token) headers.Authorization = `Bearer ${token}`;
-    const validator = init.validator ? createTypiaValidator<T>(init.validator) : undefined;
-
-    const data = await parseFetch(url, {
+    const safeParse = parseFetch(url, {
       credentials: 'include',
       ...init,
       headers,
       body: init.body ? JSON.stringify(init.body) : undefined,
     }).parse<T>({
-      validator,
       reviver: (key, value) => reviveAfterTransport<T>(value),
-      ...(validator ? { validator } : {}),
     });
-    return data;
+    const safeParseResult = await safeParse;
+
+    if (!safeParseResult.success) {
+      return {
+        success: false,
+        errors: safeParseResult.errors as ApiError[],
+      };
+    }
+
+    if (init.validator) {
+      return validateResponse<T>(init.validator, safeParseResult);
+    }
+
+    return { success: true, data: safeParseResult.data };
   };
 
   return { apiFetch };

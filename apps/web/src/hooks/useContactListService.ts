@@ -1,11 +1,11 @@
 import type { Contact } from '@network/contracts';
-import { ParseResult } from 'parse-fetch';
+import { ApiResult } from '../types/ApiResult';
 import { useApiFetch } from './useApiFetch';
 
 export const useContactListService = () => {
   const { apiFetch } = useApiFetch();
 
-  const fetchContacts = async (): Promise<ParseResult<{ contacts: Contact[] }>> => {
+  const fetchContacts = async (): Promise<ApiResult<{ contacts: Contact[] }>> => {
     return apiFetch<{ contacts: Contact[] }>(`/contacts`);
   };
 

@@ -4,24 +4,22 @@ import {
   UpdateContact,
   validateUpdateContact,
 } from '@network/contracts';
-import { ParseResult } from 'parse-fetch';
+import { ApiResult, createValidationError } from '../types/ApiResult';
 import { useApiFetch } from './useApiFetch';
 
 export const useContactService = () => {
   const { apiFetch } = useApiFetch();
 
-  const getContact = async (id: string): Promise<ParseResult<Contact>> => {
+  const getContact = async (id: string): Promise<ApiResult<Contact>> => {
     return apiFetch<Contact>(`/contacts/${encodeURIComponent(id)}`);
   };
 
-  const createContact = async (contact: UpdateContact): Promise<ParseResult<Contact>> => {
+  const createContact = async (contact: UpdateContact): Promise<ApiResult<Contact>> => {
     const result = validateUpdateContact(contact);
     if (!result.success) {
       return {
         success: false,
-        errors: result.errors.map(
-          (error: { path: string; expected: string }) => `${error.path} expected ${error.expected}`,
-        ),
+        errors: result.errors.map(createValidationError),
       };
     }
 
@@ -49,7 +47,7 @@ export const useContactService = () => {
     });
 
   // Add a contact to today's list by updating their nextDueAt
-  const addToToday = async (contactId: string): Promise<ParseResult<Contact>> => {
+  const addToToday = async (contactId: string): Promise<ApiResult<Contact>> => {
     const today = new Date().toISOString();
     return apiFetch<Contact>(`/contacts/${encodeURIComponent(contactId)}`, {
       method: 'PATCH',
