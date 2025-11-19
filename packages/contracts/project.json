@@ -3,9 +3,16 @@
   "projectType": "library",
   "sourceRoot": "{projectRoot}/src",
   "targets": {
+    "ts-patch:install": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node -e \"try { require('child_process').execSync('ts-patch install', {stdio: 'ignore'}); } catch(e) {}\""
+      }
+    },
     "build": {
       "executor": "@nx/js:tsc",
       "outputs": ["{projectRoot}/dist"],
+      "dependsOn": ["ts-patch:install"],
       "options": {
         "outputPath": "{projectRoot}/dist",
         "tsConfig": "{projectRoot}/tsconfig.json",

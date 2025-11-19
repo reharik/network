@@ -5,6 +5,7 @@
   "keywords": [],
   "license": "ISC",
   "author": "",
+  "type": "module",
   "main": "dist/apps/api/main.js",
   "scripts": {
     "build": "nx build api",
@@ -21,7 +22,6 @@
     "lint": "nx run api:lint",
     "localstack:check": "tsx src/scripts/localstack-test-utils.ts",
     "localstack:setup": "docker-compose -f ../../docker-compose-dev.yml up localstack -d",
-    "prepare": "ts-patch install",
     "serve": "nx serve api",
     "start": "node dist/index.js",
     "start:dev": "node --enable-source-maps dist/index.js",
@@ -68,6 +68,8 @@
     "ts-patch": "^3.3.0",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.20.5",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vite": "^6.3.5",
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }

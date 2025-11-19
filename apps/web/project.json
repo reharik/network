@@ -3,10 +3,16 @@
   "projectType": "application",
   "sourceRoot": "{projectRoot}/src",
   "targets": {
+    "ts-patch:install": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node -e \"try { require('child_process').execSync('ts-patch install', {stdio: 'ignore'}); } catch(e) {}\""
+      }
+    },
     "build": {
       "executor": "@nx/vite:build",
       "outputs": ["{workspaceRoot}/apps/web/dist"],
-      "dependsOn": ["contracts:build"],
+      "dependsOn": ["ts-patch:install", "contracts:build"],
       "options": {
         "outputPath": "apps/web/dist",
         "configFile": "{projectRoot}/vite.config.js"

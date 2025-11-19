@@ -3,35 +3,41 @@
   "projectType": "application",
   "sourceRoot": "{projectRoot}/src",
   "targets": {
-    "build": {
-      "executor": "@nx/esbuild:esbuild",
-      "outputs": ["{projectRoot}/dist"],
-      "dependsOn": ["contracts:build", "gen:container"],
+    "ts-patch:install": {
+      "executor": "nx:run-commands",
       "options": {
-        "platform": "node",
-        "format": ["esm"],
-        "bundle": true,
-        "main": "{projectRoot}/src/index.ts",
+        "command": "node -e \"try { require('child_process').execSync('ts-patch install', {stdio: 'ignore'}); } catch(e) {}\""
+      }
+    },
+    "clean": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx rimraf dist",
+        "cwd": "{projectRoot}"
+      }
+    },
+    "build:knexfile": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/dist/db"],
+      "options": {
+        "commands": ["mkdir -p dist/db", "npx tsc -p tsconfig.db.json"],
+        "parallel": false,
+        "cwd": "{projectRoot}"
+      }
+    },
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{projectRoot}/dist"],
+      "dependsOn": [
+        "ts-patch:install",
+        "clean",
+        "contracts:build",
+        "gen:container",
+        "build:knexfile"
+      ],
+      "options": {
         "outputPath": "{projectRoot}/dist",
-        "tsConfig": "{projectRoot}/tsconfig.json",
-        "assets": [
-          {
-            "input": "{projectRoot}",
-            "glob": "assets/**/*",
-            "output": "assets"
-          }
-        ],
-        "external": [
-          "@network/contracts",
-          "pg",
-          "mysql",
-          "mysql2",
-          "sqlite3",
-          "better-sqlite3",
-          "tedious",
-          "oracledb",
-          "pg-query-stream"
-        ]
+        "configFile": "{projectRoot}/vite.config.mjs"
       },
       "configurations": {
         "development": {

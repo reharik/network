@@ -2,7 +2,7 @@ node_modules
 .env
 .history
 .vscode
-.dist
+dist
 
 
 .nx/cache

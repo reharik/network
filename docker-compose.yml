@@ -22,7 +22,7 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
-      target: runtime
+      target: production
       args:
         NODE_VERSION: 22
     image: network-api:prod
@@ -40,6 +40,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - '3000:3000'
+    command: ['sh', '/app/apps/api/dist/scripts/serverStartUp.sh']
 
 volumes:
   pgdata_prod:

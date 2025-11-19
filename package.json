@@ -29,6 +29,7 @@
     "test:watch": "nx run-many -t test --all -- --watch"
   },
   "dependencies": {
+    "dotenv": "^16.6.1",
     "parse-fetch": "^0.0.6",
     "smart-enums": "^0.0.22",
     "typia": "^9.7.2"

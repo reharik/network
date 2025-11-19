@@ -1,5 +1,10 @@
-import { config as dotEnvConfig, DotenvConfigOutput } from 'dotenv';
+import dotenv, { config as dotEnvConfig, DotenvConfigOutput } from 'dotenv';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 // const applicationEnvs = ['local', 'dev', 'qa', 'staging', 'prod'];
 const nodeEnvs = ['development', 'test', 'production', 'prod'];
@@ -47,10 +52,11 @@ const getValidValue = <T extends string>(value: string, allowedValues: readonly 
 
 export const setupConfig = (): Config => {
   if (!instantiatedDotEnv) {
-    instantiatedDotEnv = dotEnvConfig({
-      path: path.resolve(__dirname, '../.env'),
-      override: false,
-    });
+    instantiatedDotEnv = dotEnvConfig();
+    // instantiatedDotEnv = dotEnvConfig({
+    //   path: path.resolve(__dirname, '../.env'),
+    //   override: false,
+    // });
   }
   const nodeEnv = getValidValue<NodeEnv>(process.env.NODE_ENV || 'development', nodeEnvs);
   const isProduction = nodeEnv === 'production' || nodeEnv === 'prod';
