@@ -1,5 +1,5 @@
-import { Enums, enumRegistry, type EnumRegistry } from '@network/contracts';
-import { asValue, createContainer } from 'awilix';
+import { enumRegistry, Enums, type EnumRegistry } from '@network/contracts';
+import { asValue, AwilixContainer, createContainer } from 'awilix';
 import type { Knex } from 'knex';
 import { initializeSmartEnumMappings } from 'smart-enums';
 import { AutoLoadedContainer } from './di/awilix.autoload';
@@ -17,28 +17,33 @@ interface BaseContainer extends EnumContainerTypes {
   Enums: typeof Enums; // All enums as a single object
   enumRegistry: EnumRegistry; // Properly typed enum registry for smart-enums functions
 }
-
-// Create the container with type inference
-const container = createContainer<Container>({
-  injectionMode: 'PROXY',
-});
-
-// Register the database connection manually
-container.register({
-  connection: asValue(database),
-});
-
-// Register the Enums object and individual enums from contracts
-container.register({
-  Enums: asValue(Enums), // Register the full Enums object for reviveSmartEnums
-  enumRegistry: asValue(enumRegistry), // Register the properly typed enum registry
-  ...Object.fromEntries(Object.entries(Enums).map(([key, value]) => [key, asValue(value)])),
-});
-
-registerModulesFromGlob(container);
-
-// Initialize the global smart enum configuration early, before any services are created
-initializeSmartEnumMappings({ enumRegistry });
-// Type-safe enum resolver using __smart_enum_type metadata
-export { container };
 export type Container = BaseContainer & AutoLoadedContainer;
+
+// Initialize container asynchronously (needed for dev mode file scanning)
+let container: AwilixContainer<Container>;
+const initializeContainer = async (): Promise<AwilixContainer<Container>> => {
+  if (container) {
+    return container;
+  }
+  // Create the container with type inference
+  const _container = createContainer<Container>({
+    injectionMode: 'PROXY',
+  });
+
+  _container.register({
+    // Register the database connection manually
+    connection: asValue(database),
+    Enums: asValue(Enums), // Register the full Enums object for reviveSmartEnums
+    enumRegistry: asValue(enumRegistry), // Register the properly typed enum registry
+    ...Object.fromEntries(Object.entries(Enums).map(([key, value]) => [key, asValue(value)])),
+  });
+
+  // Initialize the global smart enum configuration early, before any services are created
+  initializeSmartEnumMappings({ enumRegistry });
+  await registerModulesFromGlob(_container);
+  container = _container;
+  return container;
+};
+
+// Type-safe enum resolver using __smart_enum_type metadata
+export { container, initializeContainer };

@@ -1,8 +1,15 @@
 import { config } from './config';
-import { container } from './container';
+import { container, initializeContainer } from './container';
 
-const server = container.resolve('koaServer');
+const startServer = async () => {
+  // Initialize container (loads modules from glob or runtime scan)
+  await initializeContainer();
 
-server.listen(config.serverPort, () => {
-  console.log(`🚀 Server running on http://localhost:${config.serverPort}`);
-});
+  const server = container.resolve('koaServer');
+
+  server.listen(config.serverPort, () => {
+    console.log(`🚀 Server running on http://localhost:${config.serverPort}`);
+  });
+};
+
+void startServer();

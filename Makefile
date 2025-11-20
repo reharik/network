@@ -1,9 +1,8 @@
 docker/up/dev:
-	npm run build
 	docker compose -f docker-compose-dev.yml up;
 
 docker/down/dev:
-	docker compose  -f docker-compose-dev.yml down --rmi local --remove-orphans --volumes
+	docker compose -f docker-compose-dev.yml down --rmi local --remove-orphans --volumes
 
 docker/up/prod:
 	docker compose -f docker-compose.yml up;

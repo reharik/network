@@ -62,8 +62,8 @@ WORKDIR /app
 COPY --from=build /repo/apps/api/dist ./apps/api/dist
 # Copy server startup script (copy from build stage where source files are)
 RUN mkdir -p apps/api/dist/scripts
-COPY --from=build /repo/apps/api/src/scripts/serverStartUp.sh ./apps/api/dist/scripts/serverStartUp.sh
-RUN chmod +x apps/api/dist/scripts/serverStartUp.sh 
+COPY --from=build /repo/apps/api/src/scripts/serverStartUpProd.sh ./apps/api/dist/scripts/serverStartUpProd.sh
+RUN chmod +x apps/api/dist/scripts/serverStartUpProd.sh 
 COPY --from=deps-prod /repo/node_modules ./node_modules
 # Verify dotenv is available (it should be in production dependencies)
 RUN (test -d node_modules/dotenv || \
