@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
 import { FormInput } from '../ui/FormInput';
 import { Button, Card, VStack } from '../ui/Primitives';
+
+const ErrorBanner = styled.div`
+  padding: 12px 16px;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid ${({ theme }) => theme.colors.danger};
+  border-radius: ${({ theme }) => theme.radius.sm};
+  color: ${({ theme }) => theme.colors.danger};
+  font-size: 0.9rem;
+`;
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -45,6 +55,8 @@ const Login: React.FC = () => {
 
             <form onSubmit={handleSubmit}>
               <VStack gap={3}>
+                {error && <ErrorBanner>{error}</ErrorBanner>}
+
                 <FormInput
                   label="Email address"
                   id="email"
@@ -55,9 +67,6 @@ const Login: React.FC = () => {
                   value={email}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  errors={
-                    error ? [{ kind: 'parse', message: 'Invalid email or password' }] : undefined
-                  }
                 />
 
                 <FormInput
@@ -70,9 +79,6 @@ const Login: React.FC = () => {
                   value={password}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  errors={
-                    error ? [{ kind: 'parse', message: 'Invalid email or password' }] : undefined
-                  }
                 />
 
                 <div className="flex items-center justify-between">

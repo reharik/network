@@ -5,6 +5,7 @@ import { initializeSmartEnumMappings } from 'smart-enums';
 import { AutoLoadedContainer } from './di/awilix.autoload';
 import { registerModulesFromGlob } from './di/loadModules';
 import { database } from './knex';
+import type { LoggerInterface } from './logger';
 
 // Helper type to convert enum names to camelCase container keys with proper types
 type EnumContainerTypes = {
@@ -14,6 +15,7 @@ type EnumContainerTypes = {
 // Base container for manually registered services
 interface BaseContainer extends EnumContainerTypes {
   connection: Knex;
+  logger: LoggerInterface;
   Enums: typeof Enums; // All enums as a single object
   enumRegistry: EnumRegistry; // Properly typed enum registry for smart-enums functions
 }
@@ -21,7 +23,9 @@ export type Container = BaseContainer & AutoLoadedContainer;
 
 // Initialize container asynchronously (needed for dev mode file scanning)
 let container: AwilixContainer<Container>;
-const initializeContainer = async (): Promise<AwilixContainer<Container>> => {
+const initializeContainer = async (
+  logger: LoggerInterface,
+): Promise<AwilixContainer<Container>> => {
   if (container) {
     return container;
   }
@@ -33,6 +37,7 @@ const initializeContainer = async (): Promise<AwilixContainer<Container>> => {
   _container.register({
     // Register the database connection manually
     connection: asValue(database),
+    logger: asValue(logger), // Register the logger for DI
     Enums: asValue(Enums), // Register the full Enums object for reviveSmartEnums
     enumRegistry: asValue(enumRegistry), // Register the properly typed enum registry
     ...Object.fromEntries(Object.entries(Enums).map(([key, value]) => [key, asValue(value)])),
@@ -40,7 +45,7 @@ const initializeContainer = async (): Promise<AwilixContainer<Container>> => {
 
   // Initialize the global smart enum configuration early, before any services are created
   initializeSmartEnumMappings({ enumRegistry });
-  await registerModulesFromGlob(_container);
+  await registerModulesFromGlob(_container, logger);
   container = _container;
   return container;
 };

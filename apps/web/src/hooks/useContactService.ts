@@ -6,7 +6,7 @@ import {
 } from '@network/contracts';
 import { DateTime } from 'luxon';
 import { ApiResult, createValidationError } from '../types/ApiResult';
-import { useApiFetch } from './useApiFetch';
+import { useApiFetch } from './apiFetch/useApiFetch';
 
 export const useContactService = () => {
   const { apiFetch } = useApiFetch();
@@ -30,11 +30,22 @@ export const useContactService = () => {
     });
   };
 
-  const updateContact = (contact: UpdateContact & { id: string }) =>
-    apiFetch<Contact>(`/contacts/${encodeURIComponent(contact.id)}`, {
+  const updateContact = async (
+    contact: UpdateContact & { id: string },
+  ): Promise<ApiResult<Contact>> => {
+    const result = validateUpdateContact(contact);
+    if (!result.success) {
+      return {
+        success: false,
+        errors: result.errors.map(createValidationError),
+      };
+    }
+
+    return apiFetch<Contact>(`/contacts/${encodeURIComponent(contact.id)}`, {
       method: 'PATCH',
-      body: contact,
+      body: result.data,
     });
+  };
 
   const deleteContact = (id: string) =>
     apiFetch<void>(`/contacts/${encodeURIComponent(id)}`, {

@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { config } from '../config';
+import { useToast } from '../contexts/ToastContext';
 import { useUserService } from '../hooks';
 
 type SettingsState = {
@@ -14,6 +15,7 @@ type SettingsState = {
 };
 
 export const Settings = () => {
+  const { showToast } = useToast();
   const { getMe, updateProfile } = useUserService();
 
   const [state, setState] = useState<SettingsState>({
@@ -34,8 +36,14 @@ export const Settings = () => {
   // Update mutation
   const updateProfileMut = useMutation({
     mutationFn: updateProfile,
-    onSuccess: () => {
-      alert('Profile updated successfully');
+    onSuccess: (result) => {
+      if (result.success) {
+        showToast('Profile updated successfully', 'success');
+      }
+      // Validation errors are shown in the form, no toast needed
+    },
+    onError: () => {
+      showToast('Failed to update profile', 'error');
     },
   });
 
@@ -169,9 +177,9 @@ const Section = styled.section`
 `;
 
 const Row = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: 200px 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 16px;
 `;
 

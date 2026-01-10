@@ -1,6 +1,6 @@
-import { User } from '@network/contracts';
-import { ApiResult } from '../types/ApiResult';
-import { useApiFetch } from './useApiFetch';
+import { User, validateUpdateUser } from '@network/contracts';
+import { ApiResult, createValidationError } from '../types/ApiResult';
+import { useApiFetch } from './apiFetch/useApiFetch';
 
 export interface UpdateUserProfileRequest {
   firstName?: string;
@@ -16,9 +16,17 @@ export const useUserService = () => {
   };
 
   const updateProfile = async (updates: UpdateUserProfileRequest): Promise<ApiResult<User>> => {
+    const result = validateUpdateUser(updates);
+    if (!result.success) {
+      return {
+        success: false,
+        errors: result.errors.map(createValidationError),
+      };
+    }
+
     return apiFetch<User>('/me/profile', {
       method: 'PUT',
-      body: updates,
+      body: result.data,
     });
   };
 

@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { BaseApiError } from '../types/ApiResult';
+import { FormError } from './FormError';
 import { FormInput } from './FormInput';
-import { Button, Field, HStack, VStack } from './Primitives';
+import { Button, HStack, VStack } from './Primitives';
 
 interface SmsModalProps {
   contactName: string;
@@ -9,6 +11,7 @@ interface SmsModalProps {
   onSubmit: (data: { message: string }) => void;
   onCancel: () => void;
   isLoading?: boolean;
+  errors?: BaseApiError[];
 }
 
 export const SmsModal = ({
@@ -18,6 +21,7 @@ export const SmsModal = ({
   onSubmit,
   onCancel,
   isLoading = false,
+  errors = [],
 }: SmsModalProps) => {
   const [message, setMessage] = useState(initialMessage);
 
@@ -36,20 +40,22 @@ export const SmsModal = ({
           </p>
         </div>
 
-        <Field label="Message">
-          <FormInput
-            as="textarea"
-            value={message}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
-            placeholder="Your SMS message here..."
-            disabled={isLoading}
-            required
-            rows={4}
-          />
-        </Field>
+        <FormError errors={errors} />
+
+        <FormInput
+          label="Message"
+          id="message"
+          as="textarea"
+          value={message}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
+          placeholder="Your SMS message here..."
+          disabled={isLoading}
+          errors={errors}
+          rows={4}
+        />
 
         <HStack>
-          <Button type="submit" disabled={isLoading || !message}>
+          <Button type="submit" disabled={isLoading}>
             {isLoading ? 'Sending...' : 'Send SMS'}
           </Button>
           <Button type="button" variant="secondary" onClick={onCancel} disabled={isLoading}>

@@ -1,4 +1,5 @@
 // src/ui/primitives.tsx
+import React from 'react';
 import styled, { css } from 'styled-components';
 
 export const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -17,18 +18,30 @@ export const Card = styled.div`
   padding: ${({ theme }) => theme.spacing(2)};
 `;
 
-export const HStack = styled.div<{ gap?: number; wrap?: boolean }>`
+const HStackBase = styled.div<{ $gap?: number; $wrap?: boolean }>`
   display: flex;
   align-items: center;
-  gap: ${({ gap = 2, theme }) => theme.spacing(gap)};
-  flex-wrap: ${({ wrap }) => (wrap ? 'wrap' : 'nowrap')};
+  gap: ${({ $gap = 2, theme }) => theme.spacing($gap)};
+  flex-wrap: ${({ $wrap }) => ($wrap ? 'wrap' : 'nowrap')};
 `;
 
-export const VStack = styled.div<{ gap?: number }>`
+type HStackProps = React.ComponentPropsWithoutRef<'div'> & { gap?: number; wrap?: boolean };
+export const HStack = React.forwardRef<HTMLDivElement, HStackProps>(
+  ({ gap, wrap, ...rest }, ref) => <HStackBase ref={ref} $gap={gap} $wrap={wrap} {...rest} />,
+);
+HStack.displayName = 'HStack';
+
+const VStackBase = styled.div<{ $gap?: number }>`
   display: flex;
   flex-direction: column;
-  gap: ${({ gap = 2, theme }) => theme.spacing(gap)};
+  gap: ${({ $gap = 2, theme }) => theme.spacing($gap)};
 `;
+
+type VStackProps = React.ComponentPropsWithoutRef<'div'> & { gap?: number };
+export const VStack = React.forwardRef<HTMLDivElement, VStackProps>(({ gap, ...rest }, ref) => (
+  <VStackBase ref={ref} $gap={gap} {...rest} />
+));
+VStack.displayName = 'VStack';
 
 export const Spacer = styled.div`
   flex: 1 1 auto;
@@ -41,18 +54,18 @@ export const Label = styled.label`
 
 // moved input primitives to FormInput.tsx (StyledInput/Select/TextArea)
 
-export const Button = styled.button<{
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
-  size?: 'sm' | 'md';
+const ButtonBase = styled.button<{
+  $variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  $size?: 'sm' | 'md';
 }>`
   border: 1px solid transparent;
   border-radius: ${({ theme }) => theme.radius.sm};
-  padding: ${({ size = 'md' }) => (size === 'sm' ? '8px 10px' : '10px 14px')};
+  padding: ${({ $size = 'md' }) => ($size === 'sm' ? '8px 10px' : '10px 14px')};
   cursor: pointer;
   font-weight: 600;
 
-  ${({ variant = 'primary', theme }) => {
-    switch (variant) {
+  ${({ $variant = 'primary', theme }) => {
+    switch ($variant) {
       case 'secondary':
         return css`
           background: transparent;
@@ -90,6 +103,19 @@ export const Button = styled.button<{
     }
   }}
 `;
+
+// Wrapper to map public props to transient props
+type ButtonProps = React.ComponentPropsWithoutRef<'button'> & {
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  size?: 'sm' | 'md';
+};
+
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ variant, size, ...rest }, ref) => (
+    <ButtonBase ref={ref} $variant={variant} $size={size} {...rest} />
+  ),
+);
+Button.displayName = 'Button';
 
 export const Badge = styled.span`
   display: inline-block;

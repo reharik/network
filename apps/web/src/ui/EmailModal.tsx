@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { BaseApiError } from '../types/ApiResult';
+import { FormError } from './FormError';
 import { FormInput } from './FormInput';
-import { Button, Field, HStack, VStack } from './Primitives';
+import { Button, HStack, VStack } from './Primitives';
 
 interface EmailModalProps {
   contactName: string;
@@ -10,6 +12,7 @@ interface EmailModalProps {
   onSubmit: (data: { subject: string; body: string }) => void;
   onCancel: () => void;
   isLoading?: boolean;
+  errors?: BaseApiError[];
 }
 
 export const EmailModal = ({
@@ -20,6 +23,7 @@ export const EmailModal = ({
   onSubmit,
   onCancel,
   isLoading = false,
+  errors = [],
 }: EmailModalProps) => {
   const [subject, setSubject] = useState(initialSubject);
   const [body, setBody] = useState(initialBody);
@@ -39,30 +43,32 @@ export const EmailModal = ({
           </p>
         </div>
 
-        <Field label="Subject">
-          <FormInput
-            value={subject}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
-            placeholder="Email subject"
-            disabled={isLoading}
-            required
-          />
-        </Field>
+        <FormError errors={errors} />
 
-        <Field label="Message">
-          <FormInput
-            as="textarea"
-            value={body}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setBody(e.target.value)}
-            placeholder="Your message here..."
-            disabled={isLoading}
-            required
-            rows={6}
-          />
-        </Field>
+        <FormInput
+          label="Subject"
+          id="subject"
+          value={subject}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSubject(e.target.value)}
+          placeholder="Email subject"
+          disabled={isLoading}
+          errors={errors}
+        />
+
+        <FormInput
+          label="Message"
+          id="body"
+          as="textarea"
+          value={body}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setBody(e.target.value)}
+          placeholder="Your message here..."
+          disabled={isLoading}
+          errors={errors}
+          rows={6}
+        />
 
         <HStack>
-          <Button type="submit" disabled={isLoading || !subject || !body}>
+          <Button type="submit" disabled={isLoading}>
             {isLoading ? 'Sending...' : 'Send Email'}
           </Button>
           <Button type="button" variant="secondary" onClick={onCancel} disabled={isLoading}>

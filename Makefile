@@ -4,6 +4,12 @@ docker/up/dev:
 docker/down/dev:
 	docker compose -f docker-compose-dev.yml down --rmi local --remove-orphans --volumes
 
+docker/up/local-prod:
+	docker compose -f docker-compose-dev.yml -f docker-compose-local-prod.yml up;
+
+docker/down/local-prod:
+	docker compose -f docker-compose-dev.yml -f docker-compose-local-prod.yml down --rmi local --remove-orphans --volumes
+
 docker/up/prod:
 	docker compose -f docker-compose.yml up;
 

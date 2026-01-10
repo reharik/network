@@ -1,4 +1,4 @@
-export { useApiFetch } from './useApiFetch';
+export { useApiFetch } from './apiFetch/useApiFetch';
 export { useCommunicationService } from './useCommunicationService';
 export { useContactListService } from './useContactListService';
 export { useContactService } from './useContactService';

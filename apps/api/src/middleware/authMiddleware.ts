@@ -5,11 +5,16 @@ import type { Container } from '../container';
 export type AuthMiddleware = (ctx: Context, next: Next) => Promise<void>;
 export type OptionalAuthMiddleware = AuthMiddleware;
 
-export const createAuthMiddleware = ({ authService }: Container) => {
+export const createAuthMiddleware = ({ authService, logger }: Container) => {
   return async (ctx: Context, next: Next) => {
     const authHeader = ctx.get('Authorization');
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      logger.warn('Authentication failed: missing or invalid authorization header', {
+        method: ctx.method,
+        path: ctx.path,
+        hasHeader: !!authHeader,
+      });
       ctx.status = 401;
       ctx.body = { error: 'Authorization header required' };
       return;
@@ -19,6 +24,10 @@ export const createAuthMiddleware = ({ authService }: Container) => {
     const user = await authService.verifyToken(token);
 
     if (!user) {
+      logger.warn('Authentication failed: invalid or expired token', {
+        method: ctx.method,
+        path: ctx.path,
+      });
       ctx.status = 401;
       ctx.body = { error: 'Invalid or expired token' };
       return;

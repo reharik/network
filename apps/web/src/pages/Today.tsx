@@ -3,13 +3,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { pascalCase } from 'case-anything';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
-import { Container } from '../Layout';
+import { Link } from 'react-router-dom';
+import { useToast } from '../contexts/ToastContext';
 import { useCommunicationService, usePlanService, useTouchService } from '../hooks';
 import {
   MakeCallRequest,
   SendEmailRequest,
   SendSmsRequest,
 } from '../hooks/useCommunicationService';
+import { Container } from '../Layout';
+import { replaceTokens } from '../services/replaceTokens';
 import { EmailModal } from '../ui/EmailModal';
 import { FormInput } from '../ui/FormInput';
 import { Modal } from '../ui/Modal';
@@ -17,39 +20,9 @@ import { Badge, Button, Card, Field, HStack, VStack } from '../ui/Primitives';
 import { SmsModal } from '../ui/SmsModal';
 import { TouchForm } from '../ui/TouchForm';
 
-// Helper function to extract field-specific errors from API error responses
-const extractFieldErrors = (
-  error: { success: false; errors: string[] } | null | undefined,
-): Record<string, string | string[]> => {
-  if (!error || error.success) {
-    return {};
-  }
-
-  const fieldErrors: Record<string, string[]> = {};
-  error.errors.forEach((errMsg) => {
-    // Parse errors like "method expected string" or "message expected valid message"
-    const match = errMsg.match(/^(\w+) expected (.+)$/);
-    if (match) {
-      const [, fieldName] = match;
-      const normalizedField = fieldName.charAt(0).toLowerCase() + fieldName.slice(1);
-      if (!fieldErrors[normalizedField]) {
-        fieldErrors[normalizedField] = [];
-      }
-      fieldErrors[normalizedField].push(errMsg);
-    }
-  });
-
-  // Convert arrays to single string if only one error, or return as-is
-  const result: Record<string, string | string[]> = {};
-  Object.keys(fieldErrors).forEach((key) => {
-    result[key] = fieldErrors[key].length === 1 ? fieldErrors[key][0] : fieldErrors[key];
-  });
-
-  return result;
-};
-
 export const Today = () => {
   const qc = useQueryClient();
+  const { showToast } = useToast();
   const { getTodaysContacts } = usePlanService();
   const { logTouch, snoozeContact } = useTouchService();
   const { sendMessage } = useCommunicationService();
@@ -86,21 +59,36 @@ export const Today = () => {
       if (result.success) {
         qc.invalidateQueries({ queryKey: ['today'] });
         setSelectedContact(undefined);
+        showToast('Touch logged', 'success');
       }
+      // Validation errors are shown in the form, no toast needed
+    },
+    onError: () => {
+      showToast('Failed to log touch', 'error');
     },
   });
 
   const snooze = useMutation({
     mutationFn: ({ contactId, days }: { contactId: string; days: number }) =>
       snoozeContact(contactId, days),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['today'] }),
+    onSuccess: (result) => {
+      if (result.success) {
+        qc.invalidateQueries({ queryKey: ['today'] });
+        showToast('Contact snoozed', 'success');
+      } else {
+        showToast('Failed to snooze contact', 'error');
+      }
+    },
+    onError: () => {
+      showToast('Failed to snooze contact', 'error');
+    },
   });
 
-  const handleMarkDoneClick = (contact: any) => {
+  const handleMarkDoneClick = (contact: Contact) => {
     setSelectedContact({
       id: contact.id,
       name: `${contact.firstName} ${contact.lastName}`,
-      message: contact.suggestion,
+      message: replaceTokens(contact.suggestion, contact),
     });
   };
 
@@ -142,35 +130,58 @@ export const Today = () => {
 
   const handleTouchCancel = () => {
     setSelectedContact(undefined);
+    // Clear any validation errors from previous attempts
+    touch.reset();
   };
 
   const emailMutation = useMutation({
     mutationFn: sendMessage<SendEmailRequest>,
-    onSuccess: () => {
-      handleCloseModal();
-      // Automatically mark contact as done after sending email
-      if (modal.contact) {
-        handleMarkDoneClick(modal.contact);
+    onSuccess: (result) => {
+      if (result.success) {
+        handleCloseModal();
+        showToast('Email sent', 'success');
+        // Automatically mark contact as done after sending email
+        if (modal.contact) {
+          handleMarkDoneClick(modal.contact);
+        }
       }
+      // Validation errors are shown in the form, no toast needed
+    },
+    onError: () => {
+      showToast('Failed to send email', 'error');
     },
   });
 
   const smsMutation = useMutation({
     mutationFn: sendMessage<SendSmsRequest>,
-    onSuccess: () => {
-      handleCloseModal();
-      // Automatically mark contact as done after sending email
-      if (modal.contact) {
-        handleMarkDoneClick(modal.contact);
+    onSuccess: (result) => {
+      if (result.success) {
+        handleCloseModal();
+        showToast('SMS sent', 'success');
+        // Automatically mark contact as done after sending SMS
+        if (modal.contact) {
+          handleMarkDoneClick(modal.contact);
+        }
       }
+      // Validation errors are shown in the form, no toast needed
+    },
+    onError: () => {
+      showToast('Failed to send SMS', 'error');
     },
   });
 
   const voiceMutation = useMutation({
     mutationFn: sendMessage<MakeCallRequest>,
-    onSuccess: () => {
-      // Automatically mark contact as done after initiating call
-      // Note: We'll need to track which contact initiated the call
+    onSuccess: (result) => {
+      if (result.success) {
+        showToast('Call initiated', 'success');
+        // Automatically mark contact as done after initiating call
+        // Note: We'll need to track which contact initiated the call
+      }
+      // Validation errors are shown in the form, no toast needed
+    },
+    onError: () => {
+      showToast('Failed to initiate call', 'error');
     },
   });
 
@@ -180,11 +191,15 @@ export const Today = () => {
       return;
     }
 
+    // Replace tokens like {{firstName}} with actual contact values
+    const subject = replaceTokens(data.subject, modal.contact);
+    const body = replaceTokens(data.body, modal.contact);
+
     emailMutation.mutate({
       type: 'email',
       to: modal.contact.email,
-      subject: data.subject,
-      body: data.body,
+      subject,
+      body,
     });
   };
 
@@ -194,15 +209,21 @@ export const Today = () => {
       return;
     }
 
+    // Replace tokens like {{firstName}} with actual contact values
+    const message = replaceTokens(data.message, modal.contact);
+
     smsMutation.mutate({
       type: 'sms',
       to: modal.contact.phone,
-      message: data.message,
+      message,
     });
   };
 
   const handleCloseModal = () => {
     modalSetter({ isOpen: false, contact: undefined, type: undefined });
+    // Clear any validation errors from previous attempts
+    emailMutation.reset();
+    smsMutation.reset();
   };
 
   return (
@@ -222,9 +243,10 @@ export const Today = () => {
               <VStack gap={2}>
                 <HStack>
                   <div>
-                    <div
+                    <Link
+                      to={`/contacts/${c.id}`}
                       style={{ fontWeight: 700, fontSize: '1.05rem' }}
-                    >{`${c.firstName} ${c.lastName}`}</div>
+                    >{`${c.firstName} ${c.lastName}`}</Link>
                     <div style={{ color: '#a8b3c7', fontSize: '.9rem' }}>
                       {c.preferredMethod.display}: {c.preferredMethod.handle(c)} · every{' '}
                       {c.intervalDays}d
@@ -235,7 +257,7 @@ export const Today = () => {
                 <Field label="Suggested line">
                   <FormInput
                     as="textarea"
-                    defaultValue={c.suggestion}
+                    defaultValue={replaceTokens(c.suggestion, c)}
                     onFocus={(e: React.FocusEvent<HTMLTextAreaElement>) => e.currentTarget.select()}
                   />
                 </Field>
@@ -311,10 +333,13 @@ export const Today = () => {
             contactName={`${modal.contact.firstName} ${modal.contact.lastName}`}
             contactEmail={modal.contact.email}
             initialSubject=""
-            initialBody={modal.contact.suggestion}
+            initialBody={replaceTokens(modal.contact.suggestion, modal.contact)}
             onSubmit={handleEmailSubmit}
             onCancel={handleCloseModal}
             isLoading={emailMutation.isPending}
+            errors={
+              emailMutation.data && !emailMutation.data.success ? emailMutation.data.errors : []
+            }
           />
         )}
 
@@ -323,10 +348,11 @@ export const Today = () => {
           <SmsModal
             contactName={`${modal.contact.firstName} ${modal.contact.lastName}`}
             contactPhone={modal.contact.phone}
-            initialMessage={modal.contact.suggestion}
+            initialMessage={replaceTokens(modal.contact.suggestion, modal.contact)}
             onSubmit={handleSmsSubmit}
             onCancel={handleCloseModal}
             isLoading={smsMutation.isPending}
+            errors={smsMutation.data && !smsMutation.data.success ? smsMutation.data.errors : []}
           />
         )}
       </Modal>

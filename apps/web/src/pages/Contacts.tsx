@@ -2,6 +2,7 @@ import { ContactMethod, UpdateContact } from '@network/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useToast } from '../contexts/ToastContext';
 import { useContactListService, useContactService } from '../hooks';
 import { Container } from '../Layout';
 import { AddContactForm } from '../ui/AddContactForm';
@@ -12,6 +13,7 @@ import { Badge, Button, Card, HStack, Table, VStack } from '../ui/Primitives';
 export const Contacts = () => {
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const { fetchContacts } = useContactListService();
   const { deleteContact, createContact, addToToday } = useContactService();
   const { data: result, isLoading } = useQuery({
@@ -29,17 +31,33 @@ export const Contacts = () => {
 
   const deleteMut = useMutation({
     mutationFn: deleteContact,
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['contacts'] });
+    onSuccess: (result) => {
+      if (result.success) {
+        void qc.invalidateQueries({ queryKey: ['contacts'] });
+        showToast('Contact deleted', 'success');
+      } else {
+        showToast('Failed to delete contact', 'error');
+      }
+    },
+    onError: () => {
+      showToast('Failed to delete contact', 'error');
     },
   });
 
   const addToTodayMut = useMutation({
     mutationFn: addToToday,
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['today'] });
-      void qc.invalidateQueries({ queryKey: ['contacts'] });
-      navigate('/');
+    onSuccess: (result) => {
+      if (result.success) {
+        void qc.invalidateQueries({ queryKey: ['today'] });
+        void qc.invalidateQueries({ queryKey: ['contacts'] });
+        showToast('Added to today', 'success');
+        navigate('/');
+      } else {
+        showToast('Failed to add to today', 'error');
+      }
+    },
+    onError: () => {
+      showToast('Failed to add to today', 'error');
     },
   });
 
@@ -49,7 +67,12 @@ export const Contacts = () => {
       if (result.success) {
         void qc.invalidateQueries({ queryKey: ['contacts'] });
         setShowAddModal(false);
+        showToast('Contact created', 'success');
       }
+      // Validation errors are shown in the form, no toast needed
+    },
+    onError: () => {
+      showToast('Failed to create contact', 'error');
     },
   });
 
@@ -69,6 +92,8 @@ export const Contacts = () => {
 
   const handleCancelAdd = () => {
     setShowAddModal(false);
+    // Clear any validation errors from previous attempts
+    createMut.reset();
   };
 
   const filtered = useMemo(() => {

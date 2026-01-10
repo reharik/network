@@ -20,7 +20,7 @@ export interface ImportService {
   importContacts: (userId: string, rows: ImportRow[]) => Promise<ImportResult>;
 }
 
-export const createImportService = ({ contactRepository }: Container): ImportService => ({
+export const createImportService = ({ contactRepository, logger }: Container): ImportService => ({
   importContacts: async (userId: string, rows: ImportRow[]): Promise<ImportResult> => {
     let inserted = 0;
     let skipped = 0;
@@ -62,7 +62,16 @@ export const createImportService = ({ contactRepository }: Container): ImportSer
         await contactRepository.createContact(userId, contactData);
         inserted++;
       } catch (error) {
-        console.error('Error importing contact:', error);
+        const err = error instanceof Error ? error : new Error(String(error));
+        logger.error('Error importing contact', err, {
+          userId,
+          contactData: {
+            firstName: row.firstName,
+            lastName: row.lastName,
+            hasEmail: !!row.email,
+            hasPhone: !!row.phone,
+          },
+        });
         skipped++;
       }
     }

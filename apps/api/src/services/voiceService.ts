@@ -3,16 +3,17 @@ import {
   ConnectClientConfig,
   StartOutboundVoiceContactCommand,
 } from '@aws-sdk/client-connect';
-import { Response } from '@network/contracts';
+import type { Response } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import { config } from '../config';
+import type { Container } from '../container';
 import { asyncOperationToResponse } from '../utils/responseUtils';
 
 export interface VoiceService {
   makeCall: (to: string, from: string) => Promise<Response<{ contactId: string }>>;
 }
 
-export const createVoiceService = (): VoiceService => {
+export const createVoiceService = ({ logger }: Container): VoiceService => {
   const connectClientConfig: ConnectClientConfig = {
     region: config.awsRegion,
     credentials: {
@@ -26,17 +27,33 @@ export const createVoiceService = (): VoiceService => {
 
   return {
     makeCall: async (to: string, from: string): Promise<Response<{ contactId: string }>> => {
-      return asyncOperationToResponse(async () => {
-        const command = new StartOutboundVoiceContactCommand({
-          InstanceId: config.connectInstanceId,
-          ContactFlowId: config.connectContactFlowId,
-          DestinationPhoneNumber: to,
-          SourcePhoneNumber: from,
-        });
-
-        const result = await connectClient.send(command);
-        return { contactId: result.ContactId || 'unknown' };
+      logger.info('Initiating voice call', {
+        to,
+        from,
+        instanceId: config.connectInstanceId,
       });
+
+      return asyncOperationToResponse(
+        async () => {
+          const command = new StartOutboundVoiceContactCommand({
+            InstanceId: config.connectInstanceId,
+            ContactFlowId: config.connectContactFlowId,
+            DestinationPhoneNumber: to,
+            SourcePhoneNumber: from,
+          });
+
+          const result = await connectClient.send(command);
+          const contactId = result.ContactId || 'unknown';
+          logger.info('Voice call initiated successfully', {
+            to,
+            from,
+            contactId,
+          });
+          return { contactId };
+        },
+        logger,
+        `makeCall to=${to}`,
+      );
     },
   };
 };

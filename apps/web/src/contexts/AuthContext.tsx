@@ -1,5 +1,5 @@
 import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import { useApiFetchBase } from '../hooks/useApiFetch';
+import { useApiFetchBase } from '../hooks/apiFetch/useApiFetch';
 export interface User {
   id: string;
   email: string;

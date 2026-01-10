@@ -5,27 +5,32 @@ import fg from 'fast-glob';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { config } from '../config';
+import type { LoggerInterface } from '../logger';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
- * Convention-over-config registration using import.meta.glob (production) or runtime scanning (dev):
+ * Convention-over-config registration using import.meta.glob (production bundle) or runtime scanning:
  * - Scans services, repositories, controllers, middleware, routes, koaServer
  * - Uses named exports only (no default exports required)
  * - Registers only functions, via asFunction
  * - Applies your "createX" -> "x" naming rule
  */
-export const registerModulesFromGlob = async (container: AwilixContainer): Promise<void> => {
-  // In production, Vite transforms import.meta.glob at build time
-  // In development, we use runtime file scanning
-  if (config.nodeEnv === 'production') {
-    // Production mode: use Vite's import.meta.glob (transformed at build time)
-    // This will work because Vite has already processed it during the build
-    registerForProduction(container);
+export const registerModulesFromGlob = async (
+  container: AwilixContainer,
+  logger: LoggerInterface,
+): Promise<void> => {
+  // import.meta.glob is a Vite build-time feature - only exists in bundled output
+  // When running source directly (tsx/ts-node), we must use runtime file scanning
+  const hasViteGlob = typeof import.meta.glob === 'function';
+
+  if (config.nodeEnv === 'production' && hasViteGlob) {
+    // Production bundle: use Vite's import.meta.glob (transformed at build time)
+    registerForProduction(container, logger);
   } else {
-    // Dev mode: use runtime file scanning with fast-glob
-    await registerForDevelopment(container);
+    // Dev mode OR running source in prod: use runtime file scanning with fast-glob
+    await registerForDevelopment(container, logger);
   }
 };
 
@@ -35,6 +40,7 @@ export const registerModulesFromGlob = async (container: AwilixContainer): Promi
 const registerModuleExports = (
   container: AwilixContainer,
   moduleExports: Record<string, unknown>,
+  logger: LoggerInterface,
 ): void => {
   for (const [exportName, value] of Object.entries(moduleExports)) {
     // Ignore non-functions (types, constants, helpers you don't want registered)
@@ -44,7 +50,7 @@ const registerModuleExports = (
     if (exportName.startsWith('_')) continue;
 
     const registrationName = formatName(exportName);
-    console.log(`[loadModules] Registering: ${exportName} -> ${registrationName}`);
+    logger.debug(`[loadModules] Registering: ${exportName} -> ${registrationName}`);
 
     container.register({
       [registrationName]: asFunction(value as (...args: unknown[]) => unknown),
@@ -52,7 +58,7 @@ const registerModuleExports = (
   }
 };
 
-const registerForProduction = (container: AwilixContainer): void => {
+const registerForProduction = (container: AwilixContainer, logger: LoggerInterface): void => {
   const modules = import.meta.glob(
     [
       '../services/**/*.{ts,js}',
@@ -69,11 +75,14 @@ const registerForProduction = (container: AwilixContainer): void => {
 
   for (const [, mod] of Object.entries(modules)) {
     const moduleExports = mod as Record<string, unknown>;
-    registerModuleExports(container, moduleExports);
+    registerModuleExports(container, moduleExports, logger);
   }
 };
 
-const registerForDevelopment = async (container: AwilixContainer): Promise<void> => {
+const registerForDevelopment = async (
+  container: AwilixContainer,
+  logger: LoggerInterface,
+): Promise<void> => {
   const patterns = [
     'services/**/*.{ts,js}',
     'repositories/**/*.{ts,js}',
@@ -84,30 +93,28 @@ const registerForDevelopment = async (container: AwilixContainer): Promise<void>
   ];
 
   const srcDir = path.resolve(__dirname, '..');
-  console.log(`[loadModules] Scanning for modules in: ${srcDir}`);
-  console.log(`[loadModules] Patterns:`, patterns);
+  logger.debug(`[loadModules] Scanning for modules in: ${srcDir}`, { patterns });
 
   const files = await fg(patterns, {
     cwd: srcDir,
     absolute: true,
   });
 
-  console.log(`[loadModules] Found ${files.length} files:`, files);
+  logger.debug(`[loadModules] Found ${files.length} files`, { fileCount: files.length, files });
 
   for (const filePath of files) {
     try {
       // Use file:// URL for ES module imports
       const fileUrl = pathToFileURL(filePath).href;
-      console.log(`[loadModules] Loading module: ${filePath}`);
+      logger.debug(`[loadModules] Loading module: ${filePath}`);
       const mod = (await import(fileUrl)) as Record<string, unknown>;
-      console.log(`[loadModules] Module exports:`, Object.keys(mod));
-      registerModuleExports(container, mod);
+      logger.debug(`[loadModules] Module exports`, { filePath, exports: Object.keys(mod) });
+      registerModuleExports(container, mod, logger);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.warn(`[loadModules] Failed to load module ${filePath}:`, errorMessage);
-      if (error instanceof Error && error.stack) {
-        console.warn(`[loadModules] Stack:`, error.stack);
-      }
+      logger.warn(`[loadModules] Failed to load module ${filePath}`, {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
     }
   }
 };

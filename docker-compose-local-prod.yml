@@ -1,4 +1,3 @@
-version: '3.9'
 name: network-local-prod
 
 # This override allows you to run the app locally but connect to real AWS services
@@ -12,8 +11,8 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      # Remove AWS_ENDPOINT to use real AWS services
-      # AWS_ENDPOINT will be undefined, so AWS SDK will use real endpoints
+      # Clear AWS_ENDPOINT to use real AWS services (empty string overrides the dev value)
+      AWS_ENDPOINT: ''
     # Remove localstack dependency
     # depends_on:
     #   localstack:
@@ -25,3 +24,6 @@ services:
       - '5432:5432'
     volumes:
       - pgdata_prod:/var/lib/postgresql/data
+
+volumes:
+  pgdata_prod:

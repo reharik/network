@@ -18,6 +18,16 @@
         "configFile": "{projectRoot}/vite.config.js"
       }
     },
+    "build:production": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{workspaceRoot}/apps/web/dist"],
+      "dependsOn": ["ts-patch:install", "contracts:build"],
+      "options": {
+        "outputPath": "apps/web/dist",
+        "configFile": "{projectRoot}/vite.config.js",
+        "mode": "production"
+      }
+    },
     "serve": {
       "executor": "@nx/vite:dev-server",
       "options": {

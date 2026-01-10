@@ -1,6 +1,7 @@
+import type { LoggerInterface } from '../logger';
 import { Context, HttpError, Next } from 'koa';
 
-export const errorHandler = async (ctx: Context, next: Next) => {
+export const createErrorHandler = (logger: LoggerInterface) => async (ctx: Context, next: Next) => {
   try {
     await next();
   } catch (err) {
@@ -10,6 +11,16 @@ export const errorHandler = async (ctx: Context, next: Next) => {
     } else if (err instanceof Error) {
       ctx.body = { error: err.message ? err.message : 'Internal Server Error' };
     }
+    // Log the error with context
+    const error = err instanceof Error ? err : new Error(String(err));
+    logger.error(`Request error: ${ctx.method} ${ctx.path}`, error, {
+      status: ctx.status,
+      method: ctx.method,
+      path: ctx.path,
+      requestId: ctx.get('x-request-id') || undefined,
+      isHttpError: err instanceof HttpError,
+      expose: err instanceof HttpError ? err.expose : false,
+    });
     ctx.app.emit('error', err, ctx);
   }
 };

@@ -14,6 +14,12 @@
     "strictNullChecks": true,
     "strict": true
   },
-  "include": ["src/**/*.ts", "../../knexfile.ts", "src/di/awilix.autoload.d.ts"],
+  "include": [
+    "src/**/*.ts",
+    "../../knexfile.ts",
+    "src/di/awilix.autoload.d.ts",
+    "../../packages/contracts/src/validators/logger.ts",
+    "src/services/temp.tsx"
+  ],
   "exclude": ["jest.*", "dist", "node_modules"]
 }

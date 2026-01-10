@@ -8,8 +8,8 @@ import { koaBody } from 'koa-body';
 import { config } from './config';
 import type { Container } from './container';
 import { database } from './knex';
-import { errorHandler } from './middleware/errorHandler';
-import { requestLogger } from './middleware/requestLogger';
+import { createErrorHandler } from './middleware/errorHandler';
+import { createRequestLogger } from './middleware/requestLogger';
 import { smartEnumRequestReviver } from './middleware/smartEnumRequestReviver';
 import { smartEnumResponseSerializer } from './middleware/smartEnumResponseSerializer';
 
@@ -17,14 +17,14 @@ dotenv.config();
 
 export type KoaServer = http.Server;
 
-export const createKoaServer = ({ routes, optionalAuthMiddleware }: Container) => {
+export const createKoaServer = ({ routes, optionalAuthMiddleware, logger }: Container) => {
   const app = new Koa();
   app.context.db = database;
   // 1. Error handling (should be first)
-  app.use(errorHandler);
+  app.use(createErrorHandler(logger));
 
   // 2. Request logging (early in pipeline)
-  app.use(requestLogger);
+  app.use(createRequestLogger(logger));
 
   // 3. CORS (before body parsing)
   app.use(
@@ -54,20 +54,24 @@ export const createKoaServer = ({ routes, optionalAuthMiddleware }: Container) =
   app.use(smartEnumResponseSerializer);
 
   app.on('error', (err: Error, ctx: Context) => {
-    console.error(`Unhandled error on ${ctx.method} ${ctx.path}`, {
+    logger.error(`Unhandled error on ${ctx.method} ${ctx.path}`, err, {
       status: ctx.status,
       requestId: ctx.get('x-request-id') || undefined,
+      method: ctx.method,
+      path: ctx.path,
     });
-    if (err?.stack) console.error(err.stack);
-    else console.error(err);
   });
 
   process.on('unhandledRejection', (reason) => {
-    console.error('unhandledRejection:', reason);
+    logger.error('Unhandled promise rejection', {
+      reason,
+    });
   });
 
   process.on('uncaughtException', (err) => {
-    console.error('uncaughtException:', err);
+    logger.error('Uncaught exception', err, {
+      name: err.name,
+    });
   });
 
   return http.createServer(app.callback());

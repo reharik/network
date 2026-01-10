@@ -1,7 +1,8 @@
 import { SESClient, SESClientConfig, SendEmailCommand } from '@aws-sdk/client-ses';
-import { Response } from '@network/contracts';
+import type { Response } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import { config } from '../config';
+import type { Container } from '../container';
 import { asyncOperationToResponse } from '../utils/responseUtils';
 
 export interface EmailService {
@@ -13,7 +14,7 @@ export interface EmailService {
   ) => Promise<Response<{ messageId: string }>>;
 }
 
-export const createEmailService = (): EmailService => {
+export const createEmailService = ({ logger }: Container): EmailService => {
   const sesClientConfig: SESClientConfig = {
     region: config.awsRegion,
     credentials: {
@@ -32,29 +33,45 @@ export const createEmailService = (): EmailService => {
       body: string,
       fromEmail?: string,
     ): Promise<Response<{ messageId: string }>> => {
-      return asyncOperationToResponse(async () => {
-        const command = new SendEmailCommand({
-          Source: fromEmail || config.fromEmail,
-          Destination: {
-            ToAddresses: [to],
-          },
-          Message: {
-            Subject: {
-              Data: subject,
-              Charset: 'UTF-8',
+      logger.info('Sending email', {
+        to,
+        subject,
+        from: fromEmail || config.fromEmail,
+      });
+
+      return asyncOperationToResponse(
+        async () => {
+          const command = new SendEmailCommand({
+            Source: fromEmail || config.fromEmail,
+            Destination: {
+              ToAddresses: [to],
             },
-            Body: {
-              Text: {
-                Data: body,
+            Message: {
+              Subject: {
+                Data: subject,
                 Charset: 'UTF-8',
               },
+              Body: {
+                Text: {
+                  Data: body,
+                  Charset: 'UTF-8',
+                },
+              },
             },
-          },
-        });
+          });
 
-        const result = await sesClient.send(command);
-        return { messageId: result.MessageId || 'unknown' };
-      });
+          const result = await sesClient.send(command);
+          const messageId = result.MessageId || 'unknown';
+          logger.info('Email sent successfully', {
+            to,
+            subject,
+            messageId,
+          });
+          return { messageId };
+        },
+        logger,
+        `sendEmail to=${to}`,
+      );
     },
   };
 };

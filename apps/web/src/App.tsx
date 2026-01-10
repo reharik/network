@@ -4,10 +4,12 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './contexts/ToastContext';
 import { NavRoutes } from './Routes';
 import { GlobalStyle } from './styles/globalStyle';
 import { theme } from './styles/theme';
 import { ScrollToTop } from './ui/ScrollToTop';
+import { ToastContainer } from './ui/Toast';
 
 const Today = lazy(async () => {
   const mod = await import('./pages/Today');
@@ -41,14 +43,17 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       <QueryClientProvider client={qc}>
-        <AuthProvider>
-          <BrowserRouter /* basename="/" */>
-            <ScrollToTop />
-            <Suspense fallback={<div style={{ padding: 16 }}>Loading…</div>}>
-              <NavRoutes />
-            </Suspense>
-          </BrowserRouter>
-        </AuthProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <BrowserRouter /* basename="/" */>
+              <ScrollToTop />
+              <Suspense fallback={<div style={{ padding: 16 }}>Loading…</div>}>
+                <NavRoutes />
+              </Suspense>
+            </BrowserRouter>
+          </AuthProvider>
+          <ToastContainer />
+        </ToastProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

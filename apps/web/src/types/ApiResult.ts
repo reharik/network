@@ -53,13 +53,17 @@ export const createHttpError = (response: Response): HttpError => ({
   message: `${response.status} ${response.statusText}`,
 });
 
-export const createValidationError = (error: typia.IValidation.IError): ValidationError => ({
-  kind: 'validation',
-  source: 'typia',
-  path: error.path,
-  expected: error.expected,
-  message: `${error.path} expected ${error.expected}`,
-  originalError: error,
-});
+export const createValidationError = (error: typia.IValidation.IError): ValidationError => {
+  // Strip "$input." prefix from path so it matches form field IDs
+  const normalizedPath = error.path.replace(/^\$input\./, '');
+  return {
+    kind: 'validation',
+    source: 'typia',
+    path: normalizedPath,
+    expected: error.expected,
+    message: `${normalizedPath} expected ${error.expected}`,
+    originalError: error,
+  };
+};
 
 export const isValidationError = (e: BaseApiError): e is ValidationError => e.kind === 'validation';

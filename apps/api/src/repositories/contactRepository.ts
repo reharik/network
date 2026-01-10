@@ -1,4 +1,4 @@
-import { Contact, UpdateContact } from '@network/contracts';
+import type { Contact, UpdateContact } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import { prepareForDatabase, reviveFromDatabase } from 'smart-enums';
 import { v4 } from 'uuid';
@@ -18,7 +18,7 @@ export interface ContactRepository {
   deleteContact: (userId: string, id: string) => Promise<boolean>;
 }
 
-export const createContactRepository = ({ connection }: Container): ContactRepository => ({
+export const createContactRepository = ({ connection, logger }: Container): ContactRepository => ({
   listContacts: async (userId: string, opts?: ListContactsOpts) => {
     let q = connection('contacts').where({ userId });
     if (opts?.dueOnly) q = q.andWhere('nextDueAt', '<=', connection.fn.now());
@@ -37,18 +37,39 @@ export const createContactRepository = ({ connection }: Container): ContactRepos
     return reviveFromDatabase<Contact[]>(rows);
   },
   createContact: async (userId: string, data: UpdateContact) => {
-    const payload: UpdateContact = {
-      ...data,
-      id: v4(),
-      userId,
-    };
-    const dbPayload = prepareForDatabase(payload);
-    const [row] = await connection('contacts').insert(dbPayload).returning('*');
-    return reviveFromDatabase<Contact>(row, {
-      fieldEnumMapping: {
-        preferredMethod: ['ContactMethod'],
-      },
-    });
+    try {
+      const payload: UpdateContact = {
+        ...data,
+        id: v4(),
+        userId,
+      };
+      const dbPayload = prepareForDatabase(payload);
+      const [row] = await connection('contacts').insert(dbPayload).returning('*');
+      const contact = reviveFromDatabase<Contact>(row, {
+        fieldEnumMapping: {
+          preferredMethod: ['ContactMethod'],
+        },
+      });
+      logger.info('Contact created', {
+        userId,
+        contactId: contact.id,
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+      });
+      return contact;
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      logger.error('Failed to create contact', err, {
+        userId,
+        contactData: {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          hasEmail: !!data.email,
+          hasPhone: !!data.phone,
+        },
+      });
+      throw error;
+    }
   },
   getContact: async (userId: string, id: string) => {
     const dto = await connection('contacts').where({ id, userId }).first();
@@ -61,23 +82,58 @@ export const createContactRepository = ({ connection }: Container): ContactRepos
       : undefined;
   },
   patchContact: async (userId: string, id: string, data: Partial<UpdateContact>) => {
-    const existing = await connection('contacts').where({ id, userId }).first();
-    if (!existing) return undefined;
-    const updates = { ...existing, ...data };
-    const dbUpdates = prepareForDatabase(updates);
-    await connection('contacts').where({ id, userId }).update(dbUpdates);
-    const updated = await connection('contacts').where({ id, userId }).first();
-    return updated
-      ? reviveFromDatabase<Contact>(updated, {
-          fieldEnumMapping: {
-            preferredMethod: ['ContactMethod'],
-          },
-        })
-      : undefined;
+    try {
+      const existing = await connection('contacts').where({ id, userId }).first();
+      if (!existing) {
+        logger.warn('Contact not found for update', { userId, contactId: id });
+        return undefined;
+      }
+      const updates = { ...existing, ...data };
+      const dbUpdates = prepareForDatabase(updates);
+      await connection('contacts').where({ id, userId }).update(dbUpdates);
+      const updated = await connection('contacts').where({ id, userId }).first();
+      const result = updated
+        ? reviveFromDatabase<Contact>(updated, {
+            fieldEnumMapping: {
+              preferredMethod: ['ContactMethod'],
+            },
+          })
+        : undefined;
+      if (result) {
+        logger.info('Contact updated', {
+          userId,
+          contactId: id,
+          updatedFields: Object.keys(data),
+        });
+      }
+      return result;
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      logger.error('Failed to update contact', err, {
+        userId,
+        contactId: id,
+      });
+      throw error;
+    }
   },
   deleteContact: async (userId: string, id: string) => {
-    const deletedCount = await connection('contacts').where({ id, userId }).del();
-    return deletedCount > 0;
+    try {
+      const deletedCount = await connection('contacts').where({ id, userId }).del();
+      const deleted = deletedCount > 0;
+      if (deleted) {
+        logger.info('Contact deleted', { userId, contactId: id });
+      } else {
+        logger.warn('Contact not found for deletion', { userId, contactId: id });
+      }
+      return deleted;
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      logger.error('Failed to delete contact', err, {
+        userId,
+        contactId: id,
+      });
+      throw error;
+    }
   },
 });
 

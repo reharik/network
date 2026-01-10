@@ -2,6 +2,7 @@ import { ImportContactsDTO } from '@network/contracts';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { DragEvent, useState } from 'react';
 import styled from 'styled-components';
+import { useToast } from '../contexts/ToastContext';
 import { useContactListService, useContactService } from '../hooks';
 import { qk } from '../services/keys';
 
@@ -94,6 +95,7 @@ const mapRow = (r: CsvRow): ImportContactsDTO => {
 
 export const ImportPage = () => {
   const qc = useQueryClient();
+  const { showToast } = useToast();
   const { importContacts } = useContactService();
   const { fetchContacts } = useContactListService();
   const [rows, setRows] = useState<CsvRow[]>([]);
@@ -105,9 +107,16 @@ export const ImportPage = () => {
 
   const importMut = useMutation({
     mutationFn: (r: ImportContactsDTO[]) => importContacts(r),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: qk.contacts });
-      alert('Import complete');
+    onSuccess: (result) => {
+      if (result.success) {
+        void qc.invalidateQueries({ queryKey: qk.contacts });
+        showToast('Import complete', 'success');
+      } else {
+        showToast('Failed to import contacts', 'error');
+      }
+    },
+    onError: () => {
+      showToast('Failed to import contacts', 'error');
     },
   });
 

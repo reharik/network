@@ -1,4 +1,4 @@
-import { User } from '@network/contracts';
+import type { User } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -17,7 +17,7 @@ export interface AuthService {
   comparePassword: (password: string, hash: string) => Promise<boolean>;
 }
 
-export const createAuthService = ({ connection }: Container): AuthService => {
+export const createAuthService = ({ connection, logger }: Container): AuthService => {
   return {
     login: async (credentials: LoginCredentials) => {
       const { email, password } = credentials;
@@ -25,12 +25,21 @@ export const createAuthService = ({ connection }: Container): AuthService => {
       // Find user by email
       const user = await connection('users').where({ email }).first();
       if (!user || !user.passwordHash) {
+        logger.warn('Login attempt failed: user not found or no password hash', {
+          email,
+          hasUser: !!user,
+          hasPasswordHash: !!user?.passwordHash,
+        });
         return undefined;
       }
 
       // Verify password
       const isValidPassword = await bcrypt.compare(password, user.passwordHash);
       if (!isValidPassword) {
+        logger.warn('Login attempt failed: invalid password', {
+          email,
+          userId: user.id,
+        });
         return undefined;
       }
 
@@ -49,6 +58,11 @@ export const createAuthService = ({ connection }: Container): AuthService => {
         { expiresIn: config.jwtExpiresIn } as jwt.SignOptions,
       );
 
+      logger.info('User logged in successfully', {
+        userId: user.id,
+        email: user.email,
+      });
+
       return { user, token };
     },
 
@@ -62,12 +76,19 @@ export const createAuthService = ({ connection }: Container): AuthService => {
         const user = await connection('users').where({ id: decoded.userId }).first();
 
         if (!user) {
+          logger.warn('Token verification failed: user not found', {
+            userId: decoded.userId,
+            email: decoded.email,
+          });
           return undefined;
         }
 
         return user;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err: unknown) {
+        logger.warn('Token verification failed: invalid or expired token', {
+          error: err instanceof Error ? err.message : String(err),
+          errorType: err instanceof Error ? err.name : 'Unknown',
+        });
         return undefined;
       }
     },

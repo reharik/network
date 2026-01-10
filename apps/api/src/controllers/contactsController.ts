@@ -1,4 +1,4 @@
-import { ImportContactsDTO, validateUpdateContact } from '@network/contracts';
+import { type ImportContactsDTO, validateUpdateContact } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import type { Context } from 'koa';
 import type { Container } from '../container';
@@ -17,6 +17,7 @@ export const createContactsController = ({
   contactRepository,
   importService,
   ContactMethod,
+  logger,
 }: Container): ContactsController => ({
   getContacts: async (ctx: Context) => {
     const userId = ctx.user.id;
@@ -50,6 +51,10 @@ export const createContactsController = ({
   createContact: async (ctx: Context) => {
     const validation = validateUpdateContact(ctx.request.body);
     if (!validation.success) {
+      logger.warn('Contact creation failed: validation error', {
+        userId: ctx.user.id,
+        errors: validation.errors,
+      });
       ctx.status = 400;
       ctx.body = {
         error: 'Invalid request format',
@@ -61,6 +66,13 @@ export const createContactsController = ({
     const entity = await contactRepository.createContact(userId, {
       ...validation.data,
       preferredMethod: validation.data.preferredMethod ?? ContactMethod.email,
+    });
+
+    logger.info('Contact created via API', {
+      userId,
+      contactId: entity.id,
+      method: ctx.method,
+      path: ctx.path,
     });
 
     ctx.status = 201;
@@ -99,10 +111,23 @@ export const createContactsController = ({
 
     const deleted = await contactRepository.deleteContact(userId, contactId);
     if (!deleted) {
+      logger.warn('Contact deletion failed: not found', {
+        userId,
+        contactId,
+        method: ctx.method,
+        path: ctx.path,
+      });
       ctx.status = 404;
       ctx.body = { error: 'Contact not found' };
       return ctx;
     }
+
+    logger.info('Contact deleted via API', {
+      userId,
+      contactId,
+      method: ctx.method,
+      path: ctx.path,
+    });
 
     ctx.status = 204;
     return ctx;

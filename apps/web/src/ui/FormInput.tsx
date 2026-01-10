@@ -2,12 +2,12 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { BaseApiError, isValidationError } from '../types/ApiResult';
 
-const baseInput = css<{ hasError: boolean }>`
+const baseInput = css<{ $hasError: boolean }>`
   width: 100%;
   padding: 10px 12px;
   background: #0c0f15;
   border: 1px solid
-    ${({ theme, hasError }) => (hasError ? theme.colors.danger : theme.colors.border)};
+    ${({ theme, $hasError }) => ($hasError ? theme.colors.danger : theme.colors.border)};
   color: ${({ theme }) => theme.colors.text};
   border-radius: ${({ theme }) => theme.radius.sm};
   outline: none;
@@ -15,11 +15,11 @@ const baseInput = css<{ hasError: boolean }>`
     border 120ms ease,
     box-shadow 120ms ease;
   &:focus {
-    border-color: ${({ theme, hasError }) =>
-      hasError ? theme.colors.danger : theme.colors.accent};
+    border-color: ${({ theme, $hasError }) =>
+      $hasError ? theme.colors.danger : theme.colors.accent};
     box-shadow: 0 0 0 3px
-      ${({ theme, hasError }) =>
-        hasError ? `rgba(220, 38, 38, 0.15)` : `rgba(124, 156, 255, 0.15)`};
+      ${({ theme, $hasError }) =>
+        $hasError ? `rgba(220, 38, 38, 0.15)` : `rgba(124, 156, 255, 0.15)`};
   }
   &::placeholder {
     color: ${({ theme }) => theme.colors.subtext};
@@ -30,15 +30,15 @@ const baseInput = css<{ hasError: boolean }>`
   }
 `;
 
-const StyledInput = styled.input<{ hasError: boolean }>`
+const StyledInput = styled.input<{ $hasError: boolean }>`
   ${baseInput}
 `;
 
-const StyledSelect = styled.select<{ hasError: boolean }>`
+const StyledSelect = styled.select<{ $hasError: boolean }>`
   ${baseInput}
 `;
 
-const StyledTextArea = styled.textarea<{ hasError: boolean }>`
+const StyledTextArea = styled.textarea<{ $hasError: boolean }>`
   ${baseInput};
   resize: vertical;
   min-height: 80px;
@@ -75,41 +75,44 @@ export type FormInputProps<T extends AllowedTags = 'input'> = OwnProps & { as?: 
 /**
  * A reusable form input component that wraps label, input/select/textarea, and error message display
  */
-export const FormInput = React.forwardRef(<T extends AllowedTags = 'input'>(
-  props: FormInputProps<T>,
-  ref: React.ForwardedRef<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
-) => {
-  const { label, errors = [], as, ...rest } = props as FormInputProps<AllowedTags>;
-  const tag: AllowedTags = (as ?? 'input') as AllowedTags;
+export const FormInput = React.forwardRef(
+  <T extends AllowedTags = 'input'>(
+    props: FormInputProps<T>,
+    ref: React.ForwardedRef<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+  ) => {
+    const { label, errors = [], as, ...rest } = props as FormInputProps<AllowedTags>;
+    const tag: AllowedTags = (as ?? 'input') as AllowedTags;
 
-  const errorMessage = errors
-    .filter((x: BaseApiError) => isValidationError(x) && x.path === rest.id)
-    .reduce((acc: string, x: BaseApiError) => (acc = `${acc}, ${x.message}`), '');
-  const hasError = Boolean(errorMessage);
+    const fieldErrors = errors.filter(
+      (x: BaseApiError) => isValidationError(x) && x.path === rest.id,
+    );
+    const errorMessage = fieldErrors.map((x) => x.message).join(', ');
+    const hasError = fieldErrors.length > 0;
 
-  let field: React.ReactNode;
-  if (tag === 'select') {
-    const restProps = rest as PropsOf<'select'>;
-    field = <StyledSelect {...restProps} hasError={hasError} ref={ref as never} />;
-  } else if (tag === 'textarea') {
-    const restProps = rest as PropsOf<'textarea'>;
-    field = <StyledTextArea {...restProps} hasError={hasError} ref={ref as never} />;
-  } else {
-    const restProps = rest as PropsOf<'input'>;
-    field = <StyledInput {...restProps} hasError={hasError} ref={ref as never} />;
-  }
+    let field: React.ReactNode;
+    if (tag === 'select') {
+      const restProps = rest as PropsOf<'select'>;
+      field = <StyledSelect {...restProps} $hasError={hasError} ref={ref as never} />;
+    } else if (tag === 'textarea') {
+      const restProps = rest as PropsOf<'textarea'>;
+      field = <StyledTextArea {...restProps} $hasError={hasError} ref={ref as never} />;
+    } else {
+      const restProps = rest as PropsOf<'input'>;
+      field = <StyledInput {...restProps} $hasError={hasError} ref={ref as never} />;
+    }
 
-  return (
-    <FieldWrapper>
-      {label && (
-        <LabelWrapper htmlFor={(rest as PropsOf<'input'>).id as string | undefined}>
-          {label}
-        </LabelWrapper>
-      )}
-      {field}
-      {hasError && <ErrorMessage>{errorMessage}</ErrorMessage>}
-    </FieldWrapper>
-  );
-});
+    return (
+      <FieldWrapper>
+        {label && (
+          <LabelWrapper htmlFor={(rest as PropsOf<'input'>).id as string | undefined}>
+            {label}
+          </LabelWrapper>
+        )}
+        {field}
+        {hasError && <ErrorMessage>{errorMessage}</ErrorMessage>}
+      </FieldWrapper>
+    );
+  },
+);
 
 FormInput.displayName = 'FormInput';

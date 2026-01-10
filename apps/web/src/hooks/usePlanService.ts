@@ -1,6 +1,6 @@
 import { Contact } from '@network/contracts';
-import { useApiFetch } from './useApiFetch';
 import { ApiResult } from '../types/ApiResult';
+import { useApiFetch } from './apiFetch/useApiFetch';
 
 export const usePlanService = () => {
   const { apiFetch } = useApiFetch();

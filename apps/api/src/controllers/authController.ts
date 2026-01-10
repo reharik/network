@@ -8,7 +8,7 @@ export interface AuthController {
   me: (ctx: Context) => Context;
 }
 
-export const createAuthController = ({ authService }: Container): AuthController => ({
+export const createAuthController = ({ authService, logger }: Container): AuthController => ({
   login: async (ctx: Context): Promise<Context> => {
     const { email, password } = ctx.request.body as {
       email: string;
@@ -23,10 +23,20 @@ export const createAuthController = ({ authService }: Container): AuthController
 
     const result = await authService.login({ email, password });
     if (!result) {
+      logger.warn('Login attempt failed from controller', {
+        email,
+        ip: ctx.ip,
+      });
       ctx.status = 401;
       ctx.body = { error: 'Invalid email or password' };
       return ctx;
     }
+
+    logger.info('Login successful from controller', {
+      userId: result.user.id,
+      email: result.user.email,
+      ip: ctx.ip,
+    });
 
     ctx.status = 200;
     ctx.body = {

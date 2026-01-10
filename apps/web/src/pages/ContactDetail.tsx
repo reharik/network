@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { useToast } from '../contexts/ToastContext';
 import { useContactService } from '../hooks';
 import { qk } from '../services/keys';
 import { FormError } from '../ui/FormError';
@@ -12,6 +13,7 @@ export const ContactDetail = () => {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { showToast } = useToast();
   const { getContact, updateContact, deleteContact, addToToday } = useContactService();
 
   const {
@@ -43,24 +45,48 @@ export const ContactDetail = () => {
       if (updated.success) {
         qc.setQueryData(qk.contact(updated.data.id), updated);
         void qc.invalidateQueries({ queryKey: qk.contacts });
+        void qc.invalidateQueries({ queryKey: ['today'] });
+        showToast('Contact saved', 'success');
+        navigate(-1); // Go back to previous page (Today or Contacts)
       }
+      // Validation errors are shown in the form, no toast needed
+    },
+    onError: () => {
+      showToast('Failed to save contact', 'error');
     },
   });
 
   const addToTodayMut = useMutation({
     mutationFn: addToToday,
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: ['today'] });
-      void qc.invalidateQueries({ queryKey: qk.contact(id) });
-      navigate('/');
+    onSuccess: (result) => {
+      if (result.success) {
+        void qc.invalidateQueries({ queryKey: ['today'] });
+        void qc.invalidateQueries({ queryKey: qk.contact(id) });
+        showToast('Added to today', 'success');
+        navigate('/');
+      } else {
+        showToast('Failed to add to today', 'error');
+      }
+    },
+    onError: () => {
+      showToast('Failed to add to today', 'error');
     },
   });
 
   const deleteMut = useMutation({
     mutationFn: () => deleteContact(id),
-    onSuccess: () => {
-      void qc.invalidateQueries({ queryKey: qk.contacts });
-      void navigate('/contacts');
+    onSuccess: (result) => {
+      if (result.success) {
+        void qc.invalidateQueries({ queryKey: qk.contacts });
+        void qc.invalidateQueries({ queryKey: ['today'] });
+        showToast('Contact deleted', 'success');
+        navigate(-1); // Go back to previous page (Today or Contacts)
+      } else {
+        showToast('Failed to delete contact', 'error');
+      }
+    },
+    onError: () => {
+      showToast('Failed to delete contact', 'error');
     },
   });
 
@@ -79,7 +105,7 @@ export const ContactDetail = () => {
 
       <FormError errors={saveMut.data && !saveMut.data.success ? saveMut.data.errors : []} />
 
-      <Row>
+      <FieldRow>
         <FormInput
           label="First name"
           id="firstName"
@@ -94,28 +120,24 @@ export const ContactDetail = () => {
           onChange={onChange('lastName')}
           errors={!saveMut.data?.success ? saveMut.data?.errors : []}
         />
-      </Row>
+      </FieldRow>
 
-      <Row>
-        <div style={{ flex: 1 }}>
-          <FormInput
-            label="Email"
-            id="email"
-            value={form.email ?? ''}
-            onChange={onChange('email')}
-            errors={!saveMut.data?.success ? saveMut.data?.errors : []}
-          />
-        </div>
-        <div style={{ flex: 1 }}>
-          <FormInput
-            label="Phone"
-            id="phone"
-            value={form.phone ?? ''}
-            onChange={onChange('phone')}
-            errors={!saveMut.data?.success ? saveMut.data?.errors : []}
-          />
-        </div>
-      </Row>
+      <FieldRow>
+        <FormInput
+          label="Email"
+          id="email"
+          value={form.email ?? ''}
+          onChange={onChange('email')}
+          errors={!saveMut.data?.success ? saveMut.data?.errors : []}
+        />
+        <FormInput
+          label="Phone"
+          id="phone"
+          value={form.phone ?? ''}
+          onChange={onChange('phone')}
+          errors={!saveMut.data?.success ? saveMut.data?.errors : []}
+        />
+      </FieldRow>
 
       <FormInput
         label="Notes"
@@ -142,7 +164,7 @@ export const ContactDetail = () => {
           {deleteMut.isPending ? 'Deleting…' : 'Delete contact'}
         </Button>
 
-        <Button onClick={() => navigate('/contacts')}>Back to contacts</Button>
+        <Button onClick={() => navigate(-1)}>Back</Button>
       </Row>
     </Card>
   );
@@ -160,6 +182,12 @@ const Card = styled.section`
 
 const Row = styled.div`
   display: flex;
+  gap: 12px;
+`;
+
+const FieldRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
 `;
 

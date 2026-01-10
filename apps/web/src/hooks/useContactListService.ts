@@ -1,6 +1,6 @@
 import type { Contact } from '@network/contracts';
 import { ApiResult } from '../types/ApiResult';
-import { useApiFetch } from './useApiFetch';
+import { useApiFetch } from './apiFetch/useApiFetch';
 
 export const useContactListService = () => {
   const { apiFetch } = useApiFetch();
