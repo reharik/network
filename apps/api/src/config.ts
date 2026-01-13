@@ -34,6 +34,7 @@ export type Config = {
   fromEmail: string;
   // SMS configuration
   smsFromNumber: string;
+  smsDeliveryMode: 'email_handoff' | 'aws_sns';
   // Voice configuration
   connectInstanceId: string;
   connectContactFlowId: string;
@@ -111,6 +112,10 @@ export const setupConfig = (): Config => {
     fromEmail: process.env.FROM_EMAIL || 'noreply@yourdomain.com',
     // SMS configuration
     smsFromNumber: process.env.SMS_FROM_NUMBER || '+1234567890',
+    smsDeliveryMode: getValidValue<'email_handoff' | 'aws_sns'>(
+      process.env.SMS_DELIVERY_MODE || 'email_handoff',
+      ['email_handoff', 'aws_sns'],
+    ),
     // Voice configuration
     connectInstanceId: process.env.CONNECT_INSTANCE_ID || '',
     connectContactFlowId: process.env.CONNECT_CONTACT_FLOW_ID || '',

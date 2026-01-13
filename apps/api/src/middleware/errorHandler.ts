@@ -1,5 +1,5 @@
-import type { LoggerInterface } from '../logger';
 import { Context, HttpError, Next } from 'koa';
+import type { LoggerInterface } from '../logger';
 
 export const createErrorHandler = (logger: LoggerInterface) => async (ctx: Context, next: Next) => {
   try {

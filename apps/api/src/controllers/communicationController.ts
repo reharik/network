@@ -57,7 +57,18 @@ export const createCommunicationController = ({
       return ctx;
     }
 
-    const result = await smsService.sendSms(to, message);
+    // Get user's email and name to use for email handoff
+    const user = await userRepository.getUser(ctx.user.id);
+    const userEmail = user?.email;
+    const userFirstName = user?.firstName;
+
+    if (!userEmail) {
+      ctx.status = 400;
+      ctx.body = { error: 'User email not found. Cannot send SMS handoff email.' };
+      return ctx;
+    }
+
+    const result = await smsService.sendSms(to, message, userEmail, userFirstName);
 
     if (result.success) {
       ctx.status = 200;

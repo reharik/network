@@ -1,9 +1,10 @@
-import { Contact, ContactMethod, UpdateTouch } from '@network/contracts';
+import { ContactMethod, CreateTouchInput, DailyContact } from '@network/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { pascalCase } from 'case-anything';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 import { useToast } from '../contexts/ToastContext';
 import { useCommunicationService, usePlanService, useTouchService } from '../hooks';
 import {
@@ -41,7 +42,7 @@ export const Today = () => {
   const [modal, modalSetter] = useState<{
     type?: 'email' | 'sms';
     isOpen: boolean;
-    contact?: Contact;
+    contact?: DailyContact;
   }>({ isOpen: false });
 
   const {
@@ -54,7 +55,7 @@ export const Today = () => {
   });
 
   const touch = useMutation({
-    mutationFn: (touchData: UpdateTouch) => logTouch(touchData),
+    mutationFn: (touchData: CreateTouchInput) => logTouch(touchData),
     onSuccess: (result) => {
       if (result.success) {
         qc.invalidateQueries({ queryKey: ['today'] });
@@ -84,7 +85,7 @@ export const Today = () => {
     },
   });
 
-  const handleMarkDoneClick = (contact: Contact) => {
+  const handleMarkDoneClick = (contact: DailyContact) => {
     setSelectedContact({
       id: contact.id,
       name: `${contact.firstName} ${contact.lastName}`,
@@ -92,7 +93,7 @@ export const Today = () => {
     });
   };
 
-  const handleDirectContact = (contact: Contact, method: 'email' | 'sms' | 'call') => {
+  const handleDirectContact = (contact: DailyContact, method: 'email' | 'sms' | 'call') => {
     if (method !== 'call') {
       modalSetter({
         type: method,
@@ -102,10 +103,8 @@ export const Today = () => {
     } else if (contact.phone) {
       // Use AWS Connect to make the call
       voiceMutation.mutate({ type: 'call', to: contact.phone });
-      // Automatically mark as done after initiating call
-      setTimeout(() => {
-        handleMarkDoneClick(contact);
-      }, 1000);
+      // Auto-log touch for the call
+      autoLogTouch(contact.id, 'call', `Called ${contact.phone}`);
     }
   };
 
@@ -118,7 +117,7 @@ export const Today = () => {
       return;
     }
 
-    const touchData: UpdateTouch = {
+    const touchData: CreateTouchInput = {
       contactId: selectedContact.id,
       method: methodEnum,
       message: data.message,
@@ -134,49 +133,43 @@ export const Today = () => {
     touch.reset();
   };
 
-  const emailMutation = useMutation({
-    mutationFn: sendMessage<SendEmailRequest>,
-    onSuccess: (result) => {
+  // Auto-log a touch after communication (persists to database)
+  const autoLogTouch = (contactId: string, method: 'email' | 'sms' | 'call', message: string) => {
+    const methodEnum = ContactMethod.tryFromKey(method);
+    if (!methodEnum) return;
+
+    logTouch({
+      contactId,
+      method: methodEnum,
+      message,
+      outcome: `Sent via ${method}`,
+    }).then((result) => {
       if (result.success) {
-        handleCloseModal();
-        showToast('Email sent', 'success');
-        // Automatically mark contact as done after sending email
-        if (modal.contact) {
-          handleMarkDoneClick(modal.contact);
-        }
+        // Re-fetch today's contacts - the backend will return the contact with touchedToday: true
+        qc.invalidateQueries({ queryKey: ['today'] });
       }
-      // Validation errors are shown in the form, no toast needed
-    },
+    });
+  };
+
+  const emailMutation = useMutation({
+    mutationFn: (request: SendEmailRequest) => sendMessage(request),
     onError: () => {
       showToast('Failed to send email', 'error');
     },
   });
 
   const smsMutation = useMutation({
-    mutationFn: sendMessage<SendSmsRequest>,
-    onSuccess: (result) => {
-      if (result.success) {
-        handleCloseModal();
-        showToast('SMS sent', 'success');
-        // Automatically mark contact as done after sending SMS
-        if (modal.contact) {
-          handleMarkDoneClick(modal.contact);
-        }
-      }
-      // Validation errors are shown in the form, no toast needed
-    },
+    mutationFn: (request: SendSmsRequest) => sendMessage(request),
     onError: () => {
       showToast('Failed to send SMS', 'error');
     },
   });
 
   const voiceMutation = useMutation({
-    mutationFn: sendMessage<MakeCallRequest>,
+    mutationFn: (request: MakeCallRequest) => sendMessage(request),
     onSuccess: (result) => {
       if (result.success) {
         showToast('Call initiated', 'success');
-        // Automatically mark contact as done after initiating call
-        // Note: We'll need to track which contact initiated the call
       }
       // Validation errors are shown in the form, no toast needed
     },
@@ -191,16 +184,30 @@ export const Today = () => {
       return;
     }
 
+    // Capture contact info before async operation
+    const contactId = modal.contact.id;
+
     // Replace tokens like {{firstName}} with actual contact values
     const subject = replaceTokens(data.subject, modal.contact);
     const body = replaceTokens(data.body, modal.contact);
 
-    emailMutation.mutate({
-      type: 'email',
-      to: modal.contact.email,
-      subject,
-      body,
-    });
+    emailMutation.mutate(
+      {
+        type: 'email',
+        to: modal.contact.email,
+        subject,
+        body,
+      },
+      {
+        onSuccess: (result) => {
+          if (result.success) {
+            autoLogTouch(contactId, 'email', body);
+            handleCloseModal();
+            showToast('Email sent', 'success');
+          }
+        },
+      },
+    );
   };
 
   const handleSmsSubmit = (data: { message: string }) => {
@@ -209,14 +216,28 @@ export const Today = () => {
       return;
     }
 
+    // Capture contact info before async operation
+    const contactId = modal.contact.id;
+
     // Replace tokens like {{firstName}} with actual contact values
     const message = replaceTokens(data.message, modal.contact);
 
-    smsMutation.mutate({
-      type: 'sms',
-      to: modal.contact.phone,
-      message,
-    });
+    smsMutation.mutate(
+      {
+        type: 'sms',
+        to: modal.contact.phone,
+        message,
+      },
+      {
+        onSuccess: (result) => {
+          if (result.success) {
+            autoLogTouch(contactId, 'sms', message);
+            handleCloseModal();
+            showToast('SMS sent', 'success');
+          }
+        },
+      },
+    );
   };
 
   const handleCloseModal = () => {
@@ -237,68 +258,65 @@ export const Today = () => {
         {isLoading && <Card>Loading…</Card>}
         {error && <Card>Something went wrong.</Card>}
 
-        {(result?.success && result?.data ? result?.data : []).map((c) => {
-          return (
-            <Card key={c.id}>
-              <VStack gap={2}>
-                <HStack>
-                  <div>
+        {(result?.success && result?.data ? result?.data : []).map((c) => (
+          <ContactCard key={c.id} $isDone={c.touchedToday}>
+            <VStack gap={2}>
+              <HStack>
+                <div>
+                  <HStack gap={1}>
                     <Link
                       to={`/contacts/${c.id}`}
                       style={{ fontWeight: 700, fontSize: '1.05rem' }}
                     >{`${c.firstName} ${c.lastName}`}</Link>
-                    <div style={{ color: '#a8b3c7', fontSize: '.9rem' }}>
-                      {c.preferredMethod.display}: {c.preferredMethod.handle(c)} · every{' '}
-                      {c.intervalDays}d
-                    </div>
+                    {c.touchedToday && <DoneBadge>✓ Done</DoneBadge>}
+                  </HStack>
+                  <div style={{ color: '#a8b3c7', fontSize: '.9rem' }}>
+                    {c.preferredMethod.display}: {c.preferredMethod.handle(c)} · every{' '}
+                    {c.intervalDays}d
                   </div>
-                </HStack>
+                </div>
+              </HStack>
 
-                <Field label="Suggested line">
-                  <FormInput
-                    as="textarea"
-                    defaultValue={replaceTokens(c.suggestion, c)}
-                    onFocus={(e: React.FocusEvent<HTMLTextAreaElement>) => e.currentTarget.select()}
-                  />
-                </Field>
+              <Field label="Suggested line">
+                <FormInput
+                  as="textarea"
+                  defaultValue={replaceTokens(c.suggestion, c)}
+                  onFocus={(e: React.FocusEvent<HTMLTextAreaElement>) => e.currentTarget.select()}
+                />
+              </Field>
 
-                <HStack>
+              <HStack>
+                {!c.touchedToday && (
                   <Button onClick={() => handleMarkDoneClick(c)}>Mark Done</Button>
+                )}
 
-                  {/* Direct contact buttons */}
-                  {c.email && (
-                    <Button variant="secondary" onClick={() => handleDirectContact(c, 'email')}>
-                      📧 Email
+                {/* Direct contact buttons */}
+                {c.email && (
+                  <Button variant="secondary" onClick={() => handleDirectContact(c, 'email')}>
+                    📧 Email
+                  </Button>
+                )}
+                {c.phone && (
+                  <>
+                    <Button variant="secondary" onClick={() => handleDirectContact(c, 'sms')}>
+                      💬 SMS
                     </Button>
-                  )}
-                  {c.phone && (
-                    <>
-                      <Button variant="secondary" onClick={() => handleDirectContact(c, 'sms')}>
-                        💬 SMS
-                      </Button>
-                      <Button variant="secondary" onClick={() => handleDirectContact(c, 'call')}>
-                        📞 Call
-                      </Button>
-                    </>
-                  )}
+                    <Button variant="secondary" onClick={() => handleDirectContact(c, 'call')}>
+                      📞 Call
+                    </Button>
+                  </>
+                )}
 
-                  <Button
-                    variant="ghost"
-                    onClick={() => snooze.mutate({ contactId: c.id, days: 7 })}
-                  >
-                    Snooze 7d
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => snooze.mutate({ contactId: c.id, days: 1 })}
-                  >
-                    Snooze 1d
-                  </Button>
-                </HStack>
-              </VStack>
-            </Card>
-          );
-        })}
+                <Button variant="ghost" onClick={() => snooze.mutate({ contactId: c.id, days: 7 })}>
+                  Snooze 7d
+                </Button>
+                <Button variant="ghost" onClick={() => snooze.mutate({ contactId: c.id, days: 1 })}>
+                  Snooze 1d
+                </Button>
+              </HStack>
+            </VStack>
+          </ContactCard>
+        ))}
 
         {(result?.success && result?.data?.length ? result?.data?.length : 0) === 0 &&
           !isLoading && <Card>you're all caught up 🎉</Card>}
@@ -359,3 +377,20 @@ export const Today = () => {
     </Container>
   );
 };
+
+// Styled Components
+const ContactCard = styled(Card)<{ $isDone: boolean }>`
+  opacity: ${({ $isDone }) => ($isDone ? 0.7 : 1)};
+  border-left: 3px solid ${({ $isDone, theme }) => ($isDone ? '#22c55e' : 'transparent')};
+`;
+
+const DoneBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  font-size: 12px;
+  font-weight: 600;
+`;

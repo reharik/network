@@ -57,6 +57,11 @@ export interface Contact extends PlainContact {
   updatedAt?: string & tags.Format<'date-time'>;
 }
 
+// Contact with daily plan status - includes whether contact was touched today
+export interface DailyContact extends Contact {
+  touchedToday: boolean;
+}
+
 export interface Touch extends PlainTouch {
   id: string & tags.Format<'uuid'>;
   userId: string & tags.Format<'uuid'>;
@@ -75,6 +80,14 @@ export interface User extends PlainUser {
 export type UpdateContact = Partial<Contact>;
 export type UpdateTouch = Partial<Touch>;
 export type UpdateUser = Partial<User>;
+
+// Client-side input types (userId is added by server from JWT)
+export interface CreateTouchInput {
+  contactId: string & tags.Format<'uuid'>;
+  method: ContactMethod;
+  message?: string;
+  outcome?: string;
+}
 
 export interface ImportContactsDTO {
   firstName?: string;

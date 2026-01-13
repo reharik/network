@@ -1,13 +1,13 @@
-import { Contact, Touch, UpdateTouch, validateInsertTouch } from '@network/contracts';
+import { Contact, CreateTouchInput, Touch, validateCreateTouchInput } from '@network/contracts';
 import { ApiResult, createValidationError } from '../types/ApiResult';
 import { useApiFetch } from './apiFetch/useApiFetch';
 
 export const useTouchService = () => {
   const { apiFetch } = useApiFetch();
 
-  // Create a touch with full data
-  const logTouch = async (touchData: UpdateTouch): Promise<ApiResult<Touch>> => {
-    const result = validateInsertTouch(touchData);
+  // Create a touch - userId is added by server from JWT token
+  const logTouch = async (touchData: CreateTouchInput): Promise<ApiResult<Touch>> => {
+    const result = validateCreateTouchInput(touchData);
     if (!result.success) {
       return {
         success: false,

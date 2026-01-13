@@ -193,9 +193,7 @@ export const Contacts = () => {
             onSubmit={handleAddContact}
             onCancel={handleCancelAdd}
             isLoading={createMut.isPending}
-            errors={
-              createMut.data && !createMut.data.success ? createMut.data.errors : undefined
-}
+            errors={createMut.data && !createMut.data.success ? createMut.data.errors : undefined}
           />
         </Modal>
       </VStack>

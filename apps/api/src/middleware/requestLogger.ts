@@ -1,5 +1,5 @@
-import type { LoggerInterface } from '../logger';
 import { Context, Next } from 'koa';
+import type { LoggerInterface } from '../logger';
 
 export const createRequestLogger =
   (logger: LoggerInterface) => async (ctx: Context, next: Next) => {

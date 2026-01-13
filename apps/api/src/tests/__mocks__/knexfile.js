@@ -1,8 +1,8 @@
-const knexConfig = {
+export const knexConfig = {
   client: 'sqlite3',
   connection: {
     filename: ':memory:',
   },
 };
 
-module.exports = { knexConfig };
+export default knexConfig;

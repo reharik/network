@@ -98,25 +98,27 @@ const validateCallRequest = (
   return { success: true, data: request };
 };
 
+type CommunicationRequestUnion = SendEmailRequest | SendSmsRequest | MakeCallRequest;
+
 export const useCommunicationService = () => {
   const { apiFetch } = useApiFetch();
 
-  const sendMessage = async <T extends CommunicationRequest>(
-    request: T,
+  const sendMessage = async (
+    request: CommunicationRequestUnion,
   ): Promise<ApiResult<{ message: string; messageId: string }>> => {
-    // Validate based on request type
+    // Validate based on request type - discriminated union allows proper narrowing
     if (request.type === 'email') {
-      const validation = validateEmailRequest(request as SendEmailRequest);
+      const validation = validateEmailRequest(request);
       if (!validation.success) {
         return { success: false, errors: validation.errors };
       }
     } else if (request.type === 'sms') {
-      const validation = validateSmsRequest(request as SendSmsRequest);
+      const validation = validateSmsRequest(request);
       if (!validation.success) {
         return { success: false, errors: validation.errors };
       }
     } else if (request.type === 'call') {
-      const validation = validateCallRequest(request as MakeCallRequest);
+      const validation = validateCallRequest(request);
       if (!validation.success) {
         return { success: false, errors: validation.errors };
       }

@@ -1,6 +1,15 @@
-import { container } from '../container';
+import type { AwilixContainer } from 'awilix';
+import { type Container, initializeContainer } from '../container';
+import { initLogger } from '../logger';
 
 describe('Container', () => {
+  let container: AwilixContainer<Container>;
+
+  beforeAll(async () => {
+    const logger = initLogger();
+    container = await initializeContainer(logger);
+  });
+
   it('should resolve userRepository', () => {
     const userRepository = container.resolve('userRepository');
     expect(userRepository).toBeDefined();

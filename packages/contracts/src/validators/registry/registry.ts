@@ -1,5 +1,12 @@
 import typia from 'typia';
-import type { Contact, Touch, UpdateContact, UpdateUser, User } from '../../types/entities';
+import type {
+  Contact,
+  CreateTouchInput,
+  Touch,
+  UpdateContact,
+  UpdateUser,
+  User,
+} from '../../types/entities';
 
 // Export validation functions using typia.validate for runtime validation
 export const validateContact = (data: unknown) => typia.validate<Contact>(data);
@@ -7,6 +14,8 @@ export const validateUpdateContact = (data: unknown) => typia.validate<UpdateCon
 export const validateInsertContact = (data: unknown) => typia.validate<Omit<Contact, 'id'>>(data);
 export const validateTouch = (data: unknown) => typia.validate<Touch>(data);
 export const validateInsertTouch = (data: unknown) => typia.validate<Omit<Touch, 'id'>>(data);
+// Client-side validator - doesn't require userId (server adds from JWT)
+export const validateCreateTouchInput = (data: unknown) => typia.validate<CreateTouchInput>(data);
 export const validateUser = (data: unknown) => typia.validate<User>(data);
 export const validateUpdateUser = (data: unknown) => typia.validate<UpdateUser>(data);
 export const validateInsertUser = (data: unknown) => typia.validate<Omit<User, 'id'>>(data);
@@ -17,6 +26,7 @@ export const validators = {
   updateContact: validateUpdateContact,
   touch: validateTouch,
   insertTouch: validateInsertTouch,
+  createTouchInput: validateCreateTouchInput,
   user: validateUser,
   insertUser: validateInsertUser,
   updateUser: validateUpdateUser,

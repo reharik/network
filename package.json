@@ -10,7 +10,7 @@
     "build": "nx run-many -t build",
     "build:clean": "nx reset && nx run-many -t build",
     "build:web:production": "nx run web:build:production",
-    "dance": "npm run format && npm run build && npm r  un lint && npm run test",
+    "dance": "npm run format && npm run build && npm run lint && npm run test",
     "db:migrate": "NODE_OPTIONS=--import=tsx npm exec --workspace @app/api -- knex --knexfile src/knexfile.ts migrate:latest",
     "db:migrate:prod": "NODE_OPTIONS=--import=tsx npm exec --workspace @app/api -- knex --knexfile src/knexfile.ts migrate:latest",
     "db:seed": "NODE_OPTIONS=--import=tsx npm exec --workspace @app/api -- knex --knexfile src/knexfile.ts seed:run",
@@ -25,9 +25,9 @@
     "nuke": "rimraf node_modules apps/*/node_modules packages/*/node_modules apps/*/dist packages/*/dist dist .nx/cache && npm install && npm run build:clean && npm run gen:container && npm run lint && npm run test",
     "nuke:lite": "rimraf apps/*/dist packages/*/dist dist .nx/cache && npm run build:clean && npm run gen:container && npm run lint && npm run test",
     "nx": "nx",
-    "test": "nx run-many -t test --all",
-    "test:ci": "nx run-many -t test --all -- --runInBand",
-    "test:watch": "nx run-many -t test --all -- --watch"
+    "test": "NODE_OPTIONS='--experimental-vm-modules' nx run-many -t test --all",
+    "test:ci": "NODE_OPTIONS='--experimental-vm-modules' nx run-many -t test --all -- --runInBand",
+    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' nx run-many -t test --all -- --watch"
   },
   "dependencies": {
     "dotenv": "^16.6.1",

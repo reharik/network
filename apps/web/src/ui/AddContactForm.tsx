@@ -108,7 +108,9 @@ export const AddContactForm = ({
             id="preferredMethod"
             as="select"
             value={preferredMethod.value}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPreferredMethod(ContactMethod.fromValue(e.target.value))}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+              setPreferredMethod(ContactMethod.fromValue(e.target.value))
+            }
             disabled={isLoading}
             errors={errors}
           >
@@ -125,7 +127,9 @@ export const AddContactForm = ({
             min="1"
             max="365"
             value={intervalDays}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIntervalDays(parseInt(e.target.value) || 30)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setIntervalDays(parseInt(e.target.value) || 30)
+            }
             disabled={isLoading}
             errors={errors}
           />
@@ -140,7 +144,6 @@ export const AddContactForm = ({
           placeholder="Any additional notes about this contact..."
           disabled={isLoading}
           errors={errors}
-
         />
 
         <FormInput

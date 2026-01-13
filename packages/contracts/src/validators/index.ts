@@ -1,6 +1,7 @@
 // Re-export validation functions
 export {
   validateContact,
+  validateCreateTouchInput,
   validateInsertContact,
   validateInsertTouch,
   validateInsertUser,

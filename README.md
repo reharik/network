@@ -26,6 +26,7 @@ make docker/up/dev
 ```
 
 This will:
+
 - Start PostgreSQL database
 - Start LocalStack (for local AWS service emulation)
 - Start the API server with hot reload
@@ -142,9 +143,9 @@ Once everything is running:
 
 - **API Server**: http://localhost:3000
 - **Web Application**: http://localhost:8080 (or check the Vite output)
-- **LocalStack Dashboard**: http://localhost:4566/_localstack/health
-- **LocalStack SES (Emails)**: http://localhost:4566/_localstack/ses
-- **LocalStack SNS (SMS)**: http://localhost:4566/_localstack/sns
+- **LocalStack Dashboard**: http://localhost:4566/\_localstack/health
+- **LocalStack SES (Emails)**: http://localhost:4566/\_localstack/ses
+- **LocalStack SNS (SMS)**: http://localhost:4566/\_localstack/sns
 - **PostgreSQL**: localhost:5432 (if exposed)
 
 ## Project Structure

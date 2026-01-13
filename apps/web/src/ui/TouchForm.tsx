@@ -26,7 +26,7 @@ export const TouchForm = ({
   onSubmit,
   onCancel,
   isLoading = false,
-  errors =[]
+  errors = [],
 }: TouchFormProps) => {
   const [method, setMethod] = useState<string>('EMAIL');
   const [message, setMessage] = useState(initialMessage);

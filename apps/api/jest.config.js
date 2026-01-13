@@ -2,6 +2,7 @@ export default {
   displayName: 'api',
   preset: '../../jest.preset.cjs',
   testEnvironment: 'node',
+  extensionsToTreatAsEsm: ['.ts'],
   transform: {
     '^.+\\.(ts|tsx|js|mjs)$': [
       'ts-jest',
