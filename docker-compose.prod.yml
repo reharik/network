@@ -3,7 +3,7 @@ name: network-prod
 services:
   db:
     image: postgres:16-alpine
-    platform: linux/arm64  # ARM64 support for t4g.micro instances
+    platform: linux/arm64 # ARM64 support for t4g.micro instances
     container_name: network-db
     restart: unless-stopped
     env_file:
@@ -34,7 +34,7 @@ services:
       args:
         NODE_VERSION: 22
       platforms:
-        - linux/arm64  # ARM64 support for t4g.micro instances
+        - linux/arm64 # ARM64 support for t4g.micro instances
     image: network-api:prod
     platform: linux/arm64
     container_name: network-api
@@ -53,9 +53,13 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - '127.0.0.1:3000:3000'  # Only bind to localhost, proxy will handle external access
+      - '127.0.0.1:3000:3000' # Only bind to localhost, proxy will handle external access
     healthcheck:
-      test: ['CMD-SHELL', 'node -e "require(\"http\").get(\"http://localhost:3000/health\", (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1']
+      test:
+        [
+          'CMD-SHELL',
+          'node -e "require(\"http\").get(\"http://localhost:3000/health\", (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1',
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -66,7 +70,7 @@ services:
 
   proxy:
     image: caddy:2-alpine
-    platform: linux/arm64  # ARM64 support for t4g.micro instances
+    platform: linux/arm64 # ARM64 support for t4g.micro instances
     container_name: network-proxy
     restart: unless-stopped
     ports:

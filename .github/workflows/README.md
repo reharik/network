@@ -9,11 +9,13 @@ This directory contains CI/CD workflows for the Network application.
 Runs on every push and pull request to `main` and `develop` branches.
 
 **Jobs:**
+
 - **Lint**: Runs ESLint and Prettier checks
 - **Test**: Runs all tests with Jest
 - **Build**: Builds all projects to verify they compile
 
 **Triggers:**
+
 - Push to `main` or `develop`
 - Pull requests to `main` or `develop`
 
@@ -22,10 +24,12 @@ Runs on every push and pull request to `main` and `develop` branches.
 Deploys the application to an EC2 instance using Docker Compose.
 
 **Jobs:**
+
 - **Deploy Backend**: Builds Docker image, transfers to EC2, runs deployment script
 - **Deploy Frontend**: Builds frontend, transfers to EC2, restarts proxy
 
 **Triggers:**
+
 - Push to `main` branch
 - Manual workflow dispatch (with options to deploy backend/frontend separately)
 
@@ -96,6 +100,7 @@ if: "!contains(github.event.head_commit.message, '[skip deploy]')"
 ### Manual Deployment
 
 You can manually trigger deployment from the Actions tab:
+
 1. Go to Actions → Deploy to EC2
 2. Click "Run workflow"
 3. Choose which components to deploy (backend/frontend)
@@ -103,6 +108,7 @@ You can manually trigger deployment from the Actions tab:
 ### Environment-Specific Deployments
 
 To add staging/production environments, create separate workflow files:
+
 - `.github/workflows/deploy-ec2-staging.yml`
 - `.github/workflows/deploy-ec2-production.yml`
 
@@ -119,23 +125,27 @@ Or use GitHub Environments with protection rules.
 ### Deployment Failures
 
 **SSH Connection Issues:**
+
 - Verify `EC2_HOST` and `EC2_USER` are correct
 - Check SSH key is properly formatted in GitHub secrets
 - Ensure EC2 security group allows SSH (port 22) from GitHub Actions IPs
 - Test SSH connection manually
 
 **EC2 Deployment Issues:**
+
 - Check EC2 instance is running
 - Verify Docker is installed on EC2
 - Check deployment script exists: `/opt/network/scripts/deploy-ec2.sh`
 - View logs on EC2: `docker compose -f /opt/network/docker-compose.prod.yml logs`
 
 **Health Check Failures:**
+
 - Verify API is running: `curl http://localhost:3000/health` on EC2
 - Check API logs for errors
 - Verify environment variables are set correctly
 
 **Frontend Deployment Issues:**
+
 - Verify frontend directory exists: `/opt/network/frontend`
 - Check file permissions
 - Verify Caddyfile is configured correctly

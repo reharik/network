@@ -160,12 +160,12 @@ jobs:
         run: |
           # Create tarball
           tar -czf frontend.tar.gz -C ${{ steps.dist-dir.outputs.path }} .
-          
+
           # Transfer to EC2
           scp -o StrictHostKeyChecking=no \
             frontend.tar.gz \
             ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/
-          
+
           # Extract on EC2
           ssh -o StrictHostKeyChecking=no ${{ env.EC2_USER }}@${{ env.EC2_HOST }} << 'EOF'
             mkdir -p ${{ env.APP_DIR }}/frontend

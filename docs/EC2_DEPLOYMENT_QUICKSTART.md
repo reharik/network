@@ -39,6 +39,7 @@ nano apps/api/.env
 ```
 
 Set at minimum:
+
 - `POSTGRES_PASSWORD` (strong password)
 - `JWT_SECRET` (strong secret)
 - `CORS_ORIGIN` (your EC2 IP or domain)
@@ -93,6 +94,7 @@ cat ~/.ssh/network-ec2
 ## Automated Deployment
 
 Once GitHub Actions is configured, every push to `main` will:
+
 1. Build Docker image
 2. Transfer to EC2
 3. Deploy and restart services
