@@ -65,11 +65,16 @@
       }
     },
     "test": {
-      "executor": "@nx/jest:jest",
+      "executor": "nx:run-commands",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "{projectRoot}/jest.config.js",
-        "passWithNoTests": true
+        "command": "NODE_OPTIONS='--experimental-vm-modules' jest --config jest.config.js",
+        "cwd": "{projectRoot}"
+      },
+      "configurations": {
+        "runInBand": {
+          "command": "NODE_OPTIONS='--experimental-vm-modules' jest --config jest.config.js --runInBand"
+        }
       }
     },
     "format": {

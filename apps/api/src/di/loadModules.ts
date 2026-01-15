@@ -7,8 +7,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { config } from '../config';
 import type { LoggerInterface } from '../logger';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Get current directory using import.meta.url (ESM)
+// Note: Requires NODE_OPTIONS='--experimental-vm-modules' for Jest tests
+const currentFileUrl = fileURLToPath(import.meta.url);
+const currentDir = path.dirname(currentFileUrl);
 
 /**
  * Convention-over-config registration using import.meta.glob (production bundle) or runtime scanning:
@@ -92,7 +94,7 @@ const registerForDevelopment = async (
     'koaServer.{ts,js}',
   ];
 
-  const srcDir = path.resolve(__dirname, '..');
+  const srcDir = path.resolve(currentDir, '..');
   logger.debug(`[loadModules] Scanning for modules in: ${srcDir}`, { patterns });
 
   const files = await fg(patterns, {
