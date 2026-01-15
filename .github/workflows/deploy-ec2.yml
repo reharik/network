@@ -72,15 +72,21 @@ jobs:
 
       - name: Transfer image to EC2
         run: |
+          # Validate required variables
+          if [ -z "${{ env.EC2_USER }}" ] || [ -z "${{ env.EC2_HOST }}" ]; then
+            echo "Error: EC2_USER or EC2_HOST is not set"
+            exit 1
+          fi
+
           scp -o StrictHostKeyChecking=no \
             network-api-image.tar.gz \
-            ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/
+            "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/"
 
       - name: Deploy to EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ env.EC2_USER }}@${{ env.EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
             set -e
-            cd ${{ env.APP_DIR }}
+            cd /opt/network
             
             # Load Docker image
             echo "Loading Docker image..."
@@ -89,7 +95,7 @@ jobs:
             
             # Run deployment script
             echo "Running deployment..."
-            ${{ env.APP_DIR }}/scripts/deploy-ec2.sh ${{ github.sha }}
+            /opt/network/scripts/deploy-ec2.sh ${{ github.sha }}
             
             # Cleanup
             rm -f /tmp/network-api-image.tar.gz
@@ -97,7 +103,7 @@ jobs:
 
       - name: Verify deployment
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ env.EC2_USER }}@${{ env.EC2_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
             # Wait a moment for services to start
             sleep 5
             
@@ -158,21 +164,27 @@ jobs:
 
       - name: Transfer frontend to EC2
         run: |
+          # Validate required variables
+          if [ -z "${{ env.EC2_USER }}" ] || [ -z "${{ env.EC2_HOST }}" ]; then
+            echo "Error: EC2_USER or EC2_HOST is not set"
+            exit 1
+          fi
+
           # Create tarball
           tar -czf frontend.tar.gz -C ${{ steps.dist-dir.outputs.path }} .
 
           # Transfer to EC2
           scp -o StrictHostKeyChecking=no \
             frontend.tar.gz \
-            ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/
+            "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/"
 
           # Extract on EC2
-          ssh -o StrictHostKeyChecking=no ${{ env.EC2_USER }}@${{ env.EC2_HOST }} << 'EOF'
-            mkdir -p ${{ env.APP_DIR }}/frontend
-            tar -xzf /tmp/frontend.tar.gz -C ${{ env.APP_DIR }}/frontend
+          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
+            mkdir -p /opt/network/frontend
+            tar -xzf /tmp/frontend.tar.gz -C /opt/network/frontend
             rm -f /tmp/frontend.tar.gz
             
             # Restart proxy to pick up new files
-            cd ${{ env.APP_DIR }}
+            cd /opt/network
             docker compose -f docker-compose.prod.yml restart proxy || true
           EOF

@@ -203,6 +203,17 @@ type ${capKey} =
 
   await fs.mkdir(outDir, { recursive: true });
   await fs.writeFile(outPath, out, 'utf8');
+
+  // Format the generated file with Prettier
+  try {
+    const { execSync } = await import('node:child_process');
+    execSync(`npx prettier --write "${outPath}"`, { stdio: 'inherit' });
+  } catch (error) {
+    console.warn(
+      `⚠️  Failed to format generated file with Prettier: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+
   console.log(`Wrote ${path.relative(process.cwd(), outPath)} with ${entries.length} items`);
 
   const missing = entries.filter((e) => e.ifaceName && !e.ifaceFound);

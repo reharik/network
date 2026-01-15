@@ -6,3 +6,6 @@ package-lock.json
 
 /.nx/cache
 /.nx/workspace-data
+
+# Auto-generated files
+**/awilix.autoload.d.ts
