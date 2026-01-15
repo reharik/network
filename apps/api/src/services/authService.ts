@@ -130,9 +130,11 @@ export const createAuthService = ({
 
         return user;
       } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        const errorType = err instanceof Error ? err.name : 'Unknown';
         logger.warn('Token verification failed: invalid or expired token', {
-          error: err instanceof Error ? err.message : String(err),
-          errorType: err instanceof Error ? err.name : 'Unknown',
+          error: errorMessage,
+          errorType,
         });
         return undefined;
       }
