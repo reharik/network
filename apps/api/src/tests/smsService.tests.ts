@@ -80,7 +80,6 @@ describe('SMS Service', () => {
       // Extract the link
       const linkMatch = capturedEmailBody.match(/sms:([^\s]+)/);
       expect(linkMatch).not.toBeNull();
-      expect(linkMatch?.[1]).toBeDefined();
 
       if (!linkMatch || !linkMatch[1]) {
         throw new Error('Expected linkMatch to be defined');
@@ -188,7 +187,6 @@ describe('SMS Service', () => {
 
       const linkMatch = capturedEmailBody.match(/sms:([^\s]+)/);
       expect(linkMatch).not.toBeNull();
-      expect(linkMatch?.[0]).toBeDefined();
 
       if (!linkMatch || !linkMatch[0]) {
         throw new Error('Expected linkMatch to be defined');

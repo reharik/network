@@ -1,9 +1,11 @@
 import { RESOLVER } from 'awilix';
 import type { Context } from 'koa';
 import type { Container } from '../container';
+import { sanitizeUser } from '../utils/userUtils';
 
 export interface AuthController {
   login: (ctx: Context) => Promise<Context>;
+  signup: (ctx: Context) => Promise<Context>;
   logout: (ctx: Context) => Context;
   me: (ctx: Context) => Context;
 }
@@ -46,6 +48,52 @@ export const createAuthController = ({ authService, logger }: Container): AuthCo
     return ctx;
   },
 
+  signup: async (ctx: Context): Promise<Context> => {
+    const { email, password, firstName, lastName } = ctx.request.body as {
+      email: string;
+      password: string;
+      firstName?: string;
+      lastName?: string;
+    };
+
+    if (!email || !password) {
+      ctx.status = 400;
+      ctx.body = { error: 'Email and password are required' };
+      return ctx;
+    }
+
+    // Validate password length
+    if (password.length < 8) {
+      ctx.status = 400;
+      ctx.body = { error: 'Password must be at least 8 characters long' };
+      return ctx;
+    }
+
+    const result = await authService.signup({ email, password, firstName, lastName });
+    if (!result) {
+      logger.warn('Signup attempt failed from controller', {
+        email,
+        ip: ctx.ip,
+      });
+      ctx.status = 409;
+      ctx.body = { error: 'An account with this email already exists' };
+      return ctx;
+    }
+
+    logger.info('Signup successful from controller', {
+      userId: result.user.id,
+      email: result.user.email,
+      ip: ctx.ip,
+    });
+
+    ctx.status = 201;
+    ctx.body = {
+      user: result.user,
+      token: result.token,
+    };
+    return ctx;
+  },
+
   logout: (ctx: Context): Context => {
     // Since we're using JWT, logout is handled client-side by removing the token
     // In a more sophisticated setup, you might want to maintain a token blacklist
@@ -65,7 +113,7 @@ export const createAuthController = ({ authService, logger }: Container): AuthCo
     }
 
     ctx.status = 200;
-    ctx.body = { user };
+    ctx.body = { user: sanitizeUser(user) };
     return ctx;
   },
 });

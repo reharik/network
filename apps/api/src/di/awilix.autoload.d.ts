@@ -1,7 +1,7 @@
 /* AUTO-GENERATED. DO NOT EDIT.
 Re-run `npm run gen:container` after adding/removing services.
 */
- type KoaServer = import('../koaServer').KoaServer;
+type KoaServer = import('../koaServer').KoaServer;
 
 type AuthService = import('../services/authService').AuthService;
 
@@ -27,7 +27,8 @@ type UserRepository = import('../repositories/userRepository').UserRepository;
 
 type AuthController = import('../controllers/authController').AuthController;
 
-type CommunicationController = import('../controllers/communicationController').CommunicationController;
+type CommunicationController =
+  import('../controllers/communicationController').CommunicationController;
 
 type ContactsController = import('../controllers/contactsController').ContactsController;
 

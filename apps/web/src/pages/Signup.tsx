@@ -14,23 +14,42 @@ const ErrorBanner = styled.div`
   font-size: 0.9rem;
 `;
 
-export const Login = () => {
+export const Signup = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { signup } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    const success = await login(email, password);
+    // Validation
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      setIsLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      setIsLoading(false);
+      return;
+    }
+
+    const success = await signup(email, password, firstName || undefined, lastName || undefined);
 
     if (!success) {
-      setError('Invalid email or password');
+      setError('An account with this email already exists or signup failed');
+    } else {
+      // Redirect to home page on successful signup
+      navigate('/');
     }
 
     setIsLoading(false);
@@ -41,30 +60,58 @@ export const Login = () => {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
+            Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Or{' '}
             <a
-              href="/signup"
+              href="/login"
               className="font-medium text-indigo-600 hover:text-indigo-500"
               onClick={(e) => {
                 e.preventDefault();
-                navigate('/signup');
+                navigate('/login');
               }}
             >
-              create a new account
+              sign in to your existing account
             </a>
           </p>
         </div>
 
         <Card>
           <VStack gap={3}>
-            <h2 className="text-2xl font-bold text-center">Login</h2>
+            <h2 className="text-2xl font-bold text-center">Sign Up</h2>
 
             <form onSubmit={handleSubmit}>
               <VStack gap={3}>
                 {error && <ErrorBanner>{error}</ErrorBanner>}
+
+                <div className="grid grid-cols-2 gap-3">
+                  <FormInput
+                    label="First Name"
+                    id="firstName"
+                    name="firstName"
+                    type="text"
+                    autoComplete="given-name"
+                    value={firstName}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setFirstName(e.target.value)
+                    }
+                    placeholder="First name (optional)"
+                  />
+
+                  <FormInput
+                    label="Last Name"
+                    id="lastName"
+                    name="lastName"
+                    type="text"
+                    autoComplete="family-name"
+                    value={lastName}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setLastName(e.target.value)
+                    }
+                    placeholder="Last name (optional)"
+                  />
+                </div>
 
                 <FormInput
                   label="Email address"
@@ -83,63 +130,35 @@ export const Login = () => {
                   id="password"
                   name="password"
                   type="password"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   required
                   value={password}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                  placeholder="Enter your password (min 8 characters)"
+                  minLength={8}
                 />
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <input
-                      id="remember-me"
-                      name="remember-me"
-                      type="checkbox"
-                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                      Remember me
-                    </label>
-                  </div>
-
-                  <div className="text-sm">
-                    <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                      Forgot your password?
-                    </a>
-                  </div>
-                </div>
+                <FormInput
+                  label="Confirm Password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setConfirmPassword(e.target.value)
+                  }
+                  placeholder="Confirm your password"
+                />
 
                 <div>
                   <Button type="submit" disabled={isLoading} className="w-full">
-                    {isLoading ? 'Signing in...' : 'Sign in'}
+                    {isLoading ? 'Creating account...' : 'Create account'}
                   </Button>
                 </div>
               </VStack>
             </form>
-
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Test accounts</span>
-                </div>
-              </div>
-
-              <div className="mt-4 space-y-2 text-sm text-gray-600">
-                <div>
-                  <strong>john@example.com</strong> / password123
-                </div>
-                <div>
-                  <strong>jane@example.com</strong> / password123
-                </div>
-                <div>
-                  <strong>test@example.com</strong> / password123
-                </div>
-              </div>
-            </div>
           </VStack>
         </Card>
       </div>

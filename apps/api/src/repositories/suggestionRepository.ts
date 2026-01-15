@@ -11,7 +11,7 @@ export const createSuggestionRepository = ({
 }): SuggestionRepository => ({
   getSuggestionsForContact: async (contact: { fullName: string }) => {
     const firstName = contact.fullName.split(' ')[0];
-    const rows = await connection('suggestionTemplates')
+    const rows = await connection<{ body: string }>('suggestionTemplates')
       .select('body')
       .orderBy('createdAt', 'asc')
       .limit(10);

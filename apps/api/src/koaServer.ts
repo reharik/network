@@ -50,6 +50,20 @@ export const createKoaServer = ({ routes, optionalAuthMiddleware, logger }: Cont
   routes.mountRoutes(router);
   app.use(router.routes()).use(router.allowedMethods());
 
+  // Health check endpoint (no /api prefix, no auth required)
+  app.use(async (ctx, next) => {
+    if (ctx.path === '/health') {
+      ctx.status = 200;
+      ctx.body = {
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        service: 'network-api',
+      };
+      return;
+    }
+    await next();
+  });
+
   // 8. Smart enum response serialization (LAST - after routes)
   app.use(smartEnumResponseSerializer);
 

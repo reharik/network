@@ -1,9 +1,10 @@
-import type { User } from '@network/contracts';
+import type { SignupCredentials, User } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
 import type { Container } from '../container';
+import { sanitizeUser } from '../utils/userUtils';
 
 export interface LoginCredentials {
   email: string;
@@ -12,12 +13,17 @@ export interface LoginCredentials {
 
 export interface AuthService {
   login: (credentials: LoginCredentials) => Promise<{ user: User; token: string } | undefined>;
+  signup: (credentials: SignupCredentials) => Promise<{ user: User; token: string } | undefined>;
   verifyToken: (token: string) => Promise<User | undefined>;
   hashPassword: (password: string) => Promise<string>;
   comparePassword: (password: string, hash: string) => Promise<boolean>;
 }
 
-export const createAuthService = ({ connection, logger }: Container): AuthService => {
+export const createAuthService = ({
+  connection,
+  logger,
+  userRepository,
+}: Container): AuthService => {
   return {
     login: async (credentials: LoginCredentials) => {
       const { email, password } = credentials;
@@ -63,7 +69,46 @@ export const createAuthService = ({ connection, logger }: Container): AuthServic
         email: user.email,
       });
 
-      return { user, token };
+      return { user: sanitizeUser(user), token };
+    },
+
+    signup: async (credentials: SignupCredentials) => {
+      const { email, password, firstName, lastName } = credentials;
+
+      // Check if user already exists
+      const existingUser = await userRepository.getUserByEmail(email);
+      if (existingUser) {
+        logger.warn('Signup attempt failed: user already exists', { email });
+        return undefined;
+      }
+
+      // Hash password
+      const passwordHash = await bcrypt.hash(password, 12);
+
+      // Create user
+      const user = await userRepository.createUser({
+        email,
+        passwordHash,
+        firstName,
+        lastName,
+      });
+
+      // Generate JWT token
+      const token = jwt.sign(
+        {
+          userId: user.id,
+          email: user.email,
+        },
+        config.jwtSecret,
+        { expiresIn: config.jwtExpiresIn } as jwt.SignOptions,
+      );
+
+      logger.info('User signed up successfully', {
+        userId: user.id,
+        email: user.email,
+      });
+
+      return { user: sanitizeUser(user), token };
     },
 
     verifyToken: async (token: string) => {

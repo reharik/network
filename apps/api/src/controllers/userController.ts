@@ -1,6 +1,7 @@
 import { RESOLVER } from 'awilix';
 import { Context } from 'koa';
 import type { Container } from '../container';
+import { sanitizeUser } from '../utils/userUtils';
 
 export interface UserController {
   getMe: (ctx: Context) => Promise<Context>;
@@ -16,7 +17,7 @@ export const createUserController = ({ userRepository }: Container): UserControl
       ctx.body = { error: 'User not found' };
       return ctx;
     }
-    ctx.body = user;
+    ctx.body = sanitizeUser(user);
     return ctx;
   },
   updateDailyGoal: async (ctx: Context): Promise<Context> => {
@@ -27,7 +28,7 @@ export const createUserController = ({ userRepository }: Container): UserControl
       ctx.body = { error: 'User not found' };
       return ctx;
     }
-    ctx.body = user;
+    ctx.body = sanitizeUser(user);
     return ctx;
   },
   updateProfile: async (ctx: Context): Promise<Context> => {
@@ -42,7 +43,7 @@ export const createUserController = ({ userRepository }: Container): UserControl
       ctx.body = { error: 'User not found' };
       return ctx;
     }
-    ctx.body = user;
+    ctx.body = sanitizeUser(user);
     return ctx;
   },
 });

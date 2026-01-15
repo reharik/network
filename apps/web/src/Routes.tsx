@@ -1,6 +1,6 @@
 import { lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import ProtectedRoute from './components/ProtectedRoute';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './Layout';
 
 const Today = lazy(async () => {
@@ -25,7 +25,11 @@ const ImportPage = lazy(async () => {
 });
 const Login = lazy(async () => {
   const mod = await import('./pages/Login');
-  return { default: mod.default };
+  return { default: mod.Login };
+});
+const Signup = lazy(async () => {
+  const mod = await import('./pages/Signup');
+  return { default: mod.Signup };
 });
 
 export const NavRoutes = () => {
@@ -33,6 +37,7 @@ export const NavRoutes = () => {
     <Routes>
       {/* all app routes share the Layout and require authentication */}
       <Route path="login" element={<Login />} />
+      <Route path="signup" element={<Signup />} />
       <Route
         element={
           <ProtectedRoute>

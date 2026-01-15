@@ -9,6 +9,7 @@ export interface AuthRoutes {
 export const createAuthRoutes = ({ authController }: Container): AuthRoutes => ({
   mountRoutes: (router: Router) => {
     router.post('/auth/login', authController.login);
+    router.post('/auth/signup', authController.signup);
     router.post('/auth/logout', authController.logout);
     router.get('/auth/me', authController.me);
   },

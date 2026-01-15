@@ -60,9 +60,6 @@ const getErrorWithResponse = (err: unknown): ErrorWithResponsePayload => {
   return {};
 };
 
-// ESLint's TypeScript parser with moduleResolution: "bundler" incorrectly infers winston types as "error"
-// This is a known limitation - the types are correct at runtime, but ESLint can't resolve them properly
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 const loggingFormat = format.combine(
   format.timestamp({
     format: 'YYYY-MM-DD HH:mm:ss.SSSS ZZ',
@@ -116,9 +113,6 @@ const buildErrorLogPayload = (
 
 let networkLogger: Logger;
 export const initLogger = (loggingLevel: Level = 'info'): LoggerInterface => {
-  // ESLint's TypeScript parser with moduleResolution: "bundler" incorrectly infers winston types as "error"
-  // This is a known limitation - the types are correct at runtime, but ESLint can't resolve them properly
-  /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
   networkLogger = createLogger({
     level: loggingLevel,
     format: loggingFormat,
@@ -138,9 +132,7 @@ export const initLogger = (loggingLevel: Level = 'info'): LoggerInterface => {
     },
     // defaultMeta: { service: 'platform-backend-api' },
   });
-  /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
   const logMessage = (level: Level, val: string, data?: unknown, err?: ErrorPayload) => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     networkLogger.log(level, val, {
       ...(data && typeof data === 'object' && !Array.isArray(data) ? data : { data }),
       ...err,

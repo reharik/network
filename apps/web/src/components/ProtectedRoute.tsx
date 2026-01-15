@@ -1,12 +1,12 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import Login from '../pages/Login';
+import { Login } from '../pages/Login';
 
 interface ProtectedRouteProps {
   children: ReactNode;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -23,5 +23,3 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   return <>{children}</>;
 };
-
-export default ProtectedRoute;

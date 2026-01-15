@@ -29,7 +29,7 @@ const testEmailService = async () => {
     });
 
     if (response.ok) {
-      const result = await response.json();
+      const result = (await response.json()) as unknown;
       console.log('✅ Email sent successfully:', result);
     } else {
       const error = await response.text();
@@ -58,7 +58,7 @@ const testSmsService = async () => {
     });
 
     if (response.ok) {
-      const result = await response.json();
+      const result = (await response.json()) as unknown;
       console.log('✅ SMS sent successfully:', result);
     } else {
       const error = await response.text();
@@ -86,7 +86,7 @@ const testVoiceService = async () => {
     });
 
     if (response.ok) {
-      const result = await response.json();
+      const result = (await response.json()) as unknown;
       console.log('✅ Voice call initiated successfully:', result);
     } else {
       const error = await response.text();

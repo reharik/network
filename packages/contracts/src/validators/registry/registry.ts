@@ -2,6 +2,7 @@ import typia from 'typia';
 import type {
   Contact,
   CreateTouchInput,
+  SignupCredentials,
   Touch,
   UpdateContact,
   UpdateUser,
@@ -19,6 +20,7 @@ export const validateCreateTouchInput = (data: unknown) => typia.validate<Create
 export const validateUser = (data: unknown) => typia.validate<User>(data);
 export const validateUpdateUser = (data: unknown) => typia.validate<UpdateUser>(data);
 export const validateInsertUser = (data: unknown) => typia.validate<Omit<User, 'id'>>(data);
+export const validateSignupCredentials = (data: unknown) => typia.validate<SignupCredentials>(data);
 
 export const validators = {
   contact: validateContact,
@@ -30,6 +32,7 @@ export const validators = {
   user: validateUser,
   insertUser: validateInsertUser,
   updateUser: validateUpdateUser,
+  signupCredentials: validateSignupCredentials,
 } as const;
 
 export type ValidatorKey = keyof typeof validators;

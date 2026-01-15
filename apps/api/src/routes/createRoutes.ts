@@ -13,8 +13,11 @@ export const createRoutes = ({
   touchesRoutes,
   authRoutes,
   communicationRoutes,
+  healthRoutes,
 }: Container): Routes => ({
   mountRoutes: (router: Router) => {
+    // Health check should be first (no auth required)
+    healthRoutes.mountRoutes(router);
     authRoutes.mountRoutes(router);
     userRoutes.mountRoutes(router);
     contactRoutes.mountRoutes(router);

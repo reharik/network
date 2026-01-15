@@ -12,6 +12,12 @@ interface AuthContextType {
   user: User | undefined;
   token: string | undefined;
   login: (email: string, password: string) => Promise<boolean>;
+  signup: (
+    email: string,
+    password: string,
+    firstName?: string,
+    lastName?: string,
+  ) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -87,6 +93,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const signup = async (
+    email: string,
+    password: string,
+    firstName?: string,
+    lastName?: string,
+  ): Promise<boolean> => {
+    try {
+      const data = await apiFetch<{ user: User; token: string }>(`/auth/signup`, {
+        method: 'POST',
+        body: { email, password, firstName, lastName },
+      });
+
+      if (data.success) {
+        setUser(data.data.user);
+        setToken(data.data.token);
+        localStorage.setItem('authToken', data.data.token);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Signup failed:', error);
+      return false;
+    }
+  };
+
   const logout = () => {
     setUser(undefined);
     setToken(undefined);
@@ -97,6 +128,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     token,
     login,
+    signup,
     logout,
     isLoading,
     isAuthenticated: !!user && !!token,

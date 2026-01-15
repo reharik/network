@@ -98,3 +98,11 @@ export interface ImportContactsDTO {
   tags?: string;
   suggestion?: string;
 }
+
+// Signup credentials (client-side input for account creation)
+export interface SignupCredentials {
+  email: string & tags.Format<'email'>;
+  password: string & tags.MinLength<8>;
+  firstName?: string & tags.MaxLength<100>;
+  lastName?: string & tags.MaxLength<100>;
+}
