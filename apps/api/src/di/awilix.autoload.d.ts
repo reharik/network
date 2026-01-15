@@ -50,6 +50,8 @@ type ContactRoutes = import('../routes/contactRoutes').ContactRoutes;
 
 type Routes = import('../routes/createRoutes').Routes;
 
+type HealthRoutes = import('../routes/healthRoutes').HealthRoutes;
+
 type PlanRoutes = import('../routes/planRoutes').PlanRoutes;
 
 type TouchesRoutes = import('../routes/touchesRoutes').TouchesRoutes;
@@ -81,6 +83,7 @@ export interface AutoLoadedContainer {
   communicationRoutes: CommunicationRoutes;
   contactRoutes: ContactRoutes;
   routes: Routes;
+  healthRoutes: HealthRoutes;
   planRoutes: PlanRoutes;
   touchesRoutes: TouchesRoutes;
   userRoutes: UserRoutes;

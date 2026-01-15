@@ -11,9 +11,11 @@ export interface LoginCredentials {
   password: string;
 }
 
+export type SanitizedUser = Omit<User, 'passwordHash'>;
+
 export interface AuthService {
-  login: (credentials: LoginCredentials) => Promise<{ user: User; token: string } | undefined>;
-  signup: (credentials: SignupCredentials) => Promise<{ user: User; token: string } | undefined>;
+  login: (credentials: LoginCredentials) => Promise<{ user: SanitizedUser; token: string } | undefined>;
+  signup: (credentials: SignupCredentials) => Promise<{ user: SanitizedUser; token: string } | undefined>;
   verifyToken: (token: string) => Promise<User | undefined>;
   hashPassword: (password: string) => Promise<string>;
   comparePassword: (password: string, hash: string) => Promise<boolean>;
