@@ -18,39 +18,18 @@ on:
 
 env:
   EC2_HOST: ${{ secrets.EC2_HOST }}
-  EC2_USER: ${{ secrets.EC2_USER || 'ubuntu' }}
-  EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+  EC2_USER: ${{ secrets.EC2_USER }}
   APP_DIR: /opt/network
 
 jobs:
   deploy-backend:
-    name: Deploy Backend to EC2
+    name: Deploy backend
     runs-on: ubuntu-latest
-    if: github.event.inputs.deploy_backend != 'false'
+    if: ${{ github.event_name == 'push' || github.event.inputs.deploy_backend == 'true' }}
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ env.EC2_SSH_KEY }}
-
-      - name: Add EC2 to known hosts
-        run: |
-          ssh-keyscan -H ${{ env.EC2_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Generate container types
-        run: npm run gen:container
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -63,6 +42,8 @@ jobs:
             --target production \
             -t network-api:${{ github.sha }} \
             -t network-api:latest \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
             --load \
             .
 
@@ -70,93 +51,95 @@ jobs:
         run: |
           docker save network-api:${{ github.sha }} | gzip > network-api-image.tar.gz
 
-      - name: Transfer image to EC2
-        run: |
-          # Validate required variables
-          if [ -z "${{ env.EC2_USER }}" ] || [ -z "${{ env.EC2_HOST }}" ]; then
-            echo "Error: EC2_USER or EC2_HOST is not set"
-            exit 1
-          fi
-          ssh -o StrictHostKeyChecking=no "${EC2_USER}@${EC2_HOST}" "mkdir -p /opt/network/deploy" && scp -o StrictHostKeyChecking=no network-api-image.tar.gz "${EC2_USER}@${EC2_HOST}:/opt/network/deploy/network-api.tar.gz"
-      - name: Deploy to EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
-            set -e
-            cd /opt/network
-            
-            # Load Docker image
-            echo "Loading Docker image..."
-            docker load < /opt/network/deploy/network-api.tar.gz
-            docker tag network-api:${{ github.sha }} network-api:prod
-            
-            # Run deployment script
-            echo "Running deployment..."
-            /opt/network/scripts/deploy-ec2.sh ${{ github.sha }}
-            
-            # Cleanup
-            rm -f /opt/network/deploy/network-api.tar.gz
-          EOF
-
-      - name: Verify deployment
-        run: |
-          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
-            # Wait a moment for services to start
-            sleep 5
-            
-            # Check health endpoint
-            if curl -f http://localhost:3000/health > /dev/null 2>&1; then
-              echo "✓ API health check passed"
-            else
-              echo "✗ API health check failed"
-              exit 1
-            fi
-          EOF
-
-  deploy-frontend:
-    name: Deploy Frontend to EC2
-    runs-on: ubuntu-latest
-    if: github.event.inputs.deploy_frontend != 'false'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup SSH
+      - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ env.EC2_SSH_KEY }}
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
       - name: Add EC2 to known hosts
         run: |
           ssh-keyscan -H ${{ env.EC2_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Preflight EC2 access
+        run: |
+          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "set -e; test -d /opt/network; mkdir -p /opt/network/deploy; docker ps >/dev/null"
+
+      - name: Transfer image to EC2
+        run: |
+          if [ -z "${{ env.EC2_USER }}" ] || [ -z "${{ env.EC2_HOST }}" ]; then
+            echo "Error: EC2_USER or EC2_HOST is not set"
+            exit 1
+          fi
+
+          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "mkdir -p /opt/network/deploy"
+          scp -o StrictHostKeyChecking=no \
+            network-api-image.tar.gz \
+            "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/opt/network/deploy/network-api.tar.gz"
+
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
+            set -euo pipefail
+            cd /opt/network
+            echo "Running deployment..."
+            /opt/network/scripts/deploy-ec2.sh
+            rm -f /opt/network/deploy/network-api.tar.gz
+          EOF
+      - name: Verify deployment
+        run: |
+          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
+            sleep 5
+            if curl -f http://localhost:3000/health > /dev/null 2>&1; then
+              echo "✓ API health check passed"
+              exit 0
+            fi
+             echo "✗ API health check failed"
+            docker compose -f /opt/network/docker-compose.prod.yml ps || true
+            exit 1
+          EOF
+
+  deploy-frontend:
+    name: Deploy frontend
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || github.event.inputs.deploy_frontend == 'true' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
-          cache: "npm"
+          node-version: 22
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
 
-      - name: Generate container types
-        run: npm run gen:container
-
-      - name: Build production frontend
-        run: npm run build:web:production
-        env:
-          VITE_API: ${{ secrets.VITE_API }}
+      - name: Build frontend
+        run: |
+          npm run build:web
 
       - name: Determine dist directory
         id: dist-dir
         run: |
-          if [ -d "apps/web/dist" ]; then
-            echo "path=apps/web/dist" >> $GITHUB_OUTPUT
-          elif [ -d "dist/apps/web" ]; then
-            echo "path=dist/apps/web" >> $GITHUB_OUTPUT
+          if [ -d "web/dist" ]; then
+            echo "path=web/dist" >> "$GITHUB_OUTPUT"
+          elif [ -d "dist" ]; then
+            echo "path=dist" >> "$GITHUB_OUTPUT"
           else
-            echo "ERROR: Frontend dist directory not found"
+            echo "Could not find dist directory"
             exit 1
           fi
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Add EC2 to known hosts
+        run: |
+          ssh-keyscan -H ${{ env.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Transfer frontend to EC2
         run: |
