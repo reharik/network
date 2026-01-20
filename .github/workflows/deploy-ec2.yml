@@ -48,7 +48,7 @@ jobs:
         run: |
           docker buildx build \
             --platform linux/arm64 \
-            --progress=plain
+            --progress=plain \
             -f apps/api/Dockerfile \
             --target production \
             -t network-api:${{ github.sha }} \
@@ -75,17 +75,30 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "set -e; test -d /opt/network; mkdir -p /opt/network/deploy; docker ps >/dev/null"
 
-      - name: Transfer image to EC2
+      - name: Transfer files to EC2
         run: |
           if [ -z "${{ env.EC2_USER }}" ] || [ -z "${{ env.EC2_HOST }}" ]; then
             echo "Error: EC2_USER or EC2_HOST is not set"
             exit 1
           fi
 
-          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "mkdir -p /opt/network/deploy"
+          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "mkdir -p /opt/network/deploy /opt/network/scripts"
+
+          # Transfer Docker image
           scp -o StrictHostKeyChecking=no \
             network-api-image.tar.gz \
             "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/opt/network/deploy/network-api.tar.gz"
+
+          # Transfer docker-compose and deploy script
+          scp -o StrictHostKeyChecking=no \
+            docker-compose.prod.yml \
+            "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/opt/network/docker-compose.prod.yml"
+
+          scp -o StrictHostKeyChecking=no \
+            scripts/deploy-ec2.sh \
+            "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/opt/network/scripts/deploy-ec2.sh"
+
+          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "chmod +x /opt/network/scripts/deploy-ec2.sh"
 
       - name: Deploy to EC2
         run: |
@@ -132,15 +145,21 @@ jobs:
         run: |
           npm run build:web:production
 
+      - name: Locate frontend build output
+        run: |
+          ls -la dist || true
+          find dist -maxdepth 4 -type d -name web -o -name "web*" -o -name dist -o -name build -o -name out
+          find dist -maxdepth 6 -type f -name index.html | head -n 20
+
       - name: Determine dist directory
         id: dist-dir
         run: |
-          if [ -d "web/dist" ]; then
-            echo "path=web/dist" >> "$GITHUB_OUTPUT"
-          elif [ -d "dist" ]; then
-            echo "path=dist" >> "$GITHUB_OUTPUT"
+          if [ -d "dist/apps/web" ]; then
+            echo "path=dist/apps/web" >> "$GITHUB_OUTPUT"
+          elif [ -d "dist/web" ]; then
+            echo "path=dist/web" >> "$GITHUB_OUTPUT"
           else
-            echo "Could not find dist directory"
+            echo "Could not find web build output under dist/"
             exit 1
           fi
 
