@@ -76,6 +76,10 @@ jobs:
             network-api-image.tar.gz \
             "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/opt/network/deploy/network-api.tar.gz"
 
+      - name: Transfer docker-compose.prod.yml to EC2
+        run: |
+          scp -o StrictHostKeyChecking=no docker-compose.prod.yml "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/opt/network/docker-compose.prod.yml"
+
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
