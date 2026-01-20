@@ -180,16 +180,21 @@ jobs:
           tar -czf frontend.tar.gz -C "${{ steps.dist-dir.outputs.path }}" .
 
           scp -o StrictHostKeyChecking=no frontend.tar.gz "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/frontend.tar.gz"
-
-          # Transfer Caddyfile
-          scp -o StrictHostKeyChecking=no Caddyfile "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/opt/network/Caddyfile"
+          scp -o StrictHostKeyChecking=no Caddyfile "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/Caddyfile"
 
           ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
             set -euo pipefail
+            
+            # Update Caddyfile
+            rm -rf /opt/network/Caddyfile
+            mv /tmp/Caddyfile /opt/network/Caddyfile
+            
+            # Update frontend
             rm -rf /opt/network/frontend
             mkdir -p /opt/network/frontend
             tar -xzf /tmp/frontend.tar.gz -C /opt/network/frontend
             rm -f /tmp/frontend.tar.gz
+            
             cd /opt/network
             docker compose -f docker-compose.prod.yml restart proxy
           EOF
