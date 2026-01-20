@@ -35,3 +35,8 @@ Makefile
 docker-compose*.yml
 Dockerfile*
 .dockerignore
+
+
+**/node_modules
+**/dist
+**/.cache
