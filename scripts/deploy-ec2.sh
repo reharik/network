@@ -24,9 +24,9 @@ echo "Loading Docker image"
 gunzip -c /opt/network/deploy/network-api.tar.gz | docker load
 
 echo "Starting services via docker compose"
-docker compose --project-directory /opt/network -f /opt/network/docker-compose.prod.yml up -d
+docker compose --env-file /opt/network/env/prod.env --project-directory /opt/network -f /opt/network/docker-compose.prod.yml up -d
 
 echo "Running containers:"
-docker compose --project-directory /opt/network -f /opt/network/docker-compose.prod.yml ps
+docker compose --env-file /opt/network/env/prod.env --project-directory /opt/network -f /opt/network/docker-compose.prod.yml ps
 
 echo "Deploy complete"

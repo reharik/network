@@ -145,23 +145,14 @@ jobs:
         run: |
           npm run build:web:production
 
-      - name: Locate frontend build output
+      - name: Verify frontend build output
         run: |
-          ls -la dist || true
-          find dist -maxdepth 4 -type d -name web -o -name "web*" -o -name dist -o -name build -o -name out
-          find dist -maxdepth 6 -type f -name index.html | head -n 20
+          test -d apps/web/dist
 
       - name: Determine dist directory
         id: dist-dir
         run: |
-          if [ -d "dist/apps/web" ]; then
-            echo "path=dist/apps/web" >> "$GITHUB_OUTPUT"
-          elif [ -d "dist/web" ]; then
-            echo "path=dist/web" >> "$GITHUB_OUTPUT"
-          else
-            echo "Could not find web build output under dist/"
-            exit 1
-          fi
+          echo "path=apps/web/dist" >> "$GITHUB_OUTPUT"
 
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.9.0
