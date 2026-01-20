@@ -16,6 +16,10 @@ on:
         default: "true"
         type: boolean
 
+permissions:
+  contents: read
+  actions: write
+
 env:
   EC2_HOST: ${{ secrets.EC2_HOST }}
   EC2_USER: ${{ secrets.EC2_USER }}
@@ -34,29 +38,30 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Check GHA cache env
-        run: |
-          env | grep -E 'ACTIONS_CACHE_URL|ACTIONS_RUNTIME_TOKEN' || true
-
-      - name: Inspect buildx
-        run: |
-          docker buildx version
-          docker buildx ls
-          docker buildx inspect --bootstrap
-
       - name: Build Docker image for ARM64
-        run: |
-          docker buildx build \
-            --platform linux/arm64 \
-            --progress=plain \
-            -f apps/api/Dockerfile \
-            --target production \
-            -t network-api:${{ github.sha }} \
-            -t network-api:latest \
-            --cache-from type=gha \
-            --cache-to type=gha,mode=max \
-            --load \
-            .
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          target: production
+          platforms: linux/arm64
+          tags: |
+            network-api:${{ github.sha }}
+            network-api:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      # - name: Check GHA cache env
+      #   run: |
+      #     env | grep -E 'ACTIONS_CACHE_URL|ACTIONS_RUNTIME_TOKEN' || true
+
+      # - name: Inspect buildx
+      #   run: |
+      #     docker buildx version
+      #     docker buildx ls
+      #     docker buildx inspect --bootstrap
 
       - name: Save Docker image
         run: |
@@ -136,6 +141,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: |
@@ -173,6 +180,9 @@ jobs:
           tar -czf frontend.tar.gz -C "${{ steps.dist-dir.outputs.path }}" .
 
           scp -o StrictHostKeyChecking=no frontend.tar.gz "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/frontend.tar.gz"
+
+          # Transfer Caddyfile
+          scp -o StrictHostKeyChecking=no Caddyfile "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/opt/network/Caddyfile"
 
           ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
             set -euo pipefail
