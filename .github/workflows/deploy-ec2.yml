@@ -6,14 +6,14 @@ on:
   workflow_dispatch:
     inputs:
       deploy_backend:
-        description: 'Deploy backend'
+        description: "Deploy backend"
         required: false
-        default: 'true'
+        default: "true"
         type: boolean
       deploy_frontend:
-        description: 'Deploy frontend'
+        description: "Deploy frontend"
         required: false
-        default: 'true'
+        default: "true"
         type: boolean
 
 env:
@@ -43,8 +43,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -77,11 +77,7 @@ jobs:
             echo "Error: EC2_USER or EC2_HOST is not set"
             exit 1
           fi
-
-          scp -o StrictHostKeyChecking=no \
-            network-api-image.tar.gz \
-            "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/"
-
+          ssh -o StrictHostKeyChecking=no "${EC2_USER}@${EC2_HOST}" "mkdir -p /opt/network/deploy" && scp -o StrictHostKeyChecking=no network-api-image.tar.gz "${EC2_USER}@${EC2_HOST}:/opt/network/deploy/network-api.tar.gz"
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
@@ -136,8 +132,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
