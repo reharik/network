@@ -86,7 +86,7 @@ jobs:
             
             # Load Docker image
             echo "Loading Docker image..."
-            docker load < /tmp/network-api-image.tar.gz
+            docker load < /opt/network/deploy/network-api.tar.gz
             docker tag network-api:${{ github.sha }} network-api:prod
             
             # Run deployment script
@@ -94,7 +94,7 @@ jobs:
             /opt/network/scripts/deploy-ec2.sh ${{ github.sha }}
             
             # Cleanup
-            rm -f /tmp/network-api-image.tar.gz
+            rm -f /opt/network/deploy/network-api.tar.gz
           EOF
 
       - name: Verify deployment
@@ -160,27 +160,21 @@ jobs:
 
       - name: Transfer frontend to EC2
         run: |
-          # Validate required variables
           if [ -z "${{ env.EC2_USER }}" ] || [ -z "${{ env.EC2_HOST }}" ]; then
             echo "Error: EC2_USER or EC2_HOST is not set"
             exit 1
           fi
 
-          # Create tarball
-          tar -czf frontend.tar.gz -C ${{ steps.dist-dir.outputs.path }} .
+          tar -czf frontend.tar.gz -C "${{ steps.dist-dir.outputs.path }}" .
 
-          # Transfer to EC2
-          scp -o StrictHostKeyChecking=no \
-            frontend.tar.gz \
-            "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/"
+          scp -o StrictHostKeyChecking=no frontend.tar.gz "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/frontend.tar.gz"
 
-          # Extract on EC2
           ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
+            set -euo pipefail
+            rm -rf /opt/network/frontend
             mkdir -p /opt/network/frontend
             tar -xzf /tmp/frontend.tar.gz -C /opt/network/frontend
             rm -f /tmp/frontend.tar.gz
-            
-            # Restart proxy to pick up new files
             cd /opt/network
-            docker compose -f docker-compose.prod.yml restart proxy || true
+            docker compose -f docker-compose.prod.yml restart proxy
           EOF
