@@ -38,6 +38,8 @@ COPY . .
 RUN npx nx reset || true
 # Generate container types after source code is available
 RUN cd apps/api && npm run gen:container
+# Verify the file was generated
+RUN test -f apps/api/src/di/awilix.autoload.d.ts || (echo "ERROR: awilix.autoload.d.ts was not generated" && exit 1)
 RUN npx nx build api --configuration=production
 
 # =============================================================================
@@ -59,10 +61,14 @@ CMD ["npm", "run", "dev", "--workspace=@app/api"]
 FROM node:${NODE_VERSION}-slim AS production
 ENV NODE_ENV=production
 WORKDIR /app
+# Install curl for health checks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 COPY --from=build /repo/apps/api/dist ./apps/api/dist
 # Copy generated Awilix container types to dist
 RUN mkdir -p apps/api/dist/di
 COPY --from=build /repo/apps/api/src/di/awilix.autoload.d.ts ./apps/api/dist/di/awilix.autoload.d.ts
+# Verify the file was copied
+RUN test -f apps/api/dist/di/awilix.autoload.d.ts || (echo "ERROR: awilix.autoload.d.ts was not copied to dist" && exit 1)
 # Copy server startup script (copy from build stage where source files are)
 RUN mkdir -p apps/api/dist/scripts
 COPY --from=build /repo/apps/api/src/scripts/serverStartUpProd.sh ./apps/api/dist/scripts/serverStartUpProd.sh

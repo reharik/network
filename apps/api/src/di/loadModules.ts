@@ -26,12 +26,38 @@ export const registerModulesFromGlob = async (
   // import.meta.glob is a Vite build-time feature - only exists in bundled output
   // When running source directly (tsx/ts-node), we must use runtime file scanning
   const hasViteGlob = typeof import.meta.glob === 'function';
+  
+  logger.info('[loadModules] Starting module registration', {
+    nodeEnv: config.nodeEnv,
+    hasViteGlob,
+    currentDir: currentDir,
+  });
 
   if (config.nodeEnv === 'production' && hasViteGlob) {
-    // Production bundle: use Vite's import.meta.glob (transformed at build time)
-    registerForProduction(container, logger);
+    // Production bundle: try Vite's import.meta.glob first (transformed at build time)
+    try {
+      registerForProduction(container, logger);
+      // Verify koaServer was registered by trying to resolve it
+      try {
+        container.resolve('koaServer');
+        logger.info('[loadModules] Production glob registration successful - koaServer found');
+      } catch (resolveError) {
+        logger.warn('[loadModules] koaServer not found in glob, falling back to runtime scanning', {
+          error: resolveError instanceof Error ? resolveError.message : String(resolveError),
+          allRegistrations: Object.keys(container.registrations),
+        });
+        await registerForDevelopment(container, logger);
+      }
+    } catch (error) {
+      logger.warn('[loadModules] Production glob failed, falling back to runtime scanning', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      await registerForDevelopment(container, logger);
+    }
   } else {
     // Dev mode OR running source in prod: use runtime file scanning with fast-glob
+    logger.info('[loadModules] Using development/runtime scanning mode');
     await registerForDevelopment(container, logger);
   }
 };
@@ -61,24 +87,45 @@ const registerModuleExports = (
 };
 
 const registerForProduction = (container: AwilixContainer, logger: LoggerInterface): void => {
+  const globPatterns = [
+    '../services/**/*.{ts,js}',
+    '../repositories/**/*.{ts,js}',
+    '../controllers/**/*.{ts,js}',
+    '../middleware/**/*.{ts,js}',
+    '../routes/**/*.{ts,js}',
+    '../koaServer.{ts,js}',
+  ];
+  
+  logger.info('[loadModules] Production mode: using import.meta.glob', { patterns: globPatterns });
+  
   const modules = import.meta.glob(
-    [
-      '../services/**/*.{ts,js}',
-      '../repositories/**/*.{ts,js}',
-      '../controllers/**/*.{ts,js}',
-      '../middleware/**/*.{ts,js}',
-      '../routes/**/*.{ts,js}',
-      '../koaServer.{ts,js}',
-    ],
+    globPatterns,
     {
       eager: true,
     },
   );
 
-  for (const [, mod] of Object.entries(modules)) {
+  const moduleKeys = Object.keys(modules);
+  logger.info('[loadModules] import.meta.glob found modules', { 
+    count: moduleKeys.length,
+    keys: moduleKeys.slice(0, 20), // Log first 20 to avoid spam
+    hasKoaServer: moduleKeys.some(key => key.includes('koaServer')),
+  });
+
+  let registeredCount = 0;
+  for (const [modulePath, mod] of Object.entries(modules)) {
     const moduleExports = mod as Record<string, unknown>;
+    const exportNames = Object.keys(moduleExports).filter(key => typeof moduleExports[key] === 'function');
+    logger.debug(`[loadModules] Processing module: ${modulePath}`, { exports: exportNames });
     registerModuleExports(container, moduleExports, logger);
+    registeredCount++;
   }
+  
+  logger.info('[loadModules] Production registration complete', { 
+    modulesProcessed: registeredCount,
+    registeredKeys: Object.keys(container.registrations).slice(0, 20),
+    hasKoaServerRegistration: 'koaServer' in container.registrations,
+  });
 };
 
 const registerForDevelopment = async (
@@ -94,11 +141,16 @@ const registerForDevelopment = async (
     'koaServer.{ts,js}',
   ];
 
-  const srcDir = path.resolve(currentDir, '..');
-  logger.debug(`[loadModules] Scanning for modules in: ${srcDir}`, { patterns });
+  // In production, scan from dist directory; in dev, scan from src
+  const isProduction = config.nodeEnv === 'production';
+  const baseDir = isProduction
+    ? path.resolve(currentDir, '..') // dist directory (currentDir is dist/di, so .. is dist)
+    : path.resolve(currentDir, '..'); // src directory (currentDir is src/di, so .. is src)
+  
+  logger.debug(`[loadModules] Scanning for modules in: ${baseDir}`, { patterns, isProduction });
 
   const files = await fg(patterns, {
-    cwd: srcDir,
+    cwd: baseDir,
     absolute: true,
   });
 
