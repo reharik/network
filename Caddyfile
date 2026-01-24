@@ -18,18 +18,21 @@
 # Replace YOUR_EC2_IP_OR_DNS with your actual EC2 public IP or DNS name
 # Example: ec2-1-2-3-4.compute-1.amazonaws.com or 1.2.3.4
 :80 {
-  # Reverse proxy to API
-  reverse_proxy /api/* api:3000 {
-    health_uri /health
-    health_interval 30s
+  # Handle API requests first
+  handle /api/* {
+    reverse_proxy api:3000 {
+      health_uri /health
+      health_interval 30s
+    }
   }
 
-  # Serve frontend static files
-  root * /usr/share/caddy/html
-  file_server
-
-  # SPA routing - serve index.html for all routes
-  try_files {path} /index.html
+  # Serve frontend static files for everything else
+  handle {
+    root * /usr/share/caddy/html
+    file_server
+    # SPA routing - serve index.html for all routes
+    try_files {path} /index.html
+  }
 }
 
 # Health check endpoint (bypass proxy)
