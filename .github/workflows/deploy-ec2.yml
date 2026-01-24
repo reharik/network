@@ -151,6 +151,8 @@ jobs:
       - name: Build frontend
         run: |
           npm run build:web:production
+        env:
+          VITE_API: /api # Use relative path since Caddy proxies /api/* to backend
 
       - name: Verify frontend build output
         run: |

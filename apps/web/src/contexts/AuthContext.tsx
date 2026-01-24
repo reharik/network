@@ -110,10 +110,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setToken(data.data.token);
         localStorage.setItem('authToken', data.data.token);
         return true;
+      } else {
+        // Log the actual error for debugging
+        console.error('Signup failed:', data.errors);
+        return false;
       }
-      return false;
     } catch (error) {
-      console.error('Signup failed:', error);
+      console.error('Signup exception:', error);
       return false;
     }
   };
