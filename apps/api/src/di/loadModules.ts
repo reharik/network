@@ -26,7 +26,7 @@ export const registerModulesFromGlob = async (
   // import.meta.glob is a Vite build-time feature - only exists in bundled output
   // When running source directly (tsx/ts-node), we must use runtime file scanning
   const hasViteGlob = typeof import.meta.glob === 'function';
-  
+
   logger.info('[loadModules] Starting module registration', {
     nodeEnv: config.nodeEnv,
     hasViteGlob,
@@ -87,6 +87,21 @@ const registerModuleExports = (
 };
 
 const registerForProduction = (container: AwilixContainer, logger: LoggerInterface): void => {
+  // Note: import.meta.glob requires string literals, not variables (Vite build-time requirement)
+  const modules = import.meta.glob(
+    [
+      '../services/**/*.{ts,js}',
+      '../repositories/**/*.{ts,js}',
+      '../controllers/**/*.{ts,js}',
+      '../middleware/**/*.{ts,js}',
+      '../routes/**/*.{ts,js}',
+      '../koaServer.{ts,js}',
+    ],
+    {
+      eager: true,
+    },
+  );
+
   const globPatterns = [
     '../services/**/*.{ts,js}',
     '../repositories/**/*.{ts,js}',
@@ -95,33 +110,27 @@ const registerForProduction = (container: AwilixContainer, logger: LoggerInterfa
     '../routes/**/*.{ts,js}',
     '../koaServer.{ts,js}',
   ];
-  
   logger.info('[loadModules] Production mode: using import.meta.glob', { patterns: globPatterns });
-  
-  const modules = import.meta.glob(
-    globPatterns,
-    {
-      eager: true,
-    },
-  );
 
   const moduleKeys = Object.keys(modules);
-  logger.info('[loadModules] import.meta.glob found modules', { 
+  logger.info('[loadModules] import.meta.glob found modules', {
     count: moduleKeys.length,
     keys: moduleKeys.slice(0, 20), // Log first 20 to avoid spam
-    hasKoaServer: moduleKeys.some(key => key.includes('koaServer')),
+    hasKoaServer: moduleKeys.some((key) => key.includes('koaServer')),
   });
 
   let registeredCount = 0;
   for (const [modulePath, mod] of Object.entries(modules)) {
     const moduleExports = mod as Record<string, unknown>;
-    const exportNames = Object.keys(moduleExports).filter(key => typeof moduleExports[key] === 'function');
+    const exportNames = Object.keys(moduleExports).filter(
+      (key) => typeof moduleExports[key] === 'function',
+    );
     logger.debug(`[loadModules] Processing module: ${modulePath}`, { exports: exportNames });
     registerModuleExports(container, moduleExports, logger);
     registeredCount++;
   }
-  
-  logger.info('[loadModules] Production registration complete', { 
+
+  logger.info('[loadModules] Production registration complete', {
     modulesProcessed: registeredCount,
     registeredKeys: Object.keys(container.registrations).slice(0, 20),
     hasKoaServerRegistration: 'koaServer' in container.registrations,
@@ -132,6 +141,77 @@ const registerForDevelopment = async (
   container: AwilixContainer,
   logger: LoggerInterface,
 ): Promise<void> => {
+  const isProduction = config.nodeEnv === 'production';
+
+  // In production with bundled code, we need to import from the bundle directly
+  // In dev, we can scan files from src directory
+  if (isProduction) {
+    logger.info(
+      '[loadModules] Production bundle detected - importing modules directly from bundle',
+    );
+    try {
+      // Import modules directly since they're all in the bundle
+      // These imports will work because Vite bundles everything together
+      const { createKoaServer } = await import('../koaServer');
+      registerModuleExports(container, { createKoaServer }, logger);
+
+      // Import all other modules dynamically
+      const moduleImports = [
+        import('../services/authService'),
+        import('../services/planService'),
+        import('../services/emailService'),
+        import('../services/smsService'),
+        import('../services/voiceService'),
+        import('../services/mockVoiceService'),
+        import('../services/importService'),
+        import('../repositories/userRepository'),
+        import('../repositories/contactRepository'),
+        import('../repositories/touchesRepository'),
+        import('../repositories/planRepository'),
+        import('../controllers/authController'),
+        import('../controllers/contactsController'),
+        import('../controllers/touchesController'),
+        import('../controllers/userController'),
+        import('../controllers/planController'),
+        import('../controllers/communicationController'),
+        import('../middleware/authMiddleware'),
+        import('../middleware/errorHandler'),
+        import('../middleware/requestLogger'),
+        import('../routes/authRoutes'),
+        import('../routes/contactRoutes'),
+        import('../routes/touchesRoutes'),
+        import('../routes/userRoutes'),
+        import('../routes/planRoutes'),
+        import('../routes/communicationRoutes'),
+        import('../routes/healthRoutes'),
+        import('../routes/createRoutes'),
+      ];
+
+      for (const modPromise of moduleImports) {
+        try {
+          const mod = await modPromise;
+          registerModuleExports(container, mod, logger);
+        } catch (error: unknown) {
+          logger.warn('[loadModules] Failed to import module from bundle', {
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
+      }
+
+      logger.info('[loadModules] Bundle import registration complete', {
+        registeredKeys: Object.keys(container.registrations).slice(0, 20),
+        hasKoaServerRegistration: 'koaServer' in container.registrations,
+      });
+      return;
+    } catch (error: unknown) {
+      logger.warn('[loadModules] Bundle import failed, falling back to file scanning', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+      // Fall through to file scanning as backup
+    }
+  }
+
+  // File scanning mode (for dev or as fallback)
   const patterns = [
     'services/**/*.{ts,js}',
     'repositories/**/*.{ts,js}',
@@ -141,12 +221,8 @@ const registerForDevelopment = async (
     'koaServer.{ts,js}',
   ];
 
-  // In production, scan from dist directory; in dev, scan from src
-  const isProduction = config.nodeEnv === 'production';
-  const baseDir = isProduction
-    ? path.resolve(currentDir, '..') // dist directory (currentDir is dist/di, so .. is dist)
-    : path.resolve(currentDir, '..'); // src directory (currentDir is src/di, so .. is src)
-  
+  const baseDir = path.resolve(currentDir, '..'); // src directory (currentDir is src/di, so .. is src)
+
   logger.debug(`[loadModules] Scanning for modules in: ${baseDir}`, { patterns, isProduction });
 
   const files = await fg(patterns, {

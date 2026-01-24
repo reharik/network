@@ -22,3 +22,21 @@ docker/rebuild/dev:
 
 docker/rebuild/prod:
 	docker compose -f docker-compose.yml build --no-cache;
+
+# Build production API image locally (ARM64 - for EC2)
+docker/build/api/prod:
+	docker buildx build --platform linux/arm64 -f apps/api/Dockerfile --target production -t network-api:local --load .
+
+# Build production API image locally (AMD64 - for local testing on x86)
+docker/build/api/prod/amd64:
+	docker buildx build --platform linux/amd64 -f apps/api/Dockerfile --target production -t network-api:local --load .
+
+# Test the production API image locally
+docker/test/api:
+	docker run --rm -it \
+		--env-file apps/api/.env \
+		-p 3000:3000 \
+		network-api:local
+
+# Build and test in one command
+docker/build-test/api: docker/build/api/prod/amd64 docker/test/api
