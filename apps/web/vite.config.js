@@ -22,8 +22,9 @@ export default defineConfig(({ mode }) => {
   const defaults = {
     VITE_API: 'http://localhost:3000/api',
     VITE_DEFAULT_REMINDER_TIME: '09:00',
-    VITE_DEFAULT_INTERVAL_DAYS: '30',
+    VITE_DEFAULT_INTERVAL_DAYS: '14',
     VITE_DEFAULT_PREFERRED_METHOD: 'email',
+    VITE_DEFAULT_CONTACT_MESSAGE: "Hi {{firstName}}, just checking in to see how you're doing.",
     VITE_APP_NAME: 'Network',
     VITE_APP_VERSION: '1.0.0',
   };
@@ -76,6 +77,9 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.VITE_DEFAULT_INTERVAL_DAYS': getEnvNumber('VITE_DEFAULT_INTERVAL_DAYS'),
       'import.meta.env.VITE_DEFAULT_PREFERRED_METHOD': JSON.stringify(
         getEnv('VITE_DEFAULT_PREFERRED_METHOD'),
+      ),
+      'import.meta.env.VITE_DEFAULT_CONTACT_MESSAGE': JSON.stringify(
+        getEnv('VITE_DEFAULT_CONTACT_MESSAGE'),
       ),
       'import.meta.env.VITE_APP_NAME': JSON.stringify(getEnv('VITE_APP_NAME')),
       'import.meta.env.VITE_APP_VERSION': JSON.stringify(getEnv('VITE_APP_VERSION')),

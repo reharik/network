@@ -55,7 +55,7 @@ export const createImportService = ({ contactRepository, logger }: Container): I
             '{{firstName}}',
             row.firstName,
           ),
-          intervalDays: 30, // Default interval
+          intervalDays: 14, // Default interval (matches database default)
           paused: false,
         };
 

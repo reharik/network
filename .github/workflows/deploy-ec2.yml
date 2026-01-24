@@ -153,6 +153,8 @@ jobs:
           npm run build:web:production
         env:
           VITE_API: /api # Use relative path since Caddy proxies /api/* to backend
+          VITE_DEFAULT_INTERVAL_DAYS: ${{ secrets.VITE_DEFAULT_INTERVAL_DAYS || '14' }}
+          VITE_DEFAULT_CONTACT_MESSAGE: ${{ secrets.VITE_DEFAULT_CONTACT_MESSAGE || "Hi {{firstName}}, just checking in to see how you're doing." }}
 
       - name: Verify frontend build output
         run: |

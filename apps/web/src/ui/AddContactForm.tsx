@@ -1,5 +1,6 @@
 import { ContactMethod, UpdateContact } from '@network/contracts';
 import React, { useState } from 'react';
+import { config } from '../config';
 import { BaseApiError } from '../types/ApiResult';
 import { FormError } from './FormError';
 import { FormInput } from './FormInput';
@@ -23,11 +24,11 @@ export const AddContactForm = ({
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
-  const [suggestion, setSuggestion] = useState(
-    `Hi ${firstName ? firstName : '{{firstName}}'}, just checking in to see how you're doing.`,
+  const [suggestion, setSuggestion] = useState(config.defaultContactMessage);
+  const [preferredMethod, setPreferredMethod] = useState<ContactMethod>(
+    ContactMethod.fromValue(config.defaultPreferredMethod) || ContactMethod.email,
   );
-  const [preferredMethod, setPreferredMethod] = useState<ContactMethod>(ContactMethod.email);
-  const [intervalDays, setIntervalDays] = useState(30);
+  const [intervalDays, setIntervalDays] = useState(config.defaultIntervalDays);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,7 +129,7 @@ export const AddContactForm = ({
             max="365"
             value={intervalDays}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setIntervalDays(parseInt(e.target.value) || 30)
+              setIntervalDays(parseInt(e.target.value) || config.defaultIntervalDays)
             }
             disabled={isLoading}
             errors={errors}
