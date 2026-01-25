@@ -14,12 +14,28 @@ export interface VoiceService {
 }
 
 export const createVoiceService = ({ logger }: Container): VoiceService => {
+  // Check if explicit credentials are provided
+  // If not, AWS SDK will use default credential chain (IAM roles, environment variables, etc.)
+  const hasExplicitCredentials =
+    config.awsAccessKeyId &&
+    config.awsAccessKeyId.trim() !== '' &&
+    config.awsSecretAccessKey &&
+    config.awsSecretAccessKey.trim() !== '';
+
+  if (!hasExplicitCredentials && !config.awsEndpoint) {
+    logger.info(
+      'No explicit AWS credentials configured. Using default credential chain (IAM roles, environment variables, etc.).',
+    );
+  }
+
   const connectClientConfig: ConnectClientConfig = {
     region: config.awsRegion,
-    credentials: {
-      accessKeyId: config.awsAccessKeyId,
-      secretAccessKey: config.awsSecretAccessKey,
-    },
+    credentials: hasExplicitCredentials
+      ? {
+          accessKeyId: config.awsAccessKeyId,
+          secretAccessKey: config.awsSecretAccessKey,
+        }
+      : undefined, // Let AWS SDK use default credential chain (IAM roles on EC2, etc.)
     endpoint: config.awsEndpoint, // Will be undefined in production, LocalStack URL in development
   };
 

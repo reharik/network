@@ -148,13 +148,22 @@ jobs:
         run: |
           npm ci
 
+      - name: Set default contact message
+        id: default-message
+        run: |
+          if [ -z "${{ secrets.VITE_DEFAULT_CONTACT_MESSAGE }}" ]; then
+            echo "message=Hi {{firstName}}, just checking in to see how you're doing." >> "$GITHUB_OUTPUT"
+          else
+            echo "message=${{ secrets.VITE_DEFAULT_CONTACT_MESSAGE }}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build frontend
         run: |
           npm run build:web:production
         env:
           VITE_API: /api # Use relative path since Caddy proxies /api/* to backend
           VITE_DEFAULT_INTERVAL_DAYS: ${{ secrets.VITE_DEFAULT_INTERVAL_DAYS || '14' }}
-          VITE_DEFAULT_CONTACT_MESSAGE: ${{ secrets.VITE_DEFAULT_CONTACT_MESSAGE || "Hi {{firstName}}, just checking in to see how you're doing." }}
+          VITE_DEFAULT_CONTACT_MESSAGE: ${{ steps.default-message.outputs.message }}
 
       - name: Verify frontend build output
         run: |

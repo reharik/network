@@ -80,11 +80,8 @@ export const setupConfig = (): Config => {
       );
     }
 
-    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-      warnings.push(
-        '⚠️  WARNING: AWS credentials not configured. Communication services will fail.',
-      );
-    }
+    // Note: AWS credentials can be provided via IAM roles on EC2, so we don't warn about missing explicit credentials
+    // The AWS SDK will automatically use IAM roles via the default credential chain
   }
 
   // Always recreate config to pick up any env vars that were loaded after module import
