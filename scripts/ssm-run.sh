@@ -7,37 +7,29 @@ set -euo pipefail
 #   source scripts/ssm-run.sh
 #   ssm_run "comment" path/to/remote-script.sh
 #
-# Env (common):
-#   AWS_REGION              (required)
-#   S3_BUCKET               (optional, passed through to remote env if you use it)
+# Required:
+#   AWS_REGION
 #
-# Targeting (defaults to tag App=network, Env=prod):
-#   SSM_TAG_APP             (default: network)
-#   SSM_TAG_ENV             (default: prod)
-#   SSM_TARGETS_OVERRIDE    (optional) if set, used verbatim as repeated --targets args:
-#                           e.g. 'Key=InstanceIds,Values=i-0123abcd'
+# Common:
+#   S3_BUCKET
 #
-# Wait tuning (to stop "out of control" waits):
-#   SSM_WAIT_DELAY          (default: 2 seconds)
-#   SSM_WAIT_MAX_ATTEMPTS   (default: 120 attempts) => ~4 minutes at delay=2
+# Targeting defaults:
+#   SSM_TAG_APP (default network)
+#   SSM_TAG_ENV (default prod)
+#   SSM_TARGETS_OVERRIDE (optional) e.g. 'Key=InstanceIds,Values=i-0123abcd'
 #
-# Output behavior:
-#   Always prints stdout/stderr via list-command-invocations (stable and debuggable)
+# Bounded waiting:
+#   SSM_POLL_DELAY_SECONDS (default 2)
+#   SSM_POLL_MAX_ATTEMPTS  (default 180)  # 180*2 = ~6 minutes
 
 _ssm_default_targets() {
   local app="${SSM_TAG_APP:-network}"
   local env="${SSM_TAG_ENV:-prod}"
-  # IMPORTANT: return as an array-like echo (caller will put into array)
   echo "Key=tag:App,Values=${app}" "Key=tag:Env,Values=${env}"
 }
 
-_ssm_wait_delay() {
-  echo "${SSM_WAIT_DELAY:-2}"
-}
-
-_ssm_wait_max_attempts() {
-  echo "${SSM_WAIT_MAX_ATTEMPTS:-120}"
-}
+_ssm_poll_delay() { echo "${SSM_POLL_DELAY_SECONDS:-2}"; }
+_ssm_poll_max()   { echo "${SSM_POLL_MAX_ATTEMPTS:-180}"; }
 
 _ssm_send_command() {
   local comment="$1"
@@ -52,7 +44,7 @@ _ssm_send_command() {
     return 2
   fi
 
-  # Decide targets
+  # Targets
   local -a targets=()
   if [[ -n "${SSM_TARGETS_OVERRIDE:-}" ]]; then
     # shellcheck disable=SC2206
@@ -62,15 +54,28 @@ _ssm_send_command() {
     targets=($(_ssm_default_targets))
   fi
 
-  # Base64 encode remote script to avoid nested quoting
-  local payload
-  payload="$(base64 -w0 "$remote_script_path")"
+  # Prepare remote env file (only include what exists locally)
+  # Add more vars here if needed.
+  local env_text=""
+  for v in AWS_REGION S3_BUCKET; do
+    if [[ -n "${!v:-}" ]]; then
+      env_text+="${v}=${!v}"$'\n'
+    fi
+  done
 
-  # Minimal JSON for SSM parameters (file-based to avoid YAML quoting issues)
+  local script_b64 env_b64
+  script_b64="$(base64 -w0 "$remote_script_path")"
+  env_b64="$(printf "%s" "$env_text" | base64 -w0)"
+
   cat > /tmp/ssm-params.json <<JSON
 {
   "commands": [
-    "bash -lc 'set -euo pipefail; echo \"$payload\" | base64 -d > /tmp/remote.sh; chmod +x /tmp/remote.sh; /tmp/remote.sh'"
+    "bash -lc 'set -euo pipefail; \
+echo \"$env_b64\" | base64 -d > /tmp/remote.env; \
+echo \"$script_b64\" | base64 -d > /tmp/remote.sh; \
+chmod +x /tmp/remote.sh; \
+set -a; source /tmp/remote.env; set +a; \
+/tmp/remote.sh'"
   ]
 }
 JSON
@@ -87,9 +92,6 @@ JSON
 
 _ssm_get_instance_ids() {
   local command_id="$1"
-
-  # Wait until SSM resolves the target set and returns invocations.
-  # (SSM can take a moment before invocations appear.)
   for _ in {1..30}; do
     local ids
     ids="$(
@@ -105,32 +107,22 @@ _ssm_get_instance_ids() {
     fi
     sleep 2
   done
-
   return 1
 }
 
-_ssm_wait_and_dump_one() {
+_ssm_statuses() {
   local command_id="$1"
-  local instance_id="$2"
-
-  local delay max_attempts
-  delay="$(_ssm_wait_delay)"
-  max_attempts="$(_ssm_wait_max_attempts)"
-
-  echo "Waiting (delay=${delay}s, max_attempts=${max_attempts}) on ${instance_id} ..."
-
-  # Built-in waiter (no custom polling loops)
-  # If it times out, we still dump output for debugging.
-  local wait_ok=0
-  if ! aws ssm wait command-executed \
+  aws ssm list-command-invocations \
     --region "${AWS_REGION}" \
     --command-id "$command_id" \
-    --instance-id "$instance_id" \
-    --delay "$delay" \
-    --max-attempts "$max_attempts"; then
-    wait_ok=1
-  fi
+    --details \
+    --query "CommandInvocations[].{InstanceId:InstanceId,Status:Status}" \
+    --output text 2>/dev/null || true
+}
 
+_ssm_dump_instance_output() {
+  local command_id="$1"
+  local instance_id="$2"
   aws ssm list-command-invocations \
     --region "${AWS_REGION}" \
     --command-id "$command_id" \
@@ -143,8 +135,6 @@ _ssm_wait_and_dump_one() {
       Stderr:CommandPlugins[0].StandardErrorContent
     }" \
     --output table || true
-
-  return "$wait_ok"
 }
 
 ssm_run() {
@@ -161,15 +151,81 @@ ssm_run() {
     return 1
   fi
 
+  local delay max_attempts
+  delay="$(_ssm_poll_delay)"
+  max_attempts="$(_ssm_poll_max)"
+
+  # Poll until all instances reach a terminal state, bounded
+  local attempt=0
+  while true; do
+    attempt=$((attempt + 1))
+
+    local any_in_progress=0
+    local any_failed=0
+
+    for iid in $instance_ids; do
+      local status
+      status="$(
+        aws ssm list-command-invocations \
+          --region "${AWS_REGION}" \
+          --command-id "$command_id" \
+          --details \
+          --query "CommandInvocations[?InstanceId=='$iid'].Status | [0]" \
+          --output text 2>/dev/null || echo ""
+      )"
+
+      case "$status" in
+        Pending|InProgress|Delayed)
+          any_in_progress=1
+          ;;
+        Success)
+          ;;
+        Cancelled|TimedOut|Failed|Cancelling)
+          any_failed=1
+          ;;
+        "")
+          any_in_progress=1
+          ;;
+        *)
+          # Unknown status; treat as in-progress but we’ll still bound it.
+          any_in_progress=1
+          ;;
+      esac
+    done
+
+    if [[ "$any_in_progress" -eq 0 ]]; then
+      break
+    fi
+
+    if [[ "$attempt" -ge "$max_attempts" ]]; then
+      echo "SSM command did not finish within bounds (attempts=$attempt)." >&2
+      any_failed=1
+      break
+    fi
+
+    sleep "$delay"
+  done
+
+  # Dump outputs for each instance, and fail if any non-success
   local failed=0
   for iid in $instance_ids; do
-    if ! _ssm_wait_and_dump_one "$command_id" "$iid"; then
+    _ssm_dump_instance_output "$command_id" "$iid"
+    local final_status
+    final_status="$(
+      aws ssm list-command-invocations \
+        --region "${AWS_REGION}" \
+        --command-id "$command_id" \
+        --details \
+        --query "CommandInvocations[?InstanceId=='$iid'].Status | [0]" \
+        --output text 2>/dev/null || echo "Unknown"
+    )"
+    if [[ "$final_status" != "Success" ]]; then
       failed=1
     fi
   done
 
   if [[ "$failed" -ne 0 ]]; then
-    echo "One or more instances failed (or waiter timed out)." >&2
+    echo "One or more instances failed (or timed out)." >&2
     return 1
   fi
 }
