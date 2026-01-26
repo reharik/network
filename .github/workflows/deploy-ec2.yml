@@ -19,10 +19,10 @@ on:
 permissions:
   contents: read
   actions: write
-  id-token: write # Required for OIDC
+  id-token: write
 
 env:
-  AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
+  AWS_REGION: us-east-1
   APP_DIR: /opt/network
   SSM_TARGETS: "Key=tag:App,Values=network Key=tag:Env,Values=prod"
   S3_BUCKET: network-deploy-709865789463-us-east-1
@@ -65,7 +65,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: GitHubActions-Deploy
           aws-region: ${{ env.AWS_REGION }}
-      
+
       - name: Verify AWS identity
         run: aws sts get-caller-identity
 
@@ -73,7 +73,8 @@ jobs:
         run: |
           aws ssm describe-instance-information \
             --query 'InstanceInformationList[].{InstanceId:InstanceId,PingStatus:PingStatus}' \
-            --output table        
+            --output table
+
       - name: Upload backend artifacts to S3
         run: |
           aws s3 cp network-api-image.tar.gz "s3://${{ env.S3_BUCKET }}/deployments/network-api-${{ github.sha }}.tar.gz"
@@ -82,7 +83,6 @@ jobs:
           aws s3 cp scripts/deploy-ec2.sh "s3://${{ env.S3_BUCKET }}/deployments/deploy-ec2.sh"
 
       - name: Download backend files on EC2 via SSM (tag-targeted)
-        id: download-backend
         shell: bash
         run: |
           set -euo pipefail
@@ -105,13 +105,40 @@ jobs:
               --output text
           )
 
-          echo "COMMAND_ID=$COMMAND_ID" >> "$GITHUB_OUTPUT"
           echo "Command ID: $COMMAND_ID"
 
-          aws ssm wait command-executed \
-            --region "${{ env.AWS_REGION }}" \
-            --command-id "$COMMAND_ID" \
-            --targets ${{ env.SSM_TARGETS }}
+          # Poll until finished (works with tag targeting)
+          while true; do
+            STATUSES=$(aws ssm list-command-invocations \
+              --region "${{ env.AWS_REGION }}" \
+              --command-id "$COMMAND_ID" \
+              --details \
+              --query 'CommandInvocations[].Status' \
+              --output text)
+
+            if [ -z "${STATUSES// /}" ]; then
+              sleep 2
+              continue
+            fi
+
+            echo "Statuses: $STATUSES"
+
+            if echo "$STATUSES" | grep -Eiq '(Failed|Cancelled|TimedOut|Cancelling)'; then
+              aws ssm list-command-invocations \
+                --region "${{ env.AWS_REGION }}" \
+                --command-id "$COMMAND_ID" \
+                --details \
+                --query "CommandInvocations[].{InstanceId:InstanceId,Status:Status,Stdout:CommandPlugins[0].Output,Stderr:CommandPlugins[0].StandardErrorContent}" \
+                --output table
+              exit 1
+            fi
+
+            if ! echo "$STATUSES" | grep -Eiq '(Pending|InProgress|Delayed)'; then
+              break
+            fi
+
+            sleep 2
+          done
 
           aws ssm list-command-invocations \
             --region "${{ env.AWS_REGION }}" \
@@ -121,7 +148,6 @@ jobs:
             --output table
 
       - name: Deploy backend via SSM (tag-targeted)
-        id: deploy-backend
         shell: bash
         run: |
           set -euo pipefail
@@ -145,10 +171,37 @@ jobs:
 
           echo "Command ID: $COMMAND_ID"
 
-          aws ssm wait command-executed \
-            --region "${{ env.AWS_REGION }}" \
-            --command-id "$COMMAND_ID" \
-            --targets ${{ env.SSM_TARGETS }}
+          while true; do
+            STATUSES=$(aws ssm list-command-invocations \
+              --region "${{ env.AWS_REGION }}" \
+              --command-id "$COMMAND_ID" \
+              --details \
+              --query 'CommandInvocations[].Status' \
+              --output text)
+
+            if [ -z "${STATUSES// /}" ]; then
+              sleep 2
+              continue
+            fi
+
+            echo "Statuses: $STATUSES"
+
+            if echo "$STATUSES" | grep -Eiq '(Failed|Cancelled|TimedOut|Cancelling)'; then
+              aws ssm list-command-invocations \
+                --region "${{ env.AWS_REGION }}" \
+                --command-id "$COMMAND_ID" \
+                --details \
+                --query "CommandInvocations[].{InstanceId:InstanceId,Status:Status,Stdout:CommandPlugins[0].Output,Stderr:CommandPlugins[0].StandardErrorContent}" \
+                --output table
+              exit 1
+            fi
+
+            if ! echo "$STATUSES" | grep -Eiq '(Pending|InProgress|Delayed)'; then
+              break
+            fi
+
+            sleep 2
+          done
 
           aws ssm list-command-invocations \
             --region "${{ env.AWS_REGION }}" \
@@ -180,10 +233,39 @@ jobs:
               --output text
           )
 
-          aws ssm wait command-executed \
-            --region "${{ env.AWS_REGION }}" \
-            --command-id "$COMMAND_ID" \
-            --targets ${{ env.SSM_TARGETS }}
+          echo "Command ID: $COMMAND_ID"
+
+          while true; do
+            STATUSES=$(aws ssm list-command-invocations \
+              --region "${{ env.AWS_REGION }}" \
+              --command-id "$COMMAND_ID" \
+              --details \
+              --query 'CommandInvocations[].Status' \
+              --output text)
+
+            if [ -z "${STATUSES// /}" ]; then
+              sleep 2
+              continue
+            fi
+
+            echo "Statuses: $STATUSES"
+
+            if echo "$STATUSES" | grep -Eiq '(Failed|Cancelled|TimedOut|Cancelling)'; then
+              aws ssm list-command-invocations \
+                --region "${{ env.AWS_REGION }}" \
+                --command-id "$COMMAND_ID" \
+                --details \
+                --query "CommandInvocations[].{InstanceId:InstanceId,Status:Status,Stdout:CommandPlugins[0].Output,Stderr:CommandPlugins[0].StandardErrorContent}" \
+                --output table
+              exit 1
+            fi
+
+            if ! echo "$STATUSES" | grep -Eiq '(Pending|InProgress|Delayed)'; then
+              break
+            fi
+
+            sleep 2
+          done
 
           aws ssm list-command-invocations \
             --region "${{ env.AWS_REGION }}" \
@@ -209,8 +291,7 @@ jobs:
           cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: |
-          npm ci
+        run: npm ci
 
       - name: Set default contact message
         id: default-message
@@ -223,29 +304,26 @@ jobs:
           fi
 
       - name: Build frontend
-        run: |
-          npm run build:web:production
+        run: npm run build:web:production
         env:
           VITE_API: /api
           VITE_DEFAULT_INTERVAL_DAYS: ${{ secrets.VITE_DEFAULT_INTERVAL_DAYS || '14' }}
           VITE_DEFAULT_CONTACT_MESSAGE: ${{ steps.default-message.outputs.message }}
 
       - name: Verify frontend build output
-        run: |
-          test -d apps/web/dist
+        run: test -d apps/web/dist
 
       - name: Determine dist directory
         id: dist-dir
-        run: |
-          echo "path=apps/web/dist" >> "$GITHUB_OUTPUT"
+        run: echo "path=apps/web/dist" >> "$GITHUB_OUTPUT"
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          role-session-name: GitHubActions-Deploy
+          role-session-name: GitHubActions-Deploy-Frontend
           aws-region: ${{ env.AWS_REGION }}
-          
+
       - name: Verify AWS identity
         run: aws sts get-caller-identity
 
@@ -254,9 +332,9 @@ jobs:
           aws ssm describe-instance-information \
             --query 'InstanceInformationList[].{InstanceId:InstanceId,PingStatus:PingStatus}' \
             --output table
+
       - name: Package frontend
-        run: |
-          tar -czf frontend.tar.gz -C "${{ steps.dist-dir.outputs.path }}" .
+        run: tar -czf frontend.tar.gz -C "${{ steps.dist-dir.outputs.path }}" .
 
       - name: Upload frontend artifacts to S3
         run: |
@@ -294,10 +372,37 @@ jobs:
 
           echo "Command ID: $COMMAND_ID"
 
-          aws ssm wait command-executed \
-            --region "${{ env.AWS_REGION }}" \
-            --command-id "$COMMAND_ID" \
-            --targets ${{ env.SSM_TARGETS }}
+          while true; do
+            STATUSES=$(aws ssm list-command-invocations \
+              --region "${{ env.AWS_REGION }}" \
+              --command-id "$COMMAND_ID" \
+              --details \
+              --query 'CommandInvocations[].Status' \
+              --output text)
+
+            if [ -z "${STATUSES// /}" ]; then
+              sleep 2
+              continue
+            fi
+
+            echo "Statuses: $STATUSES"
+
+            if echo "$STATUSES" | grep -Eiq '(Failed|Cancelled|TimedOut|Cancelling)'; then
+              aws ssm list-command-invocations \
+                --region "${{ env.AWS_REGION }}" \
+                --command-id "$COMMAND_ID" \
+                --details \
+                --query "CommandInvocations[].{InstanceId:InstanceId,Status:Status,Stdout:CommandPlugins[0].Output,Stderr:CommandPlugins[0].StandardErrorContent}" \
+                --output table
+              exit 1
+            fi
+
+            if ! echo "$STATUSES" | grep -Eiq '(Pending|InProgress|Delayed)'; then
+              break
+            fi
+
+            sleep 2
+          done
 
           aws ssm list-command-invocations \
             --region "${{ env.AWS_REGION }}" \
