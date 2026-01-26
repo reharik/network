@@ -76,6 +76,7 @@ That's it — once you hit Send, the message will be sent from your own phone nu
         emailSubject,
         emailBody,
         config.fromEmail,
+        'Back in Touch',
       );
 
       if (!emailResult.success) {

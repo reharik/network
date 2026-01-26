@@ -36,12 +36,12 @@ export const createCommunicationController = ({
       return ctx;
     }
 
-    // Construct from address: "FirstName LastName <firstname.lastname@backintouch.net>"
+    // Construct from address components
     // Use a sanitized version of the name for the email address
     const firstName = user.firstName || 'User';
     const lastName = user.lastName || '';
     const fullName = `${firstName} ${lastName}`.trim() || 'User';
-    
+
     // Create email-safe local part from name
     // Convert to lowercase, remove special chars, replace spaces with dots, clean up
     const sanitizeForEmail = (str: string): string => {
@@ -53,14 +53,22 @@ export const createCommunicationController = ({
         .trim()
         .replace(/\s+/g, '.'); // Replace spaces with dots
     };
-    
+
     const firstNamePart = sanitizeForEmail(firstName) || 'user';
     const lastNamePart = sanitizeForEmail(lastName);
     const emailLocalPart = lastNamePart ? `${firstNamePart}.${lastNamePart}` : firstNamePart;
-    const fromEmail = `"${fullName}" <${emailLocalPart}@backintouch.net>`;
+    const fromEmail = `${emailLocalPart}@backintouch.net`;
+    const fromDisplayName = fullName;
     const replyToEmail = user.email;
 
-    const result = await emailService.sendEmail(to, subject, body, fromEmail, replyToEmail);
+    const result = await emailService.sendEmail(
+      to,
+      subject,
+      body,
+      fromEmail,
+      fromDisplayName,
+      replyToEmail,
+    );
 
     if (result.success) {
       ctx.status = 200;
