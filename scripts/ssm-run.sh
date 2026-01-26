@@ -1,26 +1,21 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# scripts/ssm-run.sh
+# S3-staged SSM runner:
+# - Uploads the remote script to S3 (from the runner)
+# - EC2 downloads it via aws s3 cp
+# - Runs it with a small env file
 #
-# Usage:
-#   source scripts/ssm-run.sh
-#   ssm_run "comment" path/to/remote-script.sh
-#
-# Required:
+# Required env:
 #   AWS_REGION
-#
-# Common:
 #   S3_BUCKET
 #
-# Targeting defaults:
+# Optional:
 #   SSM_TAG_APP (default network)
 #   SSM_TAG_ENV (default prod)
-#   SSM_TARGETS_OVERRIDE (optional) e.g. 'Key=InstanceIds,Values=i-0123abcd'
-#
-# Bounded waiting:
+#   SSM_TARGETS_OVERRIDE (e.g. 'Key=InstanceIds,Values=i-0123abcd')
 #   SSM_POLL_DELAY_SECONDS (default 2)
-#   SSM_POLL_MAX_ATTEMPTS  (default 180)  # 180*2 = ~6 minutes
+#   SSM_POLL_MAX_ATTEMPTS  (default 180)
 
 _ssm_default_targets() {
   local app="${SSM_TAG_APP:-network}"
@@ -31,18 +26,20 @@ _ssm_default_targets() {
 _ssm_poll_delay() { echo "${SSM_POLL_DELAY_SECONDS:-2}"; }
 _ssm_poll_max()   { echo "${SSM_POLL_MAX_ATTEMPTS:-180}"; }
 
+_ssm_upload_script_to_s3() {
+  local local_path="$1"
+  local key="$2"
+
+  aws s3 cp "$local_path" "s3://${S3_BUCKET}/${key}" --region "${AWS_REGION}" >/dev/null
+}
+
 _ssm_send_command() {
   local comment="$1"
   local remote_script_path="$2"
 
-  if [[ -z "${AWS_REGION:-}" ]]; then
-    echo "AWS_REGION is required" >&2
-    return 2
-  fi
-  if [[ ! -f "$remote_script_path" ]]; then
-    echo "Remote script not found: $remote_script_path" >&2
-    return 2
-  fi
+  if [[ -z "${AWS_REGION:-}" ]]; then echo "AWS_REGION is required" >&2; return 2; fi
+  if [[ -z "${S3_BUCKET:-}" ]]; then echo "S3_BUCKET is required" >&2; return 2; fi
+  if [[ ! -f "$remote_script_path" ]]; then echo "Remote script not found: $remote_script_path" >&2; return 2; fi
 
   # Targets
   local -a targets=()
@@ -54,25 +51,32 @@ _ssm_send_command() {
     targets=($(_ssm_default_targets))
   fi
 
-  # Prepare remote env file (only include what exists locally)
-  # Add more vars here if needed.
+  # Upload script to S3 under a unique key for this run
+  local run_id="${GITHUB_RUN_ID:-manual}"
+  local attempt="${GITHUB_RUN_ATTEMPT:-0}"
+  local sha="${GITHUB_SHA:-nosha}"
+  local base
+  base="$(basename "$remote_script_path")"
+
+  local script_key="deployments/ssm-scripts/${sha}/${run_id}-${attempt}/${base}"
+  _ssm_upload_script_to_s3 "$remote_script_path" "$script_key"
+
+  # Env file (small + safe)
   local env_text=""
   for v in AWS_REGION S3_BUCKET; do
-    if [[ -n "${!v:-}" ]]; then
-      env_text+="${v}=${!v}"$'\n'
-    fi
+    if [[ -n "${!v:-}" ]]; then env_text+="${v}=${!v}"$'\n'; fi
   done
 
-  local script_b64 env_b64
-  script_b64="$(base64 -w0 "$remote_script_path")"
-  env_b64="$(printf "%s" "$env_text" | base64 -w0)"
+  local env_key="deployments/ssm-scripts/${sha}/${run_id}-${attempt}/remote.env"
+  printf "%s" "$env_text" > /tmp/remote.env
+  _ssm_upload_script_to_s3 /tmp/remote.env "$env_key"
 
   cat > /tmp/ssm-params.json <<JSON
 {
   "commands": [
     "bash -c 'set -euo pipefail; \
-echo \"$env_b64\" | base64 -d > /tmp/remote.env; \
-echo \"$script_b64\" | base64 -d > /tmp/remote.sh; \
+aws s3 cp \"s3://${S3_BUCKET}/${env_key}\" /tmp/remote.env --region \"${AWS_REGION}\"; \
+aws s3 cp \"s3://${S3_BUCKET}/${script_key}\" /tmp/remote.sh --region \"${AWS_REGION}\"; \
 chmod +x /tmp/remote.sh; \
 set -a; source /tmp/remote.env; set +a; \
 /tmp/remote.sh'"
@@ -101,28 +105,16 @@ _ssm_get_instance_ids() {
         --query "CommandInvocations[].InstanceId" \
         --output text 2>/dev/null || true
     )"
-    if [[ -n "${ids// /}" ]]; then
-      echo "$ids"
-      return 0
-    fi
+    if [[ -n "${ids// /}" ]]; then echo "$ids"; return 0; fi
     sleep 2
   done
   return 1
 }
 
-_ssm_statuses() {
-  local command_id="$1"
-  aws ssm list-command-invocations \
-    --region "${AWS_REGION}" \
-    --command-id "$command_id" \
-    --details \
-    --query "CommandInvocations[].{InstanceId:InstanceId,Status:Status}" \
-    --output text 2>/dev/null || true
-}
-
 _ssm_dump_instance_output() {
   local command_id="$1"
   local instance_id="$2"
+
   aws ssm list-command-invocations \
     --region "${AWS_REGION}" \
     --command-id "$command_id" \
@@ -147,7 +139,7 @@ ssm_run() {
 
   local instance_ids
   if ! instance_ids="$(_ssm_get_instance_ids "$command_id")"; then
-    echo "No instances returned for command-id=$command_id (targeting failed?)" >&2
+    echo "No instances returned for command-id=$command_id" >&2
     return 1
   fi
 
@@ -155,13 +147,10 @@ ssm_run() {
   delay="$(_ssm_poll_delay)"
   max_attempts="$(_ssm_poll_max)"
 
-  # Poll until all instances reach a terminal state, bounded
   local attempt=0
   while true; do
     attempt=$((attempt + 1))
-
     local any_in_progress=0
-    local any_failed=0
 
     for iid in $instance_ids; do
       local status
@@ -173,40 +162,19 @@ ssm_run() {
           --query "CommandInvocations[?InstanceId=='$iid'].Status | [0]" \
           --output text 2>/dev/null || echo ""
       )"
-
       case "$status" in
-        Pending|InProgress|Delayed)
-          any_in_progress=1
-          ;;
-        Success)
-          ;;
-        Cancelled|TimedOut|Failed|Cancelling)
-          any_failed=1
-          ;;
-        "")
-          any_in_progress=1
-          ;;
-        *)
-          # Unknown status; treat as in-progress but we’ll still bound it.
-          any_in_progress=1
-          ;;
+        Pending|InProgress|Delayed|"") any_in_progress=1 ;;
       esac
     done
 
-    if [[ "$any_in_progress" -eq 0 ]]; then
-      break
-    fi
-
+    if [[ "$any_in_progress" -eq 0 ]]; then break; fi
     if [[ "$attempt" -ge "$max_attempts" ]]; then
-      echo "SSM command did not finish within bounds (attempts=$attempt)." >&2
-      any_failed=1
+      echo "SSM command did not finish within bounds." >&2
       break
     fi
-
     sleep "$delay"
   done
 
-  # Dump outputs for each instance, and fail if any non-success
   local failed=0
   for iid in $instance_ids; do
     _ssm_dump_instance_output "$command_id" "$iid"
@@ -219,14 +187,9 @@ ssm_run() {
         --query "CommandInvocations[?InstanceId=='$iid'].Status | [0]" \
         --output text 2>/dev/null || echo "Unknown"
     )"
-    if [[ "$final_status" != "Success" ]]; then
-      failed=1
-    fi
+    [[ "$final_status" == "Success" ]] || failed=1
   done
 
-  if [[ "$failed" -ne 0 ]]; then
-    echo "One or more instances failed (or timed out)." >&2
-    return 1
-  fi
+  [[ "$failed" -eq 0 ]]
 }
 export -f ssm_run
