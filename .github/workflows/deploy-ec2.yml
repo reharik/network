@@ -23,8 +23,15 @@ permissions:
 
 env:
   AWS_REGION: us-east-1
-  APP_DIR: /opt/network
   S3_BUCKET: network-deploy-709865789463-us-east-1
+
+  # Tag targeting defaults (used by scripts/ssm-run.sh)
+  SSM_TAG_APP: network
+  SSM_TAG_ENV: prod
+
+  # Keep waits bounded (2s * 120 = ~4 minutes per instance)
+  SSM_WAIT_DELAY: "2"
+  SSM_WAIT_MAX_ATTEMPTS: "120"
 
 jobs:
   deploy-backend:
@@ -33,7 +40,7 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event.inputs.deploy_backend == 'true' }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
@@ -70,174 +77,35 @@ jobs:
       - name: Verify AWS identity
         run: aws sts get-caller-identity
 
-      - name: Verify SSM can see target
-        run: |
-          aws ssm describe-instance-information \
-            --query 'InstanceInformationList[].{InstanceId:InstanceId,PingStatus:PingStatus,PlatformName:PlatformName,PlatformVersion:PlatformVersion,AgentVersion:AgentVersion}' \
-            --output table
-
       - name: Upload backend artifacts to S3
         shell: bash
         run: |
           set -euo pipefail
-          aws s3 cp network-api-image.tar.gz "s3://${{ env.S3_BUCKET }}/deployments/network-api-${{ github.sha }}.tar.gz"
-          aws s3 cp network-api-image.tar.gz "s3://${{ env.S3_BUCKET }}/deployments/network-api-latest.tar.gz"
-          aws s3 cp docker-compose.prod.yml "s3://${{ env.S3_BUCKET }}/deployments/docker-compose.prod.yml"
-          aws s3 cp scripts/deploy-ec2.sh "s3://${{ env.S3_BUCKET }}/deployments/deploy-ec2.sh"
+          aws s3 cp network-api-image.tar.gz "s3://${S3_BUCKET}/deployments/network-api-${{ github.sha }}.tar.gz"
+          aws s3 cp network-api-image.tar.gz "s3://${S3_BUCKET}/deployments/network-api-latest.tar.gz"
+          aws s3 cp docker-compose.prod.yml     "s3://${S3_BUCKET}/deployments/docker-compose.prod.yml"
+          aws s3 cp scripts/deploy-ec2.sh       "s3://${S3_BUCKET}/deployments/deploy-ec2.sh"
 
-      - name: Define SSM helper (send + wait + dump output)
-        shell: bash
-        run: |
-          cat > /tmp/ssm-run.sh <<'BASH'
-          #!/usr/bin/env bash
-          set -euo pipefail
-
-          ssm_run() {
-            local comment="$1"
-            local script_path="$2"   # local file containing the remote bash script
-
-            # Tag-targeted instances (array avoids bash/YAML parsing issues)
-            local -a TARGETS=(
-              "Key=tag:App,Values=network"
-              "Key=tag:Env,Values=prod"
-            )
-
-            # Base64 the remote script to avoid nested quoting hell
-            local payload
-            payload="$(base64 -w0 "$script_path")"
-
-            cat > /tmp/ssm-params.json <<JSON
-          {
-            "commands": [
-              "bash -lc 'set -euo pipefail; echo \"$payload\" | base64 -d > /tmp/remote.sh; chmod +x /tmp/remote.sh; /tmp/remote.sh'"
-            ]
-          }
-          JSON
-
-            local command_id
-            command_id="$(
-              aws ssm send-command \
-                --region "${AWS_REGION}" \
-                --document-name "AWS-RunShellScript" \
-                --targets "${TARGETS[@]}" \
-                --comment "$comment" \
-                --parameters file:///tmp/ssm-params.json \
-                --query "Command.CommandId" \
-                --output text
-            )"
-
-            echo "SSM CommandId: $command_id"
-
-            # Wait until SSM returns the targeted instance ids
-            local instance_ids=""
-            for _ in {1..30}; do
-              instance_ids="$(
-                aws ssm list-command-invocations \
-                  --region "${AWS_REGION}" \
-                  --command-id "$command_id" \
-                  --query "CommandInvocations[].InstanceId" \
-                  --output text 2>/dev/null || true
-              )"
-              if [ -n "${instance_ids// /}" ]; then break; fi
-              sleep 2
-            done
-
-            if [ -z "${instance_ids// /}" ]; then
-              echo "No instances returned for command-id=$command_id (tag targeting failed?)"
-              exit 1
-            fi
-
-            # Use built-in waiter instead of custom busy loops
-            local failed=0
-            for iid in $instance_ids; do
-              echo "Waiting on instance $iid ..."
-              if ! aws ssm wait command-executed \
-                --region "${AWS_REGION}" \
-                --command-id "$command_id" \
-                --instance-id "$iid"; then
-                failed=1
-              fi
-
-              aws ssm list-command-invocations \
-                --region "${AWS_REGION}" \
-                --command-id "$command_id" \
-                --details \
-                --query "CommandInvocations[?InstanceId=='$iid'].{InstanceId:InstanceId,Status:Status,Stdout:CommandPlugins[0].Output,Stderr:CommandPlugins[0].StandardErrorContent}" \
-                --output table || true
-            done
-
-            if [ "$failed" -ne 0 ]; then
-              echo "One or more instances failed."
-              exit 1
-            fi
-          }
-
-          export -f ssm_run
-          BASH
-
-          chmod +x /tmp/ssm-run.sh
-
-      - name: Download backend files on EC2 via SSM
+      - name: Download backend artifacts on EC2 (SSM)
         shell: bash
         run: |
           set -euo pipefail
-          source /tmp/ssm-run.sh
+          source scripts/ssm-run.sh
+          ssm_run "Network: download backend artifacts" scripts/remote/download-backend.sh
 
-          cat > /tmp/remote-download-backend.sh <<'REMOTE'
-          set -euo pipefail
-
-          mkdir -p /opt/network/deploy /opt/network/scripts
-
-          aws s3 cp "s3://${S3_BUCKET}/deployments/network-api-latest.tar.gz" /opt/network/deploy/network-api.tar.gz
-          aws s3 cp "s3://${S3_BUCKET}/deployments/docker-compose.prod.yml" /opt/network/docker-compose.prod.yml
-          aws s3 cp "s3://${S3_BUCKET}/deployments/deploy-ec2.sh" /opt/network/scripts/deploy-ec2.sh
-
-          chmod +x /opt/network/scripts/deploy-ec2.sh
-          REMOTE
-
-          ssm_run "Network: download backend artifacts" /tmp/remote-download-backend.sh
-
-      - name: Deploy backend via SSM
+      - name: Deploy backend on EC2 (SSM)
         shell: bash
         run: |
           set -euo pipefail
-          source /tmp/ssm-run.sh
+          source scripts/ssm-run.sh
+          ssm_run "Network: deploy backend" scripts/remote/deploy-backend.sh
 
-          cat > /tmp/remote-deploy-backend.sh <<'REMOTE'
-          set -euo pipefail
-
-          cd /opt/network
-          sudo /opt/network/scripts/deploy-ec2.sh
-
-          rm -f /opt/network/deploy/network-api.tar.gz
-          REMOTE
-
-          ssm_run "Network: deploy backend" /tmp/remote-deploy-backend.sh
-
-      - name: Verify backend via SSM
+      - name: Verify backend on EC2 (SSM)
         shell: bash
         run: |
           set -euo pipefail
-          source /tmp/ssm-run.sh
-
-          cat > /tmp/remote-verify-backend.sh <<'REMOTE'
-          set -euo pipefail
-
-          # Give containers a moment to settle
-          sleep 5
-
-          if curl -fsS http://localhost/health >/dev/null; then
-            echo "Health check passed"
-            exit 0
-          fi
-
-          echo "Health check failed"
-          docker compose -f /opt/network/docker-compose.prod.yml ps || true
-          docker compose -f /opt/network/docker-compose.prod.yml logs --tail=200 || true
-          exit 1
-          REMOTE
-
-          ssm_run "Network: verify backend health" /tmp/remote-verify-backend.sh
+          source scripts/ssm-run.sh
+          ssm_run "Network: verify backend health" scripts/remote/verify-backend.sh
 
   deploy-frontend:
     name: Deploy frontend
@@ -245,7 +113,7 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event.inputs.deploy_frontend == 'true' }}
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -275,9 +143,6 @@ jobs:
           VITE_DEFAULT_INTERVAL_DAYS: ${{ secrets.VITE_DEFAULT_INTERVAL_DAYS || '14' }}
           VITE_DEFAULT_CONTACT_MESSAGE: ${{ steps.default-message.outputs.message }}
 
-      - name: Verify frontend build output
-        run: test -d apps/web/dist
-
       - name: Package frontend
         shell: bash
         run: |
@@ -294,130 +159,17 @@ jobs:
       - name: Verify AWS identity
         run: aws sts get-caller-identity
 
-      - name: Verify SSM can see target
-        run: |
-          aws ssm describe-instance-information \
-            --query 'InstanceInformationList[].{InstanceId:InstanceId,PingStatus:PingStatus,PlatformName:PlatformName,PlatformVersion:PlatformVersion,AgentVersion:AgentVersion}' \
-            --output table
-
       - name: Upload frontend artifacts to S3
         shell: bash
         run: |
           set -euo pipefail
-          aws s3 cp frontend.tar.gz "s3://${{ env.S3_BUCKET }}/deployments/frontend-${{ github.sha }}.tar.gz"
-          aws s3 cp frontend.tar.gz "s3://${{ env.S3_BUCKET }}/deployments/frontend-latest.tar.gz"
-          aws s3 cp Caddyfile "s3://${{ env.S3_BUCKET }}/deployments/Caddyfile"
+          aws s3 cp frontend.tar.gz "s3://${S3_BUCKET}/deployments/frontend-${{ github.sha }}.tar.gz"
+          aws s3 cp frontend.tar.gz "s3://${S3_BUCKET}/deployments/frontend-latest.tar.gz"
+          aws s3 cp Caddyfile       "s3://${S3_BUCKET}/deployments/Caddyfile"
 
-      - name: Define SSM helper (send + wait + dump output)
-        shell: bash
-        run: |
-          cat > /tmp/ssm-run.sh <<'BASH'
-          #!/usr/bin/env bash
-          set -euo pipefail
-
-          ssm_run() {
-            local comment="$1"
-            local script_path="$2"
-
-            local -a TARGETS=(
-              "Key=tag:App,Values=network"
-              "Key=tag:Env,Values=prod"
-            )
-
-            local payload
-            payload="$(base64 -w0 "$script_path")"
-
-            cat > /tmp/ssm-params.json <<JSON
-          {
-            "commands": [
-              "bash -lc 'set -euo pipefail; echo \"$payload\" | base64 -d > /tmp/remote.sh; chmod +x /tmp/remote.sh; /tmp/remote.sh'"
-            ]
-          }
-          JSON
-
-            local command_id
-            command_id="$(
-              aws ssm send-command \
-                --region "${AWS_REGION}" \
-                --document-name "AWS-RunShellScript" \
-                --targets "${TARGETS[@]}" \
-                --comment "$comment" \
-                --parameters file:///tmp/ssm-params.json \
-                --query "Command.CommandId" \
-                --output text
-            )"
-
-            echo "SSM CommandId: $command_id"
-
-            local instance_ids=""
-            for _ in {1..30}; do
-              instance_ids="$(
-                aws ssm list-command-invocations \
-                  --region "${AWS_REGION}" \
-                  --command-id "$command_id" \
-                  --query "CommandInvocations[].InstanceId" \
-                  --output text 2>/dev/null || true
-              )"
-              if [ -n "${instance_ids// /}" ]; then break; fi
-              sleep 2
-            done
-
-            if [ -z "${instance_ids// /}" ]; then
-              echo "No instances returned for command-id=$command_id (tag targeting failed?)"
-              exit 1
-            fi
-
-            local failed=0
-            for iid in $instance_ids; do
-              echo "Waiting on instance $iid ..."
-              if ! aws ssm wait command-executed \
-                --region "${AWS_REGION}" \
-                --command-id "$command_id" \
-                --instance-id "$iid"; then
-                failed=1
-              fi
-
-              aws ssm list-command-invocations \
-                --region "${AWS_REGION}" \
-                --command-id "$command_id" \
-                --details \
-                --query "CommandInvocations[?InstanceId=='$iid'].{InstanceId:InstanceId,Status:Status,Stdout:CommandPlugins[0].Output,Stderr:CommandPlugins[0].StandardErrorContent}" \
-                --output table || true
-            done
-
-            if [ "$failed" -ne 0 ]; then
-              echo "One or more instances failed."
-              exit 1
-            fi
-          }
-
-          export -f ssm_run
-          BASH
-
-          chmod +x /tmp/ssm-run.sh
-
-      - name: Deploy frontend via SSM
+      - name: Deploy frontend on EC2 (SSM)
         shell: bash
         run: |
           set -euo pipefail
-          source /tmp/ssm-run.sh
-
-          cat > /tmp/remote-deploy-frontend.sh <<'REMOTE'
-          set -euo pipefail
-
-          aws s3 cp "s3://${S3_BUCKET}/deployments/frontend-latest.tar.gz" /tmp/frontend.tar.gz
-          aws s3 cp "s3://${S3_BUCKET}/deployments/Caddyfile" /tmp/Caddyfile
-
-          rm -f /opt/network/Caddyfile
-          mv /tmp/Caddyfile /opt/network/Caddyfile
-
-          rm -rf /opt/network/frontend
-          mkdir -p /opt/network/frontend
-          tar -xzf /tmp/frontend.tar.gz -C /opt/network/frontend
-          rm -f /tmp/frontend.tar.gz
-
-          cd /opt/network
-          docker compose -f docker-compose.prod.yml restart proxy
-          REMOTE
-
-          ssm_run "Network: deploy frontend" /tmp/remote-deploy-frontend.sh
+          source scripts/ssm-run.sh
+          ssm_run "Network: deploy frontend" scripts/remote/deploy-frontend.sh
