@@ -8,22 +8,24 @@ on:
       deploy_backend:
         description: "Deploy backend"
         required: false
-        default: "true"
+        default: true
         type: boolean
       deploy_frontend:
         description: "Deploy frontend"
         required: false
-        default: "true"
+        default: true
         type: boolean
 
 permissions:
   contents: read
   actions: write
+  id-token: write # Required for OIDC
 
 env:
-  EC2_HOST: ${{ secrets.EC2_HOST }}
-  EC2_USER: ${{ secrets.EC2_USER }}
+  AWS_REGION: ${{ secrets.AWS_REGION || 'us-east-1' }}
   APP_DIR: /opt/network
+  SSM_TARGETS: "Key=tag:App,Values=network Key=tag:Env,Values=prod"
+  S3_BUCKET: network-deploy-709865789463-us-east-1
 
 jobs:
   deploy-backend:
@@ -53,80 +55,137 @@ jobs:
           cache-to: type=gha,mode=max
           provenance: false
 
-      # - name: Check GHA cache env
-      #   run: |
-      #     env | grep -E 'ACTIONS_CACHE_URL|ACTIONS_RUNTIME_TOKEN' || true
-
-      # - name: Inspect buildx
-      #   run: |
-      #     docker buildx version
-      #     docker buildx ls
-      #     docker buildx inspect --bootstrap
-
       - name: Save Docker image
         run: |
           docker save network-api:${{ github.sha }} network-api:latest | gzip > network-api-image.tar.gz
 
-      - name: Setup SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          # NOTE: you can remove these two lines once your role trust uses GitHub OIDC only
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-session-name: GitHubActions-Deploy
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Add EC2 to known hosts
+      - name: Upload backend artifacts to S3
         run: |
-          ssh-keyscan -H ${{ env.EC2_HOST }} >> ~/.ssh/known_hosts
+          aws s3 cp network-api-image.tar.gz "s3://${{ env.S3_BUCKET }}/deployments/network-api-${{ github.sha }}.tar.gz"
+          aws s3 cp network-api-image.tar.gz "s3://${{ env.S3_BUCKET }}/deployments/network-api-latest.tar.gz"
+          aws s3 cp docker-compose.prod.yml "s3://${{ env.S3_BUCKET }}/deployments/docker-compose.prod.yml"
+          aws s3 cp scripts/deploy-ec2.sh "s3://${{ env.S3_BUCKET }}/deployments/deploy-ec2.sh"
 
-      - name: Preflight EC2 access
+      - name: Download backend files on EC2 via SSM (tag-targeted)
+        id: download-backend
+        shell: bash
         run: |
-          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "set -e; test -d /opt/network; mkdir -p /opt/network/deploy; docker ps >/dev/null"
+          set -euo pipefail
 
-      - name: Transfer files to EC2
+          COMMAND_ID=$(
+            aws ssm send-command \
+              --region "${{ env.AWS_REGION }}" \
+              --document-name "AWS-RunShellScript" \
+              --targets ${{ env.SSM_TARGETS }} \
+              --comment "Network: download backend artifacts" \
+              --parameters 'commands=[
+                "set -euo pipefail",
+                "mkdir -p /opt/network/deploy /opt/network/scripts",
+                "aws s3 cp s3://${{ env.S3_BUCKET }}/deployments/network-api-latest.tar.gz /opt/network/deploy/network-api.tar.gz",
+                "aws s3 cp s3://${{ env.S3_BUCKET }}/deployments/docker-compose.prod.yml /opt/network/docker-compose.prod.yml",
+                "aws s3 cp s3://${{ env.S3_BUCKET }}/deployments/deploy-ec2.sh /opt/network/scripts/deploy-ec2.sh",
+                "chmod +x /opt/network/scripts/deploy-ec2.sh"
+              ]' \
+              --query "Command.CommandId" \
+              --output text
+          )
+
+          echo "COMMAND_ID=$COMMAND_ID" >> "$GITHUB_OUTPUT"
+          echo "Command ID: $COMMAND_ID"
+
+          aws ssm wait command-executed \
+            --region "${{ env.AWS_REGION }}" \
+            --command-id "$COMMAND_ID" \
+            --targets ${{ env.SSM_TARGETS }}
+
+          aws ssm list-command-invocations \
+            --region "${{ env.AWS_REGION }}" \
+            --command-id "$COMMAND_ID" \
+            --details \
+            --query "CommandInvocations[].{InstanceId:InstanceId,Status:Status,Stdout:CommandPlugins[0].Output,Stderr:CommandPlugins[0].StandardErrorContent}" \
+            --output table
+
+      - name: Deploy backend via SSM (tag-targeted)
+        id: deploy-backend
+        shell: bash
         run: |
-          if [ -z "${{ env.EC2_USER }}" ] || [ -z "${{ env.EC2_HOST }}" ]; then
-            echo "Error: EC2_USER or EC2_HOST is not set"
-            exit 1
-          fi
+          set -euo pipefail
 
-          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "mkdir -p /opt/network/deploy /opt/network/scripts"
+          COMMAND_ID=$(
+            aws ssm send-command \
+              --region "${{ env.AWS_REGION }}" \
+              --document-name "AWS-RunShellScript" \
+              --targets ${{ env.SSM_TARGETS }} \
+              --comment "Network: deploy backend" \
+              --parameters 'commands=[
+                "set -euo pipefail",
+                "cd /opt/network",
+                "echo Running deployment...",
+                "sudo /opt/network/scripts/deploy-ec2.sh",
+                "rm -f /opt/network/deploy/network-api.tar.gz"
+              ]' \
+              --query "Command.CommandId" \
+              --output text
+          )
 
-          # Transfer Docker image
-          scp -o StrictHostKeyChecking=no \
-            network-api-image.tar.gz \
-            "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/opt/network/deploy/network-api.tar.gz"
+          echo "Command ID: $COMMAND_ID"
 
-          # Transfer docker-compose and deploy script
-          scp -o StrictHostKeyChecking=no \
-            docker-compose.prod.yml \
-            "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/opt/network/docker-compose.prod.yml"
+          aws ssm wait command-executed \
+            --region "${{ env.AWS_REGION }}" \
+            --command-id "$COMMAND_ID" \
+            --targets ${{ env.SSM_TARGETS }}
 
-          scp -o StrictHostKeyChecking=no \
-            scripts/deploy-ec2.sh \
-            "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/opt/network/scripts/deploy-ec2.sh"
+          aws ssm list-command-invocations \
+            --region "${{ env.AWS_REGION }}" \
+            --command-id "$COMMAND_ID" \
+            --details \
+            --query "CommandInvocations[].{InstanceId:InstanceId,Status:Status,Stdout:CommandPlugins[0].Output,Stderr:CommandPlugins[0].StandardErrorContent}" \
+            --output table
 
-          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" "chmod +x /opt/network/scripts/deploy-ec2.sh"
-
-      - name: Deploy to EC2
+      - name: Verify backend via SSM (tag-targeted)
+        shell: bash
         run: |
-          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
-            set -euo pipefail
-            cd /opt/network
-            echo "Running deployment..."
-            /opt/network/scripts/deploy-ec2.sh
-            rm -f /opt/network/deploy/network-api.tar.gz
-          EOF
+          set -euo pipefail
 
-      - name: Verify deployment
-        run: |
-          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
-            sleep 5
-            if curl -f http://localhost/health >/dev/null 2>&1; then
-              echo "Health check passed"
-              exit 0
-            fi
-            echo "Health check failed"
-            docker compose -f /opt/network/docker-compose.prod.yml ps || true
-            exit 1
-          EOF
+          COMMAND_ID=$(
+            aws ssm send-command \
+              --region "${{ env.AWS_REGION }}" \
+              --document-name "AWS-RunShellScript" \
+              --targets ${{ env.SSM_TARGETS }} \
+              --comment "Network: verify backend health" \
+              --parameters 'commands=[
+                "set -euo pipefail",
+                "sleep 5",
+                "if curl -f http://localhost/health >/dev/null 2>&1; then echo Health check passed; exit 0; fi",
+                "echo Health check failed",
+                "docker compose -f /opt/network/docker-compose.prod.yml ps || true",
+                "exit 1"
+              ]' \
+              --query "Command.CommandId" \
+              --output text
+          )
+
+          aws ssm wait command-executed \
+            --region "${{ env.AWS_REGION }}" \
+            --command-id "$COMMAND_ID" \
+            --targets ${{ env.SSM_TARGETS }}
+
+          aws ssm list-command-invocations \
+            --region "${{ env.AWS_REGION }}" \
+            --command-id "$COMMAND_ID" \
+            --details \
+            --query "CommandInvocations[].{InstanceId:InstanceId,Status:Status,Stdout:CommandPlugins[0].Output,Stderr:CommandPlugins[0].StandardErrorContent}" \
+            --output table
 
   deploy-frontend:
     name: Deploy frontend
@@ -150,6 +209,7 @@ jobs:
 
       - name: Set default contact message
         id: default-message
+        shell: bash
         run: |
           if [ -z "${{ secrets.VITE_DEFAULT_CONTACT_MESSAGE }}" ]; then
             echo "message=Hi {{firstName}}, just checking in to see how you're doing." >> "$GITHUB_OUTPUT"
@@ -161,7 +221,7 @@ jobs:
         run: |
           npm run build:web:production
         env:
-          VITE_API: /api # Use relative path since Caddy proxies /api/* to backend
+          VITE_API: /api
           VITE_DEFAULT_INTERVAL_DAYS: ${{ secrets.VITE_DEFAULT_INTERVAL_DAYS || '14' }}
           VITE_DEFAULT_CONTACT_MESSAGE: ${{ steps.default-message.outputs.message }}
 
@@ -174,40 +234,64 @@ jobs:
         run: |
           echo "path=apps/web/dist" >> "$GITHUB_OUTPUT"
 
-      - name: Setup SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          # NOTE: you can remove these two lines once your role trust uses GitHub OIDC only
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-session-name: GitHubActions-Deploy-Frontend
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Add EC2 to known hosts
+      - name: Package frontend
         run: |
-          ssh-keyscan -H ${{ env.EC2_HOST }} >> ~/.ssh/known_hosts
-
-      - name: Transfer frontend to EC2
-        run: |
-          if [ -z "${{ env.EC2_USER }}" ] || [ -z "${{ env.EC2_HOST }}" ]; then
-            echo "Error: EC2_USER or EC2_HOST is not set"
-            exit 1
-          fi
-
           tar -czf frontend.tar.gz -C "${{ steps.dist-dir.outputs.path }}" .
 
-          scp -o StrictHostKeyChecking=no frontend.tar.gz "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/frontend.tar.gz"
-          scp -o StrictHostKeyChecking=no Caddyfile "${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/Caddyfile"
+      - name: Upload frontend artifacts to S3
+        run: |
+          aws s3 cp frontend.tar.gz "s3://${{ env.S3_BUCKET }}/deployments/frontend-${{ github.sha }}.tar.gz"
+          aws s3 cp frontend.tar.gz "s3://${{ env.S3_BUCKET }}/deployments/frontend-latest.tar.gz"
+          aws s3 cp Caddyfile "s3://${{ env.S3_BUCKET }}/deployments/Caddyfile"
 
-          ssh -o StrictHostKeyChecking=no "${{ env.EC2_USER }}@${{ env.EC2_HOST }}" << 'EOF'
-            set -euo pipefail
-            
-            # Update Caddyfile
-            rm -rf /opt/network/Caddyfile
-            mv /tmp/Caddyfile /opt/network/Caddyfile
-            
-            # Update frontend
-            rm -rf /opt/network/frontend
-            mkdir -p /opt/network/frontend
-            tar -xzf /tmp/frontend.tar.gz -C /opt/network/frontend
-            rm -f /tmp/frontend.tar.gz
-            
-            cd /opt/network
-            docker compose -f docker-compose.prod.yml restart proxy
-          EOF
+      - name: Deploy frontend via SSM (tag-targeted)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          COMMAND_ID=$(
+            aws ssm send-command \
+              --region "${{ env.AWS_REGION }}" \
+              --document-name "AWS-RunShellScript" \
+              --targets ${{ env.SSM_TARGETS }} \
+              --comment "Network: deploy frontend" \
+              --parameters 'commands=[
+                "set -euo pipefail",
+                "aws s3 cp s3://${{ env.S3_BUCKET }}/deployments/frontend-latest.tar.gz /tmp/frontend.tar.gz",
+                "aws s3 cp s3://${{ env.S3_BUCKET }}/deployments/Caddyfile /tmp/Caddyfile",
+                "rm -f /opt/network/Caddyfile",
+                "mv /tmp/Caddyfile /opt/network/Caddyfile",
+                "rm -rf /opt/network/frontend",
+                "mkdir -p /opt/network/frontend",
+                "tar -xzf /tmp/frontend.tar.gz -C /opt/network/frontend",
+                "rm -f /tmp/frontend.tar.gz",
+                "cd /opt/network",
+                "docker compose -f docker-compose.prod.yml restart proxy"
+              ]' \
+              --query "Command.CommandId" \
+              --output text
+          )
+
+          echo "Command ID: $COMMAND_ID"
+
+          aws ssm wait command-executed \
+            --region "${{ env.AWS_REGION }}" \
+            --command-id "$COMMAND_ID" \
+            --targets ${{ env.SSM_TARGETS }}
+
+          aws ssm list-command-invocations \
+            --region "${{ env.AWS_REGION }}" \
+            --command-id "$COMMAND_ID" \
+            --details \
+            --query "CommandInvocations[].{InstanceId:InstanceId,Status:Status,Stdout:CommandPlugins[0].Output,Stderr:CommandPlugins[0].StandardErrorContent}" \
+            --output table

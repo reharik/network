@@ -37,49 +37,145 @@ Deploys the application to an EC2 instance using Docker Compose.
 
 Configure these secrets in your GitHub repository settings:
 
-### EC2 Deployment Secrets
+### EC2 Deployment Secrets (SSM-based)
 
-- **`EC2_HOST`**: EC2 instance IP or DNS name
-  - Example: `ec2-1-2-3-4.compute-1.amazonaws.com` or `1.2.3.4`
-- **`EC2_USER`**: SSH user for EC2
-  - Example: `ubuntu` (default)
-- **`EC2_SSH_KEY`**: Private SSH key for EC2 access
-  - Generate with: `ssh-keygen -t ed25519 -f ~/.ssh/network-ec2`
-  - Copy public key to EC2: `ssh-copy-id -i ~/.ssh/network-ec2.pub ubuntu@YOUR_EC2_IP`
-  - Add private key content to GitHub secret
+**Required:**
+- **`EC2_INSTANCE_ID`**: EC2 instance ID
+  - Example: `i-0123456789abcdef0`
+- **`S3_DEPLOY_BUCKET`**: S3 bucket name for deployment artifacts
+  - Example: `my-network-deployments`
+  - Must be in the same region as your EC2 instance
+
+**AWS Authentication (choose one option):**
+
+**Option A: OIDC (Recommended - More Secure)**
+- **`AWS_ROLE_ARN`**: IAM Role ARN for GitHub Actions OIDC
+  - Example: `arn:aws:iam::123456789012:role/github-actions-role`
+  - This role must have permissions for SSM, S3, and EC2
+  - See "Setting Up OIDC" section below
+
+**Option B: Access Keys (Simpler Setup)**
+- **`AWS_ACCESS_KEY_ID`**: AWS access key ID
+- **`AWS_SECRET_ACCESS_KEY`**: AWS secret access key
+  - User/role must have permissions for SSM, S3, and EC2
+
+**Optional:**
+- **`AWS_REGION`**: AWS region (defaults to `us-east-1` if not set)
+  - Example: `us-east-1`
 - **`VITE_API`**: API endpoint URL for frontend builds
-  - Example: `http://YOUR_EC2_IP/api` or `https://yourdomain.com/api`
+  - Example: `https://backintouch.net/api`
 
-## Setting Up SSH Access
+## Setting Up AWS SSM Access
 
-### 1. Generate SSH Key Pair
+### 1. Enable SSM on EC2 Instance
 
+The EC2 instance must have the SSM Agent installed and an IAM instance profile with SSM permissions.
+
+**For Ubuntu/Debian:**
 ```bash
-ssh-keygen -t ed25519 -f ~/.ssh/network-ec2 -N ""
+sudo snap install amazon-ssm-agent --classic
+sudo systemctl enable amazon-ssm-agent
+sudo systemctl start amazon-ssm-agent
 ```
 
-### 2. Copy Public Key to EC2
-
+**For Amazon Linux 2:**
 ```bash
-ssh-copy-id -i ~/.ssh/network-ec2.pub ubuntu@YOUR_EC2_IP
+sudo systemctl enable amazon-ssm-agent
+sudo systemctl start amazon-ssm-agent
 ```
 
-### 3. Test SSH Connection
+### 2. Create IAM Instance Profile
+
+Create an IAM role with the `AmazonSSMManagedInstanceCore` policy and attach it to your EC2 instance:
+
+1. Go to IAM → Roles → Create role
+2. Select "EC2" as the trusted entity
+3. Attach policy: `AmazonSSMManagedInstanceCore`
+4. Add additional policies for S3 access:
+   - `AmazonS3ReadOnlyAccess` (or create custom policy for your deployment bucket)
+5. Create role and attach to EC2 instance
+
+### 3. Configure GitHub Actions Authentication
+
+**Option A: OIDC (Recommended)**
+
+1. Go to IAM → Identity providers → Add provider
+2. Choose "OpenID Connect"
+3. Provider URL: `https://token.actions.githubusercontent.com`
+4. Audience: `sts.amazonaws.com`
+5. Go to IAM → Roles → Create role
+6. Select "Web identity" as trusted entity
+7. Choose the GitHub provider you just created
+8. Enter your GitHub organization/repository
+9. Attach policies:
+   - `AmazonSSMFullAccess` (or custom policy for SSM commands)
+   - `AmazonS3FullAccess` (or custom policy for deployment bucket)
+   - `AmazonEC2ReadOnlyAccess` (for instance status checks)
+10. Copy the Role ARN and add to GitHub Secrets as `AWS_ROLE_ARN`
+
+**Option B: Access Keys (Simpler)**
+
+1. Go to IAM → Users → Create user (or use existing)
+2. Attach policies:
+   - `AmazonSSMFullAccess` (or custom policy for SSM commands)
+   - `AmazonS3FullAccess` (or custom policy for deployment bucket)
+   - `AmazonEC2ReadOnlyAccess` (for instance status checks)
+3. Go to Security credentials → Create access key
+4. Add to GitHub Secrets:
+   - `AWS_ACCESS_KEY_ID`
+   - `AWS_SECRET_ACCESS_KEY`
+
+### 4. Create S3 Bucket for Deployments
 
 ```bash
-ssh -i ~/.ssh/network-ec2 ubuntu@YOUR_EC2_IP
+aws s3 mb s3://your-network-deployments --region us-east-1
 ```
 
-### 4. Add Private Key to GitHub Secrets
+Add bucket policy to allow GitHub Actions role and EC2 instance role to access:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "arn:aws:iam::YOUR_ACCOUNT:role/github-actions-role",
+          "arn:aws:iam::YOUR_ACCOUNT:role/ec2-ssm-role"
+        ]
+      },
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject"
+      ],
+      "Resource": "arn:aws:s3:::your-network-deployments/*"
+    }
+  ]
+}
+```
+
+### 5. Verify SSM Access
+
+Test SSM connection from your local machine:
 
 ```bash
-# Copy private key content
-cat ~/.ssh/network-ec2
-
-# Add to GitHub: Settings → Secrets and variables → Actions → New repository secret
-# Name: EC2_SSH_KEY
-# Value: (paste entire private key including -----BEGIN and -----END lines)
+aws ssm send-command \
+  --instance-ids i-YOUR_INSTANCE_ID \
+  --document-name "AWS-RunShellScript" \
+  --parameters "commands=['echo Hello from SSM']" \
+  --region us-east-1
 ```
+
+### 6. Add Secrets to GitHub
+
+Go to: Settings → Secrets and variables → Actions → New repository secret
+
+Add:
+- `AWS_ROLE_ARN`: Your IAM role ARN
+- `AWS_REGION`: Your AWS region (optional)
+- `EC2_INSTANCE_ID`: Your EC2 instance ID
+- `S3_DEPLOY_BUCKET`: Your S3 bucket name
 
 ## Workflow Customization
 
@@ -124,19 +220,28 @@ Or use GitHub Environments with protection rules.
 
 ### Deployment Failures
 
-**SSH Connection Issues:**
+**SSM Connection Issues:**
 
-- Verify `EC2_HOST` and `EC2_USER` are correct
-- Check SSH key is properly formatted in GitHub secrets
-- Ensure EC2 security group allows SSH (port 22) from GitHub Actions IPs
-- Test SSH connection manually
+- Verify `EC2_INSTANCE_ID` is correct
+- Check EC2 instance has SSM Agent installed and running
+- Ensure EC2 instance has IAM role with `AmazonSSMManagedInstanceCore` policy
+- Verify `AWS_ROLE_ARN` has SSM permissions
+- Test SSM connection: `aws ssm send-command --instance-ids i-XXX --document-name "AWS-RunShellScript" --parameters "commands=['echo test']"`
+
+**S3 Access Issues:**
+
+- Verify `S3_DEPLOY_BUCKET` exists and is accessible
+- Check IAM roles (GitHub Actions and EC2) have S3 permissions
+- Verify bucket policy allows access from both roles
+- Test S3 access: `aws s3 ls s3://your-bucket-name/`
 
 **EC2 Deployment Issues:**
 
 - Check EC2 instance is running
 - Verify Docker is installed on EC2
 - Check deployment script exists: `/opt/network/scripts/deploy-ec2.sh`
-- View logs on EC2: `docker compose -f /opt/network/docker-compose.prod.yml logs`
+- View SSM command output in AWS Console → Systems Manager → Run Command
+- View logs on EC2 via SSM: `aws ssm send-command --instance-ids i-XXX --document-name "AWS-RunShellScript" --parameters "commands=['docker compose -f /opt/network/docker-compose.prod.yml logs']"`
 
 **Health Check Failures:**
 
@@ -153,12 +258,15 @@ Or use GitHub Environments with protection rules.
 ## Security Notes
 
 - Never commit secrets to the repository
-- Use SSH keys instead of passwords
-- Rotate SSH keys regularly
+- Use AWS SSM instead of SSH (no keys to manage)
+- Use IAM roles with least-privilege policies
+- Rotate IAM role credentials regularly
+- Use OIDC for GitHub Actions (no long-lived credentials)
 - Use least-privilege security groups on EC2
 - Enable branch protection on `main`
 - Require pull request reviews before merging
 - Keep EC2 instance updated with security patches
+- Use S3 bucket policies to restrict access
 
 ## Deployment Flow
 
@@ -166,14 +274,16 @@ Or use GitHub Environments with protection rules.
 2. **CD triggers** on push to `main`
 3. **Backend job**:
    - Builds Docker image
-   - Transfers to EC2 via SSH
+   - Uploads to S3
+   - Downloads on EC2 via SSM
    - Loads image on EC2
-   - Runs deployment script
-   - Verifies health
+   - Runs deployment script via SSM
+   - Verifies health via SSM
 4. **Frontend job**:
    - Builds production frontend
-   - Transfers to EC2
-   - Restarts proxy
+   - Uploads to S3
+   - Downloads on EC2 via SSM
+   - Restarts proxy via SSM
 
 ## Resources
 
