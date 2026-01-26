@@ -70,7 +70,7 @@ _ssm_send_command() {
   cat > /tmp/ssm-params.json <<JSON
 {
   "commands": [
-    "bash -lc 'set -euo pipefail; \
+    "bash -c 'set -euo pipefail; \
 echo \"$env_b64\" | base64 -d > /tmp/remote.env; \
 echo \"$script_b64\" | base64 -d > /tmp/remote.sh; \
 chmod +x /tmp/remote.sh; \
