@@ -59,16 +59,21 @@ jobs:
         run: |
           docker save network-api:${{ github.sha }} network-api:latest | gzip > network-api-image.tar.gz
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          # NOTE: you can remove these two lines once your role trust uses GitHub OIDC only
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-session-name: GitHubActions-Deploy
           aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Verify AWS identity
+        run: aws sts get-caller-identity
 
+      - name: Verify SSM can see target
+        run: |
+          aws ssm describe-instance-information \
+            --query 'InstanceInformationList[].{InstanceId:InstanceId,PingStatus:PingStatus}' \
+            --output table        
       - name: Upload backend artifacts to S3
         run: |
           aws s3 cp network-api-image.tar.gz "s3://${{ env.S3_BUCKET }}/deployments/network-api-${{ github.sha }}.tar.gz"
@@ -234,16 +239,21 @@ jobs:
         run: |
           echo "path=apps/web/dist" >> "$GITHUB_OUTPUT"
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          # NOTE: you can remove these two lines once your role trust uses GitHub OIDC only
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          role-session-name: GitHubActions-Deploy-Frontend
+          role-session-name: GitHubActions-Deploy
           aws-region: ${{ env.AWS_REGION }}
+          
+      - name: Verify AWS identity
+        run: aws sts get-caller-identity
 
+      - name: Verify SSM can see target
+        run: |
+          aws ssm describe-instance-information \
+            --query 'InstanceInformationList[].{InstanceId:InstanceId,PingStatus:PingStatus}' \
+            --output table
       - name: Package frontend
         run: |
           tar -czf frontend.tar.gz -C "${{ steps.dist-dir.outputs.path }}" .
