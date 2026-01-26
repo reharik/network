@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BaseApiError } from '../types/ApiResult';
 import { FormError } from './FormError';
 import { FormInput } from './FormInput';
@@ -24,6 +24,11 @@ export const SmsModal = ({
   errors = [],
 }: SmsModalProps) => {
   const [message, setMessage] = useState(initialMessage);
+
+  // Update state when initial value changes
+  useEffect(() => {
+    setMessage(initialMessage);
+  }, [initialMessage]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

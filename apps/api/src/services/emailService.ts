@@ -11,6 +11,7 @@ export interface EmailService {
     subject: string,
     body: string,
     fromEmail?: string,
+    replyToEmail?: string,
   ) => Promise<Response<{ messageId: string }>>;
 }
 
@@ -48,17 +49,20 @@ export const createEmailService = ({ logger }: Container): EmailService => {
       subject: string,
       body: string,
       fromEmail?: string,
+      replyToEmail?: string,
     ): Promise<Response<{ messageId: string }>> => {
+      const fromAddress = fromEmail || config.fromEmail;
       logger.info('Sending email', {
         to,
         subject,
-        from: fromEmail || config.fromEmail,
+        from: fromAddress,
+        replyTo: replyToEmail,
       });
 
       return asyncOperationToResponse(
         async () => {
           const command = new SendEmailCommand({
-            Source: fromEmail || config.fromEmail,
+            Source: fromAddress,
             Destination: {
               ToAddresses: [to],
             },
@@ -74,6 +78,7 @@ export const createEmailService = ({ logger }: Container): EmailService => {
                 },
               },
             },
+            ReplyToAddresses: replyToEmail ? [replyToEmail] : undefined,
           });
 
           const result = await sesClient.send(command);
@@ -82,6 +87,8 @@ export const createEmailService = ({ logger }: Container): EmailService => {
             to,
             subject,
             messageId,
+            from: fromAddress,
+            replyTo: replyToEmail,
           });
           return { messageId };
         },

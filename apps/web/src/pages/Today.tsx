@@ -45,6 +45,9 @@ export const Today = () => {
     contact?: DailyContact;
   }>({ isOpen: false });
 
+  // Track custom messages for each contact
+  const [customMessages, setCustomMessages] = useState<Record<string, string>>({});
+
   const {
     data: result,
     isLoading,
@@ -106,6 +109,21 @@ export const Today = () => {
       // Auto-log touch for the call
       autoLogTouch(contact.id, 'call', `Called ${contact.phone}`);
     }
+  };
+
+  const handleMessageChange = (contactId: string, message: string) => {
+    setCustomMessages((prev) => ({
+      ...prev,
+      [contactId]: message,
+    }));
+  };
+
+  const getMessageForContact = (contact: DailyContact): string => {
+    const customMessage = customMessages[contact.id];
+    if (customMessage !== undefined) {
+      return customMessage;
+    }
+    return replaceTokens(contact.suggestion, contact);
   };
 
   const handleTouchSubmit = (data: { method: string; message: string; outcome: string }) => {
@@ -280,7 +298,10 @@ export const Today = () => {
               <Field label="Suggested line">
                 <FormInput
                   as="textarea"
-                  defaultValue={replaceTokens(c.suggestion, c)}
+                  value={customMessages[c.id] ?? replaceTokens(c.suggestion, c)}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    handleMessageChange(c.id, e.target.value)
+                  }
                   onFocus={(e: React.FocusEvent<HTMLTextAreaElement>) => e.currentTarget.select()}
                 />
               </Field>
@@ -351,7 +372,7 @@ export const Today = () => {
             contactName={`${modal.contact.firstName} ${modal.contact.lastName}`}
             contactEmail={modal.contact.email}
             initialSubject=""
-            initialBody={replaceTokens(modal.contact.suggestion, modal.contact)}
+            initialBody={getMessageForContact(modal.contact)}
             onSubmit={handleEmailSubmit}
             onCancel={handleCloseModal}
             isLoading={emailMutation.isPending}
@@ -366,7 +387,7 @@ export const Today = () => {
           <SmsModal
             contactName={`${modal.contact.firstName} ${modal.contact.lastName}`}
             contactPhone={modal.contact.phone}
-            initialMessage={replaceTokens(modal.contact.suggestion, modal.contact)}
+            initialMessage={getMessageForContact(modal.contact)}
             onSubmit={handleSmsSubmit}
             onCancel={handleCloseModal}
             isLoading={smsMutation.isPending}

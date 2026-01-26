@@ -29,7 +29,7 @@ AWS_SECRET_ACCESS_KEY=your-real-aws-secret-key
 # ⚠️ DO NOT SET AWS_ENDPOINT in production!
 
 # Email Configuration
-FROM_EMAIL=noreply@yourdomain.com
+FROM_EMAIL=noreply@backintouch.net
 
 # SMS Configuration
 SMS_FROM_NUMBER=+1234567890
@@ -58,7 +58,7 @@ The app will automatically detect it's not in LocalStack mode and use real AWS s
 
 1. Go to AWS Console → SES
 2. **Verify your domain:**
-   - Add your domain (e.g., `yourdomain.com`)
+   - Add your domain (e.g., `backintouch.net`)
    - Add DNS records (DKIM, SPF, DMARC)
 3. **Request production access:**
    - By default, SES is in "sandbox mode" (can only send to verified emails)

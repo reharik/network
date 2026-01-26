@@ -2,16 +2,28 @@
 # Supports both domain-based and IP-based access
 
 # Option 1: With Domain (HTTPS enabled automatically)
-# Uncomment and configure when you have a domain:
-# yourdomain.com {
-#   reverse_proxy api:3000 {
-#     health_uri /health
-#     health_interval 30s
-#   }
-#   root * /usr/share/caddy/html
-#   file_server
-#   try_files {path} /index.html
-# }
+# Caddy will automatically obtain SSL certificates from Let's Encrypt
+backintouch.net {
+  # Handle API requests first
+  handle /api/* {
+    reverse_proxy api:3000 {
+      health_uri /health
+      health_interval 30s
+    }
+  }
+
+  # Serve frontend static files for everything else
+  handle {
+    root * /usr/share/caddy/html
+    file_server
+    # SPA routing - serve index.html for all routes
+    try_files {path} /index.html
+  }
+}
+
+www.backintouch.net {
+  redir https://backintouch.net{uri} permanent
+}
 
 # Option 2: Without Domain (HTTP only, for personal use)
 # This uses the EC2 public IP or DNS name

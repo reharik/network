@@ -40,7 +40,7 @@ AWS_SECRET_ACCESS_KEY=your-real-aws-secret-key
 # ⚠️ DO NOT SET AWS_ENDPOINT in production!
 
 # Email Configuration
-FROM_EMAIL=noreply@yourdomain.com
+FROM_EMAIL=noreply@backintouch.net
 
 # SMS Configuration
 SMS_FROM_NUMBER=+1234567890

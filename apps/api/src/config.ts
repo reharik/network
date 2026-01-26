@@ -106,7 +106,7 @@ export const setupConfig = (): Config => {
     awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
     awsEndpoint: process.env.AWS_ENDPOINT, // Optional LocalStack endpoint
     // Email configuration
-    fromEmail: process.env.FROM_EMAIL || 'noreply@yourdomain.com',
+    fromEmail: process.env.FROM_EMAIL || 'noreply@backintouch.net',
     // SMS configuration
     smsFromNumber: process.env.SMS_FROM_NUMBER || '+1234567890',
     smsDeliveryMode: getValidValue<'email_handoff' | 'aws_sns'>(

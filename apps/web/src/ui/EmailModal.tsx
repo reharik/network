@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BaseApiError } from '../types/ApiResult';
 import { FormError } from './FormError';
 import { FormInput } from './FormInput';
@@ -27,6 +27,15 @@ export const EmailModal = ({
 }: EmailModalProps) => {
   const [subject, setSubject] = useState(initialSubject);
   const [body, setBody] = useState(initialBody);
+
+  // Update state when initial values change
+  useEffect(() => {
+    setSubject(initialSubject);
+  }, [initialSubject]);
+
+  useEffect(() => {
+    setBody(initialBody);
+  }, [initialBody]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

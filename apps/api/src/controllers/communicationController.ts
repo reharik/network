@@ -28,11 +28,39 @@ export const createCommunicationController = ({
       return ctx;
     }
 
-    // Get user's email to use as from address
+    // Get user's information to construct from address and reply-to
     const user = await userRepository.getUser(ctx.user.id);
-    const fromEmail = user?.email;
+    if (!user) {
+      ctx.status = 401;
+      ctx.body = { error: 'User not found' };
+      return ctx;
+    }
 
-    const result = await emailService.sendEmail(to, subject, body, fromEmail);
+    // Construct from address: "FirstName LastName <firstname.lastname@backintouch.net>"
+    // Use a sanitized version of the name for the email address
+    const firstName = user.firstName || 'User';
+    const lastName = user.lastName || '';
+    const fullName = `${firstName} ${lastName}`.trim() || 'User';
+    
+    // Create email-safe local part from name
+    // Convert to lowercase, remove special chars, replace spaces with dots, clean up
+    const sanitizeForEmail = (str: string): string => {
+      return str
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+        .replace(/[^a-z0-9\s]/g, '') // Remove special chars
+        .trim()
+        .replace(/\s+/g, '.'); // Replace spaces with dots
+    };
+    
+    const firstNamePart = sanitizeForEmail(firstName) || 'user';
+    const lastNamePart = sanitizeForEmail(lastName);
+    const emailLocalPart = lastNamePart ? `${firstNamePart}.${lastNamePart}` : firstNamePart;
+    const fromEmail = `"${fullName}" <${emailLocalPart}@backintouch.net>`;
+    const replyToEmail = user.email;
+
+    const result = await emailService.sendEmail(to, subject, body, fromEmail, replyToEmail);
 
     if (result.success) {
       ctx.status = 200;

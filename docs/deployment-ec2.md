@@ -177,7 +177,7 @@ JWT_SECRET=YOUR_VERY_SECURE_JWT_SECRET_KEY_CHANGE_THIS
 
 # CORS Configuration
 # For no domain: use http://YOUR_EC2_IP or http://YOUR_EC2_DNS
-# For domain: use https://yourdomain.com
+# For domain: use https://backintouch.net
 CORS_ORIGIN=http://YOUR_EC2_IP_OR_DNS
 
 # AWS Configuration (uses IAM role if available, otherwise set these)
@@ -188,7 +188,7 @@ AWS_REGION=us-east-1
 # DO NOT SET AWS_ENDPOINT in production!
 
 # Email Configuration
-FROM_EMAIL=noreply@yourdomain.com
+FROM_EMAIL=noreply@backintouch.net
 
 # SMS Configuration (optional)
 SMS_FROM_NUMBER=+1234567890
@@ -237,13 +237,13 @@ Update the `:80` block with your EC2 public IP or DNS:
 ### Option B: With Domain (HTTPS Enabled)
 
 1. **Point your domain to EC2**:
-   - Add an A record: `yourdomain.com` → `YOUR_EC2_IP`
-   - (Optional) Add CNAME: `www.yourdomain.com` → `yourdomain.com`
+   - Add an A record: `backintouch.net` → `YOUR_EC2_IP`
+   - (Optional) Add CNAME: `www.backintouch.net` → `backintouch.net`
 
 2. **Update Caddyfile**:
 
 ```caddy
-yourdomain.com {
+backintouch.net {
   reverse_proxy /api/* api:3000 {
     health_uri /health
     health_interval 30s
@@ -266,7 +266,7 @@ Caddy will automatically:
 
 ```bash
 # Build production frontend
-export VITE_API=http://YOUR_EC2_IP/api  # or https://yourdomain.com/api
+export VITE_API=http://YOUR_EC2_IP/api  # or https://backintouch.net/api
 npm run build:web:production
 
 # Transfer to EC2
