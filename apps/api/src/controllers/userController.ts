@@ -32,12 +32,18 @@ export const createUserController = ({ userRepository }: Container): UserControl
     return ctx;
   },
   updateProfile: async (ctx: Context): Promise<Context> => {
-    const { firstName, lastName, email } = ctx.request.body as {
+    const { firstName, lastName, email, phone } = ctx.request.body as {
       firstName?: string;
       lastName?: string;
       email?: string;
+      phone?: string;
     };
-    const user = await userRepository.updateProfile(ctx.user.id, { firstName, lastName, email });
+    const user = await userRepository.updateProfile(ctx.user.id, {
+      firstName,
+      lastName,
+      email,
+      phone,
+    });
     if (!user) {
       ctx.status = 404;
       ctx.body = { error: 'User not found' };

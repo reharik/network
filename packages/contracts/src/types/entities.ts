@@ -37,6 +37,7 @@ export interface PlainUser {
   lastName: string | undefined;
   passwordHash: string;
   email: string;
+  phone?: string;
   dailyGoal: number;
   createdAt?: string;
   lastLoginAt: string;

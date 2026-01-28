@@ -67,6 +67,20 @@ export const useContactService = () => {
     });
   };
 
+  const suspendContact = async (contactId: string): Promise<ApiResult<Contact>> => {
+    return apiFetch<Contact>(`/contacts/${encodeURIComponent(contactId)}`, {
+      method: 'PATCH',
+      body: { paused: true },
+    });
+  };
+
+  const unsuspendContact = async (contactId: string): Promise<ApiResult<Contact>> => {
+    return apiFetch<Contact>(`/contacts/${encodeURIComponent(contactId)}`, {
+      method: 'PATCH',
+      body: { paused: false },
+    });
+  };
+
   return {
     getContact,
     createContact,
@@ -74,5 +88,7 @@ export const useContactService = () => {
     deleteContact,
     importContacts,
     addToToday,
+    suspendContact,
+    unsuspendContact,
   };
 };

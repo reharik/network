@@ -8,13 +8,15 @@ import { useContactService } from '../hooks';
 import { qk } from '../services/keys';
 import { FormError } from '../ui/FormError';
 import { FormInput } from '../ui/FormInput';
+import { PhoneInput } from '../ui/PhoneInput';
 
 export const ContactDetail = () => {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { showToast } = useToast();
-  const { getContact, updateContact, deleteContact, addToToday } = useContactService();
+  const { getContact, updateContact, deleteContact, addToToday, suspendContact, unsuspendContact } =
+    useContactService();
 
   const {
     data: result,
@@ -90,6 +92,42 @@ export const ContactDetail = () => {
     },
   });
 
+  const suspendMut = useMutation({
+    mutationFn: () => suspendContact(id),
+    onSuccess: (result) => {
+      if (result.success) {
+        void qc.invalidateQueries({ queryKey: qk.contacts });
+        void qc.invalidateQueries({ queryKey: qk.contact(id) });
+        void qc.invalidateQueries({ queryKey: ['today'] });
+        showToast('Contact suspended', 'success');
+        if (form) setForm({ ...form, paused: true });
+      } else {
+        showToast('Failed to suspend contact', 'error');
+      }
+    },
+    onError: () => {
+      showToast('Failed to suspend contact', 'error');
+    },
+  });
+
+  const unsuspendMut = useMutation({
+    mutationFn: () => unsuspendContact(id),
+    onSuccess: (result) => {
+      if (result.success) {
+        void qc.invalidateQueries({ queryKey: qk.contacts });
+        void qc.invalidateQueries({ queryKey: qk.contact(id) });
+        void qc.invalidateQueries({ queryKey: ['today'] });
+        showToast('Contact unsuspended', 'success');
+        if (form) setForm({ ...form, paused: false });
+      } else {
+        showToast('Failed to unsuspend contact', 'error');
+      }
+    },
+    onError: () => {
+      showToast('Failed to unsuspend contact', 'error');
+    },
+  });
+
   const handleContactNow = () => {
     addToTodayMut.mutate(id);
   };
@@ -99,8 +137,13 @@ export const ContactDetail = () => {
 
   return (
     <Card>
-      <h2>
+      <h2 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         {form.firstName} {form.lastName}
+        {form.paused && (
+          <SuspendedBadge title="Suspended – contact will not appear on daily list">
+            Suspended
+          </SuspendedBadge>
+        )}
       </h2>
 
       <FormError errors={saveMut.data && !saveMut.data.success ? saveMut.data.errors : []} />
@@ -130,7 +173,7 @@ export const ContactDetail = () => {
           onChange={onChange('email')}
           errors={!saveMut.data?.success ? saveMut.data?.errors : []}
         />
-        <FormInput
+        <PhoneInput
           label="Phone"
           id="phone"
           value={form.phone ?? ''}
@@ -156,9 +199,20 @@ export const ContactDetail = () => {
           {saveMut.isPending ? 'Saving…' : 'Save changes'}
         </Button>
 
-        <Button onClick={handleContactNow} disabled={addToTodayMut.isPending}>
-          {addToTodayMut.isPending ? 'Adding to Today...' : 'Contact Now'}
-        </Button>
+        {form.paused ? (
+          <Button onClick={() => unsuspendMut.mutate()} disabled={unsuspendMut.isPending}>
+            {unsuspendMut.isPending ? 'Unsuspending…' : 'Unsuspend'}
+          </Button>
+        ) : (
+          <>
+            <Button onClick={handleContactNow} disabled={addToTodayMut.isPending}>
+              {addToTodayMut.isPending ? 'Adding to Today...' : 'Contact Now'}
+            </Button>
+            <Button onClick={() => suspendMut.mutate()} disabled={suspendMut.isPending}>
+              {suspendMut.isPending ? 'Suspending…' : 'Suspend'}
+            </Button>
+          </>
+        )}
 
         <Button danger onClick={() => deleteMut.mutate()} disabled={deleteMut.isPending}>
           {deleteMut.isPending ? 'Deleting…' : 'Delete contact'}
@@ -201,4 +255,15 @@ const Button = styled.button<{ danger?: boolean }>`
   &:hover {
     filter: brightness(1.1);
   }
+`;
+
+const SuspendedBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+  font-size: 12px;
+  font-weight: 600;
 `;

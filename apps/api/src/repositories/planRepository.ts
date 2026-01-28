@@ -11,6 +11,8 @@ export interface PlanRepository {
     dailyGoal: number,
     carryoverContactIds?: string[],
   ) => Promise<Contact[]>;
+  /** Touched today, excluding suspended (paused) contacts. Done at query level. */
+  getTouchedContactsForDay: (userId: string, dayStart: DateTime) => Promise<Contact[]>;
 }
 
 export const createPlanRepository = ({ connection }: Container): PlanRepository => ({
@@ -90,6 +92,36 @@ export const createPlanRepository = ({ connection }: Container): PlanRepository 
 
     // Return only the number needed
     return result.slice(0, dailyGoal);
+  },
+
+  getTouchedContactsForDay: async (userId: string, dayStart: DateTime) => {
+    const dayEnd = dayStart.endOf('day').toJSDate();
+    const dayStartJs = dayStart.toJSDate();
+    const rows = await connection<DatabaseFormat<Contact>>('touch_logs')
+      .select('contacts.*')
+      .innerJoin('contacts', function () {
+        this.on('contacts.id', '=', 'touch_logs.contactId').andOn(
+          'contacts.userId',
+          '=',
+          'touch_logs.userId',
+        );
+      })
+      .where('touch_logs.userId', userId)
+      .whereBetween('touch_logs.createdAt', [dayStartJs, dayEnd])
+      .where('contacts.paused', false);
+
+    // Dedupe by contact id (multiple touches same day → one row per contact)
+    const byId = new Map<string, (typeof rows)[0]>();
+    for (const row of rows) {
+      const id = (row as { id: string }).id;
+      if (!byId.has(id)) byId.set(id, row);
+    }
+    const revived = reviveFromDatabase<Contact[]>(Array.from(byId.values()), {
+      fieldEnumMapping: {
+        preferredMethod: ['ContactMethod'],
+      },
+    });
+    return revived;
   },
 });
 

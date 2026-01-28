@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { config } from '../config';
 import { useToast } from '../contexts/ToastContext';
 import { useUserService } from '../hooks';
+import { PhoneInput } from '../ui/PhoneInput';
 
 type SettingsState = {
   reminderHour: string;
@@ -12,6 +13,7 @@ type SettingsState = {
   firstName: string;
   lastName: string;
   email: string;
+  phone: string;
 };
 
 export const Settings = () => {
@@ -25,6 +27,7 @@ export const Settings = () => {
     firstName: '',
     lastName: '',
     email: '',
+    phone: '',
   });
 
   // Fetch user data
@@ -56,6 +59,7 @@ export const Settings = () => {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
         email: user.email || '',
+        phone: user.phone || '',
       }));
     }
   }, [userResult]);
@@ -96,6 +100,7 @@ export const Settings = () => {
       firstName: state.firstName,
       lastName: state.lastName,
       email: state.email,
+      phone: state.phone || undefined,
     });
   };
 
@@ -128,6 +133,16 @@ export const Settings = () => {
           value={state.email}
           onChange={(e) => setState((s) => ({ ...s, email: e.target.value }))}
         />
+      </Row>
+      <Row>
+        <Label htmlFor="phone">Phone</Label>
+        <PhoneInputWrapper>
+          <PhoneInput
+            id="phone"
+            value={state.phone}
+            onChange={(e) => setState((s) => ({ ...s, phone: e.target.value }))}
+          />
+        </PhoneInputWrapper>
       </Row>
 
       <h3>Preferences</h3>
@@ -193,6 +208,10 @@ const Input = styled.input`
   border-radius: 10px;
   padding: 10px 12px;
   color: ${({ theme }) => theme.colors.text};
+  min-width: 260px;
+`;
+
+const PhoneInputWrapper = styled.div`
   min-width: 260px;
 `;
 

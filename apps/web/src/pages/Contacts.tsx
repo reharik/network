@@ -2,6 +2,7 @@ import { ContactMethod, UpdateContact } from '@network/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import { useToast } from '../contexts/ToastContext';
 import { useContactListService, useContactService } from '../hooks';
 import { Container } from '../Layout';
@@ -15,7 +16,8 @@ export const Contacts = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { fetchContacts } = useContactListService();
-  const { deleteContact, createContact, addToToday } = useContactService();
+  const { deleteContact, createContact, addToToday, suspendContact, unsuspendContact } =
+    useContactService();
   const { data: result, isLoading } = useQuery({
     queryKey: ['contacts'],
     queryFn: fetchContacts,
@@ -58,6 +60,38 @@ export const Contacts = () => {
     },
     onError: () => {
       showToast('Failed to add to today', 'error');
+    },
+  });
+
+  const suspendMut = useMutation({
+    mutationFn: suspendContact,
+    onSuccess: (result) => {
+      if (result.success) {
+        void qc.invalidateQueries({ queryKey: ['contacts'] });
+        void qc.invalidateQueries({ queryKey: ['today'] });
+        showToast('Contact suspended', 'success');
+      } else {
+        showToast('Failed to suspend contact', 'error');
+      }
+    },
+    onError: () => {
+      showToast('Failed to suspend contact', 'error');
+    },
+  });
+
+  const unsuspendMut = useMutation({
+    mutationFn: unsuspendContact,
+    onSuccess: (result) => {
+      if (result.success) {
+        void qc.invalidateQueries({ queryKey: ['contacts'] });
+        void qc.invalidateQueries({ queryKey: ['today'] });
+        showToast('Contact unsuspended', 'success');
+      } else {
+        showToast('Failed to unsuspend contact', 'error');
+      }
+    },
+    onError: () => {
+      showToast('Failed to unsuspend contact', 'error');
     },
   });
 
@@ -157,20 +191,48 @@ export const Contacts = () => {
                 {filtered.map((c) => (
                   <tr key={c.id}>
                     <td>
-                      <Link to={`/contacts/${c.id}`}>{`${c.firstName} ${c.lastName}`}</Link>
+                      <HStack gap={1}>
+                        <Link to={`/contacts/${c.id}`}>{`${c.firstName} ${c.lastName}`}</Link>
+                        {c.paused && (
+                          <SuspendedBadge title="Suspended – contact will not appear on daily list">
+                            Suspended
+                          </SuspendedBadge>
+                        )}
+                      </HStack>
                     </td>
                     <td>{c.preferredMethod.display}</td>
                     <td>{c.intervalDays} days</td>
                     <td>
                       <HStack gap={1}>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => handleContactNow(c.id)}
-                          disabled={addToTodayMut.isPending}
-                        >
-                          Contact Now
-                        </Button>
+                        {c.paused ? (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => unsuspendMut.mutate(c.id)}
+                            disabled={unsuspendMut.isPending}
+                          >
+                            Unsuspend
+                          </Button>
+                        ) : (
+                          <>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => handleContactNow(c.id)}
+                              disabled={addToTodayMut.isPending}
+                            >
+                              Contact Now
+                            </Button>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => suspendMut.mutate(c.id)}
+                              disabled={suspendMut.isPending}
+                            >
+                              Suspend
+                            </Button>
+                          </>
+                        )}
                         <Button
                           variant="secondary"
                           size="sm"
@@ -200,3 +262,14 @@ export const Contacts = () => {
     </Container>
   );
 };
+
+const SuspendedBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+  font-size: 11px;
+  font-weight: 600;
+`;

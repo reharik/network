@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useToast } from '../contexts/ToastContext';
-import { useCommunicationService, usePlanService, useTouchService } from '../hooks';
+import { useCommunicationService, useContactService, usePlanService, useTouchService } from '../hooks';
 import {
   MakeCallRequest,
   SendEmailRequest,
@@ -26,6 +26,7 @@ export const Today = () => {
   const { showToast } = useToast();
   const { getTodaysContacts } = usePlanService();
   const { logTouch, snoozeContact } = useTouchService();
+  const { suspendContact } = useContactService();
   const { sendMessage } = useCommunicationService();
 
   // State for the touch modal
@@ -47,6 +48,9 @@ export const Today = () => {
 
   // Track custom messages for each contact
   const [customMessages, setCustomMessages] = useState<Record<string, string>>({});
+
+  // Track snooze/suspend dropdown value per contact (reset after selection)
+  const [snoozeSuspendValue, setSnoozeSuspendValue] = useState<Record<string, string>>({});
 
   const {
     data: result,
@@ -85,6 +89,21 @@ export const Today = () => {
     },
     onError: () => {
       showToast('Failed to snooze contact', 'error');
+    },
+  });
+
+  const suspend = useMutation({
+    mutationFn: (contactId: string) => suspendContact(contactId),
+    onSuccess: (result) => {
+      if (result.success) {
+        qc.invalidateQueries({ queryKey: ['today'] });
+        showToast('Contact suspended', 'success');
+      } else {
+        showToast('Failed to suspend contact', 'error');
+      }
+    },
+    onError: () => {
+      showToast('Failed to suspend contact', 'error');
     },
   });
 
@@ -328,12 +347,33 @@ export const Today = () => {
                   </>
                 )}
 
-                <Button variant="ghost" onClick={() => snooze.mutate({ contactId: c.id, days: 7 })}>
-                  Snooze 7d
-                </Button>
-                <Button variant="ghost" onClick={() => snooze.mutate({ contactId: c.id, days: 1 })}>
-                  Snooze 1d
-                </Button>
+                <FormInput
+                  as="select"
+                  value={snoozeSuspendValue[c.id] ?? ''}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                    const v = e.target.value;
+                    if (!v) return;
+                    if (v === 'suspend') {
+                      suspend.mutate(c.id);
+                    } else {
+                      const weeks = Number(v);
+                      if (weeks >= 1 && weeks <= 6) {
+                        snooze.mutate({ contactId: c.id, days: weeks * 7 });
+                      }
+                    }
+                    setSnoozeSuspendValue((prev) => ({ ...prev, [c.id]: '' }));
+                  }}
+                  disabled={snooze.isPending || suspend.isPending}
+                  style={{ width: 'auto', minWidth: 140 }}
+                >
+                  <option value="">Snooze / Suspend</option>
+                  {[1, 2, 3, 4, 5, 6].map((w) => (
+                    <option key={w} value={w}>
+                      Snooze {w} {w === 1 ? 'week' : 'weeks'}
+                    </option>
+                  ))}
+                  <option value="suspend">Suspend</option>
+                </FormInput>
               </HStack>
             </VStack>
           </ContactCard>

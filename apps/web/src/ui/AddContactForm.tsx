@@ -4,6 +4,7 @@ import { config } from '../config';
 import { BaseApiError } from '../types/ApiResult';
 import { FormError } from './FormError';
 import { FormInput } from './FormInput';
+import { PhoneInput } from './PhoneInput';
 import { Button, HStack, VStack } from './Primitives';
 
 interface AddContactFormProps {
@@ -91,13 +92,11 @@ export const AddContactForm = ({
             disabled={isLoading}
             errors={errors}
           />
-          <FormInput
+          <PhoneInput
             label="Phone"
             id="phone"
-            type="tel"
             value={phone}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
-            placeholder="+1 (555) 123-4567"
             disabled={isLoading}
             errors={errors}
           />

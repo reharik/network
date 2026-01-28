@@ -6,6 +6,7 @@ export interface UpdateUserProfileRequest {
   firstName?: string;
   lastName?: string;
   email?: string;
+  phone?: string;
 }
 
 export const useUserService = () => {

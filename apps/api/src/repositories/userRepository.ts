@@ -14,7 +14,7 @@ export interface UserRepository {
   updateDailyGoal: (id: string, dailyGoal: number) => Promise<User | undefined>;
   updateProfile: (
     id: string,
-    updates: { firstName?: string; lastName?: string; email?: string },
+    updates: { firstName?: string; lastName?: string; email?: string; phone?: string },
   ) => Promise<User | undefined>;
 }
 
@@ -52,7 +52,7 @@ export const createUserRepository = ({ connection }: Container): UserRepository 
   },
   updateProfile: async (
     id: string,
-    updates: { firstName?: string; lastName?: string; email?: string },
+    updates: { firstName?: string; lastName?: string; email?: string; phone?: string },
   ) => {
     const result = await connection<User>('users').where({ id }).update(updates).returning('*');
     return result ? result[0] : undefined;
