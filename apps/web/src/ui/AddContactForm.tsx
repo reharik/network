@@ -32,9 +32,7 @@ export const AddContactForm = ({
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
-  const [suggestion, setSuggestion] = useState(
-    userDefaultMessage ?? config.defaultContactMessage,
-  );
+  const [suggestion, setSuggestion] = useState(userDefaultMessage ?? config.defaultContactMessage);
   const [preferredMethod, setPreferredMethod] = useState<ContactMethod>(
     ContactMethod.fromValue(userDefaultMethod ?? config.defaultPreferredMethod) ||
       ContactMethod.email,
@@ -141,7 +139,7 @@ export const AddContactForm = ({
             value={intervalDays}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setIntervalDays(
-                parseInt(e.target.value, 10) || userDefaultInterval ?? config.defaultIntervalDays,
+                (parseInt(e.target.value, 10) || userDefaultInterval) ?? config.defaultIntervalDays,
               )
             }
             disabled={isLoading}
