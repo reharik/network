@@ -39,6 +39,9 @@ export interface PlainUser {
   email: string;
   phone?: string;
   dailyGoal: number;
+  defaultContactMessage?: string;
+  defaultIntervalDays?: number;
+  defaultPreferredMethod?: string;
   createdAt?: string;
   lastLoginAt: string;
 }
@@ -73,6 +76,9 @@ export interface Touch extends PlainTouch {
 export interface User extends PlainUser {
   email: string & tags.Format<'email'>;
   dailyGoal: number & tags.Type<'int32'> & tags.Minimum<0> & tags.Maximum<500>;
+  defaultContactMessage?: string;
+  defaultIntervalDays?: number;
+  defaultPreferredMethod?: string;
   createdAt?: string & tags.Format<'date-time'>;
   lastLoginAt: string & tags.Format<'date-time'>;
 }

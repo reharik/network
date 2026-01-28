@@ -1,10 +1,23 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { ContactMethod } from '@network/contracts';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { config } from '../config';
 import { useToast } from '../contexts/ToastContext';
 import { useUserService } from '../hooks';
 import { PhoneInput } from '../ui/PhoneInput';
+
+const SCHEDULE_OPTIONS = [
+  { label: '1 week', value: 7 },
+  { label: '2 weeks', value: 14 },
+  { label: '3 weeks', value: 21 },
+  { label: '4 weeks', value: 28 },
+  { label: '6 weeks', value: 42 },
+  { label: '8 weeks', value: 56 },
+  { label: '12 weeks', value: 84 },
+  { label: '~1 month', value: 30 },
+  { label: '~2 months', value: 60 },
+] as const;
 
 type SettingsState = {
   reminderHour: string;
@@ -14,9 +27,14 @@ type SettingsState = {
   lastName: string;
   email: string;
   phone: string;
+  dailyGoal: number;
+  defaultContactMessage: string;
+  defaultIntervalDays: number;
+  defaultPreferredMethod: string;
 };
 
 export const Settings = () => {
+  const qc = useQueryClient();
   const { showToast } = useToast();
   const { getMe, updateProfile } = useUserService();
 
@@ -28,6 +46,10 @@ export const Settings = () => {
     lastName: '',
     email: '',
     phone: '',
+    dailyGoal: 3,
+    defaultContactMessage: config.defaultContactMessage,
+    defaultIntervalDays: config.defaultIntervalDays,
+    defaultPreferredMethod: config.defaultPreferredMethod || 'email',
   });
 
   // Fetch user data
@@ -41,9 +63,13 @@ export const Settings = () => {
     mutationFn: updateProfile,
     onSuccess: (result) => {
       if (result.success) {
+        void qc.invalidateQueries({ queryKey: ['user'] });
         showToast('Profile updated successfully', 'success');
+      } else {
+        const message =
+          result.errors?.[0]?.message ?? 'Profile could not be updated. Please try again.';
+        showToast(message, 'error');
       }
-      // Validation errors are shown in the form, no toast needed
     },
     onError: () => {
       showToast('Failed to update profile', 'error');
@@ -60,6 +86,10 @@ export const Settings = () => {
         lastName: user.lastName || '',
         email: user.email || '',
         phone: user.phone || '',
+        dailyGoal: user.dailyGoal ?? 3,
+        defaultContactMessage: user.defaultContactMessage ?? config.defaultContactMessage,
+        defaultIntervalDays: user.defaultIntervalDays ?? config.defaultIntervalDays,
+        defaultPreferredMethod: user.defaultPreferredMethod ?? config.defaultPreferredMethod ?? 'email',
       }));
     }
   }, [userResult]);
@@ -95,12 +125,16 @@ export const Settings = () => {
       }),
     );
 
-    // Update user profile
+    // Update user profile and reach-out defaults
     updateProfileMut.mutate({
       firstName: state.firstName,
       lastName: state.lastName,
       email: state.email,
       phone: state.phone || undefined,
+      dailyGoal: state.dailyGoal,
+      defaultContactMessage: state.defaultContactMessage || undefined,
+      defaultIntervalDays: state.defaultIntervalDays,
+      defaultPreferredMethod: state.defaultPreferredMethod || undefined,
     });
   };
 
@@ -143,6 +177,64 @@ export const Settings = () => {
             onChange={(e) => setState((s) => ({ ...s, phone: e.target.value }))}
           />
         </PhoneInputWrapper>
+      </Row>
+
+      <h3>Reach-out defaults</h3>
+      <Description>
+        These apply to new contacts and to the Today page when no custom message is set.
+      </Description>
+      <Row>
+        <Label htmlFor="dailyGoal">Daily goal</Label>
+        <Input
+          id="dailyGoal"
+          type="number"
+          min={0}
+          max={500}
+          value={state.dailyGoal}
+          onChange={(e) =>
+            setState((s) => ({ ...s, dailyGoal: Math.max(0, parseInt(e.target.value, 10) || 0) }))
+          }
+        />
+      </Row>
+      <Row>
+        <Label htmlFor="defaultContactMessage">Default suggested message</Label>
+        <Textarea
+          id="defaultContactMessage"
+          value={state.defaultContactMessage}
+          onChange={(e) => setState((s) => ({ ...s, defaultContactMessage: e.target.value }))}
+          placeholder="Use {{firstName}} for personalization"
+          rows={3}
+        />
+      </Row>
+      <Row>
+        <Label htmlFor="defaultIntervalDays">Default contact schedule</Label>
+        <Select
+          id="defaultIntervalDays"
+          value={state.defaultIntervalDays}
+          onChange={(e) =>
+            setState((s) => ({ ...s, defaultIntervalDays: parseInt(e.target.value, 10) }))
+          }
+        >
+          {SCHEDULE_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </Select>
+      </Row>
+      <Row>
+        <Label htmlFor="defaultPreferredMethod">Default contact method</Label>
+        <Select
+          id="defaultPreferredMethod"
+          value={state.defaultPreferredMethod}
+          onChange={(e) => setState((s) => ({ ...s, defaultPreferredMethod: e.target.value }))}
+        >
+          {ContactMethod.toOptions().map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </Select>
       </Row>
 
       <h3>Preferences</h3>
@@ -202,6 +294,13 @@ const Label = styled.label`
   color: ${({ theme }) => theme.colors.subtext};
 `;
 
+const Description = styled.p`
+  color: ${({ theme }) => theme.colors.subtext};
+  font-size: 0.9rem;
+  margin: -8px 0 0;
+  grid-column: 1 / -1;
+`;
+
 const Input = styled.input`
   background: #0a0d17;
   border: 1px solid ${({ theme }) => theme.colors.border};
@@ -209,6 +308,25 @@ const Input = styled.input`
   padding: 10px 12px;
   color: ${({ theme }) => theme.colors.text};
   min-width: 260px;
+`;
+
+const Select = styled.select`
+  background: #0a0d17;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: ${({ theme }) => theme.colors.text};
+  min-width: 260px;
+`;
+
+const Textarea = styled.textarea`
+  background: #0a0d17;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: ${({ theme }) => theme.colors.text};
+  min-width: 260px;
+  resize: vertical;
 `;
 
 const PhoneInputWrapper = styled.div`

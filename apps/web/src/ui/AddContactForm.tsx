@@ -12,6 +12,10 @@ interface AddContactFormProps {
   onCancel: () => void;
   isLoading?: boolean;
   errors?: BaseApiError[];
+  /** User defaults from Settings (overrides config when provided) */
+  defaultContactMessage?: string;
+  defaultIntervalDays?: number;
+  defaultPreferredMethod?: string;
 }
 
 export const AddContactForm = ({
@@ -19,17 +23,25 @@ export const AddContactForm = ({
   onCancel,
   isLoading = false,
   errors = [],
+  defaultContactMessage: userDefaultMessage,
+  defaultIntervalDays: userDefaultInterval,
+  defaultPreferredMethod: userDefaultMethod,
 }: AddContactFormProps) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
-  const [suggestion, setSuggestion] = useState(config.defaultContactMessage);
-  const [preferredMethod, setPreferredMethod] = useState<ContactMethod>(
-    ContactMethod.fromValue(config.defaultPreferredMethod) || ContactMethod.email,
+  const [suggestion, setSuggestion] = useState(
+    userDefaultMessage ?? config.defaultContactMessage,
   );
-  const [intervalDays, setIntervalDays] = useState(config.defaultIntervalDays);
+  const [preferredMethod, setPreferredMethod] = useState<ContactMethod>(
+    ContactMethod.fromValue(userDefaultMethod ?? config.defaultPreferredMethod) ||
+      ContactMethod.email,
+  );
+  const [intervalDays, setIntervalDays] = useState(
+    userDefaultInterval ?? config.defaultIntervalDays,
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,7 +140,9 @@ export const AddContactForm = ({
             max="365"
             value={intervalDays}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setIntervalDays(parseInt(e.target.value) || config.defaultIntervalDays)
+              setIntervalDays(
+                parseInt(e.target.value, 10) || userDefaultInterval ?? config.defaultIntervalDays,
+              )
             }
             disabled={isLoading}
             errors={errors}

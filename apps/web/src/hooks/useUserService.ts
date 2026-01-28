@@ -7,6 +7,10 @@ export interface UpdateUserProfileRequest {
   lastName?: string;
   email?: string;
   phone?: string;
+  dailyGoal?: number;
+  defaultContactMessage?: string;
+  defaultIntervalDays?: number;
+  defaultPreferredMethod?: string;
 }
 
 export const useUserService = () => {

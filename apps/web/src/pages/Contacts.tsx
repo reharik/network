@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useToast } from '../contexts/ToastContext';
-import { useContactListService, useContactService } from '../hooks';
+import { useContactListService, useContactService, useUserService } from '../hooks';
 import { Container } from '../Layout';
 import { AddContactForm } from '../ui/AddContactForm';
 import { FormInput } from '../ui/FormInput';
@@ -18,6 +18,9 @@ export const Contacts = () => {
   const { fetchContacts } = useContactListService();
   const { deleteContact, createContact, addToToday, suspendContact, unsuspendContact } =
     useContactService();
+  const { getMe } = useUserService();
+  const { data: userResult } = useQuery({ queryKey: ['user'], queryFn: getMe });
+  const user = userResult?.success ? userResult.data : undefined;
   const { data: result, isLoading } = useQuery({
     queryKey: ['contacts'],
     queryFn: fetchContacts,
@@ -256,6 +259,9 @@ export const Contacts = () => {
             onCancel={handleCancelAdd}
             isLoading={createMut.isPending}
             errors={createMut.data && !createMut.data.success ? createMut.data.errors : undefined}
+            defaultContactMessage={user?.defaultContactMessage}
+            defaultIntervalDays={user?.defaultIntervalDays}
+            defaultPreferredMethod={user?.defaultPreferredMethod}
           />
         </Modal>
       </VStack>

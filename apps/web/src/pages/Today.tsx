@@ -6,7 +6,13 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { useToast } from '../contexts/ToastContext';
-import { useCommunicationService, useContactService, usePlanService, useTouchService } from '../hooks';
+import {
+  useCommunicationService,
+  useContactService,
+  usePlanService,
+  useTouchService,
+  useUserService,
+} from '../hooks';
 import {
   MakeCallRequest,
   SendEmailRequest,
@@ -25,9 +31,13 @@ export const Today = () => {
   const qc = useQueryClient();
   const { showToast } = useToast();
   const { getTodaysContacts } = usePlanService();
+  const { getMe } = useUserService();
   const { logTouch, snoozeContact } = useTouchService();
   const { suspendContact } = useContactService();
   const { sendMessage } = useCommunicationService();
+
+  const { data: userResult } = useQuery({ queryKey: ['user'], queryFn: getMe });
+  const userDefaultMessage = userResult?.success ? userResult.data?.defaultContactMessage : undefined;
 
   // State for the touch modal
   const [selectedContact, setSelectedContact] = useState<
@@ -142,7 +152,8 @@ export const Today = () => {
     if (customMessage !== undefined) {
       return customMessage;
     }
-    return replaceTokens(contact.suggestion, contact);
+    const template = userDefaultMessage ?? contact.suggestion;
+    return replaceTokens(template, contact);
   };
 
   const handleTouchSubmit = (data: { method: string; message: string; outcome: string }) => {
@@ -317,7 +328,7 @@ export const Today = () => {
               <Field label="Suggested line">
                 <FormInput
                   as="textarea"
-                  value={customMessages[c.id] ?? replaceTokens(c.suggestion, c)}
+                  value={customMessages[c.id] ?? replaceTokens(userDefaultMessage ?? c.suggestion, c)}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                     handleMessageChange(c.id, e.target.value)
                   }
