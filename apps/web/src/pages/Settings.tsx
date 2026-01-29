@@ -49,7 +49,7 @@ export const Settings = () => {
     dailyGoal: 3,
     defaultContactMessage: config.defaultContactMessage,
     defaultIntervalDays: config.defaultIntervalDays,
-    defaultPreferredMethod: config.defaultPreferredMethod || 'email',
+    defaultPreferredMethod: (config.defaultPreferredMethod || 'EMAIL').toUpperCase(),
   });
 
   // Fetch user data
@@ -89,8 +89,11 @@ export const Settings = () => {
         dailyGoal: user.dailyGoal ?? 3,
         defaultContactMessage: user.defaultContactMessage ?? config.defaultContactMessage,
         defaultIntervalDays: user.defaultIntervalDays ?? config.defaultIntervalDays,
-        defaultPreferredMethod:
-          user.defaultPreferredMethod ?? config.defaultPreferredMethod ?? 'email',
+        defaultPreferredMethod: (
+          user.defaultPreferredMethod ??
+          config.defaultPreferredMethod ??
+          'EMAIL'
+        ).toUpperCase(),
       }));
     }
   }, [userResult]);

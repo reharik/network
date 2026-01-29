@@ -22,7 +22,7 @@ export const config: WebConfig = {
   // Default values for forms
   defaultReminderTime: (import.meta.env.VITE_DEFAULT_REMINDER_TIME as string) || '09:00',
   defaultIntervalDays: Number(import.meta.env.VITE_DEFAULT_INTERVAL_DAYS) || 14,
-  defaultPreferredMethod: (import.meta.env.VITE_DEFAULT_PREFERRED_METHOD as string) || 'email',
+  defaultPreferredMethod: (import.meta.env.VITE_DEFAULT_PREFERRED_METHOD as string) || 'EMAIL',
   defaultContactMessage:
     (import.meta.env.VITE_DEFAULT_CONTACT_MESSAGE as string) ||
     "Hi {{firstName}}, just checking in to see how you're doing.",
