@@ -40,7 +40,8 @@ describe('SMS Service', () => {
         userEmail,
         'Send this text from your phone',
         expect.stringContaining('sms:'),
-        expect.any(String),
+        expect.any(String), // fromEmail
+        expect.any(String), // fromDisplayName
       );
 
       // Verify result

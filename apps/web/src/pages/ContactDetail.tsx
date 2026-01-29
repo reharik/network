@@ -9,13 +9,14 @@ import { qk } from '../services/keys';
 import { FormError } from '../ui/FormError';
 import { FormInput } from '../ui/FormInput';
 import { PhoneInput } from '../ui/PhoneInput';
+import { addToTodayPinned } from '../utils/todayPinnedStore';
 
 export const ContactDetail = () => {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { showToast } = useToast();
-  const { getContact, updateContact, deleteContact, addToToday, suspendContact, unsuspendContact } =
+  const { getContact, updateContact, deleteContact, suspendContact, unsuspendContact } =
     useContactService();
 
   const {
@@ -58,22 +59,12 @@ export const ContactDetail = () => {
     },
   });
 
-  const addToTodayMut = useMutation({
-    mutationFn: addToToday,
-    onSuccess: (result) => {
-      if (result.success) {
-        void qc.invalidateQueries({ queryKey: ['today'] });
-        void qc.invalidateQueries({ queryKey: qk.contact(id) });
-        showToast('Added to today', 'success');
-        navigate('/');
-      } else {
-        showToast('Failed to add to today', 'error');
-      }
-    },
-    onError: () => {
-      showToast('Failed to add to today', 'error');
-    },
-  });
+  const handleContactNow = () => {
+    addToTodayPinned(id);
+    void qc.invalidateQueries({ queryKey: ['today'] });
+    showToast('Added to today', 'success');
+    navigate('/');
+  };
 
   const deleteMut = useMutation({
     mutationFn: () => deleteContact(id),
@@ -127,10 +118,6 @@ export const ContactDetail = () => {
       showToast('Failed to unsuspend contact', 'error');
     },
   });
-
-  const handleContactNow = () => {
-    addToTodayMut.mutate(id);
-  };
 
   if (isLoading) return <div>Loading…</div>;
   if (isError || !form) return <div>Contact not found.</div>;
@@ -205,9 +192,7 @@ export const ContactDetail = () => {
           </Button>
         ) : (
           <>
-            <Button onClick={handleContactNow} disabled={addToTodayMut.isPending}>
-              {addToTodayMut.isPending ? 'Adding to Today...' : 'Contact Now'}
-            </Button>
+            <Button onClick={handleContactNow}>Contact Now</Button>
             <Button onClick={() => suspendMut.mutate()} disabled={suspendMut.isPending}>
               {suspendMut.isPending ? 'Suspending…' : 'Suspend'}
             </Button>

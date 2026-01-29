@@ -89,7 +89,8 @@ export const Settings = () => {
         dailyGoal: user.dailyGoal ?? 3,
         defaultContactMessage: user.defaultContactMessage ?? config.defaultContactMessage,
         defaultIntervalDays: user.defaultIntervalDays ?? config.defaultIntervalDays,
-        defaultPreferredMethod: user.defaultPreferredMethod ?? config.defaultPreferredMethod ?? 'email',
+        defaultPreferredMethod:
+          user.defaultPreferredMethod ?? config.defaultPreferredMethod ?? 'email',
       }));
     }
   }, [userResult]);

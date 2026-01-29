@@ -74,25 +74,25 @@ export const createEmailService = ({ logger }: Container): EmailService => {
           }
 
           headers.push(`To: ${to}`);
-          
+
           if (replyToEmail) {
             headers.push(`Reply-To: ${replyToEmail}`);
           }
-          
+
           headers.push(`Subject: ${subject}`);
           headers.push('MIME-Version: 1.0');
           headers.push('Content-Type: text/plain; charset=UTF-8');
-          
+
           const rawEmail = headers.join('\r\n') + '\r\n\r\n' + body;
           const rawMessage = Buffer.from(rawEmail, 'utf-8');
-          
+
           const command = new SendRawEmailCommand({
             Source: fromEmail, // IMPORTANT: bare email for SES identity check
             RawMessage: { Data: rawMessage },
           });
-          
+
           const result = await sesClient.send(command);
-          
+
           const messageId = result.MessageId || 'unknown';
           logger.info('Email sent successfully', {
             to,

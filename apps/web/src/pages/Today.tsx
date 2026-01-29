@@ -1,5 +1,5 @@
 import { ContactMethod, CreateTouchInput, DailyContact } from '@network/contracts';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { pascalCase } from 'case-anything';
 import { DateTime } from 'luxon';
 import { useState } from 'react';
@@ -26,18 +26,22 @@ import { Modal } from '../ui/Modal';
 import { Badge, Button, Card, Field, HStack, VStack } from '../ui/Primitives';
 import { SmsModal } from '../ui/SmsModal';
 import { TouchForm } from '../ui/TouchForm';
+import { getTodayPinnedIds, removeFromTodayPinned } from '../utils/todayPinnedStore';
 
 export const Today = () => {
   const qc = useQueryClient();
   const { showToast } = useToast();
   const { getTodaysContacts } = usePlanService();
   const { getMe } = useUserService();
+  const { getContact } = useContactService();
   const { logTouch, snoozeContact } = useTouchService();
   const { suspendContact } = useContactService();
   const { sendMessage } = useCommunicationService();
 
   const { data: userResult } = useQuery({ queryKey: ['user'], queryFn: getMe });
-  const userDefaultMessage = userResult?.success ? userResult.data?.defaultContactMessage : undefined;
+  const userDefaultMessage = userResult?.success
+    ? userResult.data?.defaultContactMessage
+    : undefined;
 
   // State for the touch modal
   const [selectedContact, setSelectedContact] = useState<
@@ -62,6 +66,9 @@ export const Today = () => {
   // Track snooze/suspend dropdown value per contact (reset after selection)
   const [snoozeSuspendValue, setSnoozeSuspendValue] = useState<Record<string, string>>({});
 
+  // Pinned "Contact Now" IDs (synced from store on mount; updated when we remove after touch)
+  const [pinnedIds, setPinnedIds] = useState<string[]>(() => getTodayPinnedIds());
+
   const {
     data: result,
     isLoading,
@@ -69,12 +76,33 @@ export const Today = () => {
   } = useQuery({
     queryKey: ['today'],
     queryFn: () => getTodaysContacts(),
+    refetchOnMount: 'always',
   });
+
+  const apiList = result?.success && result?.data ? result.data : [];
+  const pinnedIdsToFetch = pinnedIds.filter((id) => !apiList.some((c) => c.id === id));
+
+  const pinnedQueries = useQueries({
+    queries: pinnedIdsToFetch.map((id) => ({
+      queryKey: ['contact', id] as const,
+      queryFn: () => getContact(id),
+    })),
+  });
+
+  const pinnedContacts: DailyContact[] = pinnedQueries
+    .map((q) => q.data)
+    .filter((r): r is NonNullable<typeof r> => r != null)
+    .filter((r) => r.success === true && r.data != null)
+    .map((r) => ({ ...(r as { success: true; data: DailyContact }).data, touchedToday: false }));
+
+  const displayList = [...pinnedContacts, ...apiList];
 
   const touch = useMutation({
     mutationFn: (touchData: CreateTouchInput) => logTouch(touchData),
-    onSuccess: (result) => {
+    onSuccess: (result, variables) => {
       if (result.success) {
+        removeFromTodayPinned(variables.contactId);
+        setPinnedIds((prev) => prev.filter((id) => id !== variables.contactId));
         qc.invalidateQueries({ queryKey: ['today'] });
         setSelectedContact(undefined);
         showToast('Touch logged', 'success');
@@ -306,7 +334,7 @@ export const Today = () => {
         {isLoading && <Card>Loading…</Card>}
         {error && <Card>Something went wrong.</Card>}
 
-        {(result?.success && result?.data ? result?.data : []).map((c) => (
+        {displayList.map((c) => (
           <ContactCard key={c.id} $isDone={c.touchedToday}>
             <VStack gap={2}>
               <HStack>
@@ -328,7 +356,9 @@ export const Today = () => {
               <Field label="Suggested line">
                 <FormInput
                   as="textarea"
-                  value={customMessages[c.id] ?? replaceTokens(userDefaultMessage ?? c.suggestion, c)}
+                  value={
+                    customMessages[c.id] ?? replaceTokens(userDefaultMessage ?? c.suggestion, c)
+                  }
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                     handleMessageChange(c.id, e.target.value)
                   }

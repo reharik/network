@@ -4,7 +4,6 @@ import {
   UpdateContact,
   validateUpdateContact,
 } from '@network/contracts';
-import { DateTime } from 'luxon';
 import { ApiResult, createValidationError } from '../types/ApiResult';
 import { useApiFetch } from './apiFetch/useApiFetch';
 
@@ -58,15 +57,6 @@ export const useContactService = () => {
       body: { rows },
     });
 
-  // Add a contact to today's list by updating their nextDueAt
-  const addToToday = async (contactId: string): Promise<ApiResult<Contact>> => {
-    const dueDate = DateTime.now().minus({ days: 1 }).startOf('day');
-    return apiFetch<Contact>(`/contacts/${encodeURIComponent(contactId)}`, {
-      method: 'PATCH',
-      body: { nextDueAt: dueDate },
-    });
-  };
-
   const suspendContact = async (contactId: string): Promise<ApiResult<Contact>> => {
     return apiFetch<Contact>(`/contacts/${encodeURIComponent(contactId)}`, {
       method: 'PATCH',
@@ -87,7 +77,6 @@ export const useContactService = () => {
     updateContact,
     deleteContact,
     importContacts,
-    addToToday,
     suspendContact,
     unsuspendContact,
   };

@@ -10,14 +10,14 @@ import { AddContactForm } from '../ui/AddContactForm';
 import { FormInput } from '../ui/FormInput';
 import { Modal } from '../ui/Modal';
 import { Badge, Button, Card, HStack, Table, VStack } from '../ui/Primitives';
+import { addToTodayPinned } from '../utils/todayPinnedStore';
 
 export const Contacts = () => {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { fetchContacts } = useContactListService();
-  const { deleteContact, createContact, addToToday, suspendContact, unsuspendContact } =
-    useContactService();
+  const { deleteContact, createContact, suspendContact, unsuspendContact } = useContactService();
   const { getMe } = useUserService();
   const { data: userResult } = useQuery({ queryKey: ['user'], queryFn: getMe });
   const user = userResult?.success ? userResult.data : undefined;
@@ -49,22 +49,12 @@ export const Contacts = () => {
     },
   });
 
-  const addToTodayMut = useMutation({
-    mutationFn: addToToday,
-    onSuccess: (result) => {
-      if (result.success) {
-        void qc.invalidateQueries({ queryKey: ['today'] });
-        void qc.invalidateQueries({ queryKey: ['contacts'] });
-        showToast('Added to today', 'success');
-        navigate('/');
-      } else {
-        showToast('Failed to add to today', 'error');
-      }
-    },
-    onError: () => {
-      showToast('Failed to add to today', 'error');
-    },
-  });
+  const handleContactNow = (contactId: string) => {
+    addToTodayPinned(contactId);
+    void qc.invalidateQueries({ queryKey: ['today'] });
+    showToast('Added to today', 'success');
+    navigate('/');
+  };
 
   const suspendMut = useMutation({
     mutationFn: suspendContact,
@@ -112,10 +102,6 @@ export const Contacts = () => {
       showToast('Failed to create contact', 'error');
     },
   });
-
-  const handleContactNow = (contactId: string) => {
-    addToTodayMut.mutate(contactId);
-  };
 
   const handleDelete = (id: string, name: string) => {
     if (confirm(`Are you sure you want to delete ${name}?`)) {
@@ -170,7 +156,7 @@ export const Contacts = () => {
               }}
             >
               <option value="">All channels</option>
-              {ContactMethod.toOptions().map((x) => (
+              {ContactMethod.toOptions().map((x: { value: string; label: string }) => (
                 <option value={x.value}>{x.label}</option>
               ))}
             </FormInput>
@@ -222,7 +208,6 @@ export const Contacts = () => {
                               variant="secondary"
                               size="sm"
                               onClick={() => handleContactNow(c.id)}
-                              disabled={addToTodayMut.isPending}
                             >
                               Contact Now
                             </Button>
