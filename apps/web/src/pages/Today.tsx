@@ -66,8 +66,8 @@ export const Today = () => {
   // Track snooze/suspend dropdown value per contact (reset after selection)
   const [snoozeSuspendValue, setSnoozeSuspendValue] = useState<Record<string, string>>({});
 
-  // Pinned "Contact Now" IDs (synced from store on mount; updated when we remove after touch)
-  const [pinnedIds, setPinnedIds] = useState<string[]>(() => getTodayPinnedIds());
+  // Pinned "Contact Now" IDs — read from store every render so we see latest after navigating back from Contact Now
+  const pinnedIds = getTodayPinnedIds();
 
   const {
     data: result,
@@ -95,6 +95,7 @@ export const Today = () => {
     .filter((r) => r.success === true && r.data != null)
     .map((r) => ({ ...(r as { success: true; data: DailyContact }).data, touchedToday: false }));
 
+  // Pinned ("Contact Now") on top of daily goal: e.g. goal 3 + 1 pinned = 4 total
   const displayList = [...pinnedContacts, ...apiList];
 
   const touch = useMutation({
@@ -102,7 +103,6 @@ export const Today = () => {
     onSuccess: (result, variables) => {
       if (result.success) {
         removeFromTodayPinned(variables.contactId);
-        setPinnedIds((prev) => prev.filter((id) => id !== variables.contactId));
         qc.invalidateQueries({ queryKey: ['today'] });
         setSelectedContact(undefined);
         showToast('Touch logged', 'success');

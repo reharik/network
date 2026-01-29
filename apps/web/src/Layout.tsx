@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from './contexts/AuthContext';
 import { Button, HStack, Spacer } from './ui/Primitives';
@@ -11,7 +11,6 @@ export const Layout = () => {
       <NavBar>
         <NavInner>
           <HStack>
-            <Brand to="/">PingPals</Brand>
             <StyledNavLink to="/" end>
               Today
             </StyledNavLink>
@@ -64,14 +63,10 @@ export const NavInner = styled.div`
   padding: 12px 24px;
 `;
 
-export const Brand = styled(Link)`
-  font-weight: 800;
-  letter-spacing: 0.3px;
-`;
-
 export const StyledNavLink = styled(NavLink)`
   color: ${({ theme }) => theme.colors.subtext};
   font-weight: 600;
+  letter-spacing: 0.3px;
   padding: 6px 10px;
   border-radius: 8px;
   &:hover {
@@ -80,5 +75,6 @@ export const StyledNavLink = styled(NavLink)`
   }
   &.active {
     color: ${({ theme }) => theme.colors.text};
+    font-weight: 800;
   }
 `;
