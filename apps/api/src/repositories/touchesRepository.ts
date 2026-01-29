@@ -29,6 +29,7 @@ export const createTouchesRepository = ({ connection, logger }: Container): Touc
         method: body.method,
         message: body.message,
         outcome: body.outcome,
+        fromContactNow: body.fromContactNow ?? false,
         createdAt: connection.fn.now(),
       };
       const dbTouchData = prepareForDatabase(touchData);

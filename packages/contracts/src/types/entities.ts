@@ -28,6 +28,7 @@ export interface PlainTouch {
   method: ContactMethod;
   message?: string;
   outcome?: string;
+  fromContactNow?: boolean;
   createdAt?: string;
 }
 
@@ -70,6 +71,7 @@ export interface Touch extends PlainTouch {
   id: string & tags.Format<'uuid'>;
   userId: string & tags.Format<'uuid'>;
   contactId: string & tags.Format<'uuid'>;
+  fromContactNow?: boolean;
   createdAt?: string & tags.Format<'date-time'>;
 }
 
@@ -94,6 +96,8 @@ export interface CreateTouchInput {
   method: ContactMethod;
   message?: string;
   outcome?: string;
+  /** If true, this touch does not consume the daily goal (e.g. from "Contact Now") */
+  fromContactNow?: boolean;
 }
 
 export interface ImportContactsDTO {

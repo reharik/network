@@ -32,31 +32,28 @@ export const createPlanService = ({ userRepository, planRepository }: Container)
     const touchedContacts = await planRepository.getTouchedContactsForDay(userId, dayStart);
     const touchedContactIds = new Set(touchedContacts.map((c) => c.id));
 
-    // Get due contacts (up to dailyGoal - already touched count)
-    // The repository will prioritize overdue contacts (nextDueAt < today) as carryovers
-    // These are contacts that were due before today and weren't completed
-    const remainingGoal = Math.max(0, user.dailyGoal - touchedContactIds.size);
+    // Only "regular" touches (not from Contact Now) consume the daily goal
+    const { total: touchedTodayTotal, fromContactNow: touchedFromContactNow } =
+      await planRepository.getTouchedTodayCounts(userId, dayStart);
+    const regularTouchedCount = touchedTodayTotal - touchedFromContactNow;
+    const remainingGoal = Math.max(0, user.dailyGoal - regularTouchedCount);
 
     // Fetch all due contacts to identify carryovers (overdue contacts)
-    // We'll pass overdue contact IDs to ensure they're prioritized
     const allDueForCarryoverCheck = await planRepository.getDailyContacts(
       userId,
       dayStart,
-      user.dailyGoal * 10, // Fetch many to identify all carryovers
+      user.dailyGoal * 10,
       [],
     );
 
-    // Identify carryover contacts: overdue (nextDueAt < today)
-    // These are guaranteed to be contacts that were due before and weren't completed
     const carryoverContactIds = allDueForCarryoverCheck
       .filter((c) => {
         if (!c.nextDueAt) return false;
         const nextDue = DateTime.fromISO(c.nextDueAt);
-        return nextDue < dayStart; // Overdue = definitely a carryover
+        return nextDue < dayStart;
       })
       .map((c) => c.id);
 
-    // Get due contacts with carryovers prioritized (suspend filter in repository query)
     const dueContacts = await planRepository.getDailyContacts(
       userId,
       dayStart,
@@ -64,10 +61,7 @@ export const createPlanService = ({ userRepository, planRepository }: Container)
       carryoverContactIds,
     );
 
-    // Build result: due contacts + touched contacts, with touchedToday flag
     const result: DailyContact[] = [];
-
-    // Add due contacts (not already touched today)
     for (const contact of dueContacts) {
       if (!touchedContactIds.has(contact.id)) {
         result.push({ ...contact, touchedToday: false });

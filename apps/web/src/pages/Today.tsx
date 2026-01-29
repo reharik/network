@@ -198,6 +198,7 @@ export const Today = () => {
       method: methodEnum,
       message: data.message,
       outcome: data.outcome || undefined,
+      fromContactNow: pinnedIds.includes(selectedContact.id),
     };
 
     touch.mutate(touchData);
@@ -219,6 +220,7 @@ export const Today = () => {
       method: methodEnum,
       message,
       outcome: `Sent via ${method}`,
+      fromContactNow: pinnedIds.includes(contactId),
     }).then((result) => {
       if (result.success) {
         // Re-fetch today's contacts - the backend will return the contact with touchedToday: true

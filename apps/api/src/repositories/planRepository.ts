@@ -13,6 +13,11 @@ export interface PlanRepository {
   ) => Promise<Contact[]>;
   /** Touched today, excluding suspended (paused) contacts. Done at query level. */
   getTouchedContactsForDay: (userId: string, dayStart: DateTime) => Promise<Contact[]>;
+  /** Counts for today: total distinct contacts touched, and how many were from Contact Now. */
+  getTouchedTodayCounts: (
+    userId: string,
+    dayStart: DateTime,
+  ) => Promise<{ total: number; fromContactNow: number }>;
 }
 
 export const createPlanRepository = ({ connection }: Container): PlanRepository => ({
@@ -122,6 +127,23 @@ export const createPlanRepository = ({ connection }: Container): PlanRepository 
       },
     });
     return revived;
+  },
+
+  getTouchedTodayCounts: async (userId: string, dayStart: DateTime) => {
+    const dayEnd = dayStart.endOf('day').toJSDate();
+    const dayStartJs = dayStart.toJSDate();
+    const rows = await connection('touch_logs')
+      .select('contactId')
+      .select(connection.raw('bool_or("fromContactNow") as "fromContactNow"'))
+      .where('userId', userId)
+      .whereBetween('createdAt', [dayStartJs, dayEnd])
+      .groupBy('contactId');
+    type Row = { contactId: string; fromContactNow: boolean };
+    const total = rows.length;
+    const fromContactNow = (rows as unknown as Row[]).filter(
+      (r) => r.fromContactNow === true,
+    ).length;
+    return { total, fromContactNow };
   },
 });
 
