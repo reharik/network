@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
     VITE_API: 'http://localhost:3000/api',
     VITE_DEFAULT_REMINDER_TIME: '09:00',
     VITE_DEFAULT_INTERVAL_DAYS: '14',
-    VITE_DEFAULT_PREFERRED_METHOD: 'email',
+    VITE_DEFAULT_PREFERRED_METHOD: 'EMAIL',
     VITE_DEFAULT_CONTACT_MESSAGE: "Hi {{firstName}}, just checking in to see how you're doing.",
     VITE_APP_NAME: 'Network',
     VITE_APP_VERSION: '1.0.0',
