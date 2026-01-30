@@ -5,6 +5,15 @@ import { useApiFetch } from './apiFetch/useApiFetch';
 export const useTouchService = () => {
   const { apiFetch } = useApiFetch();
 
+  const getContactTouches = async (
+    contactId: string,
+  ): Promise<ApiResult<{ touches: Touch[] }>> => {
+    return apiFetch<{ touches: Touch[] }>(
+      `/contacts/${encodeURIComponent(contactId)}/touches`,
+      { method: 'GET' },
+    );
+  };
+
   // Create a touch - userId is added by server from JWT token
   const logTouch = async (touchData: CreateTouchInput): Promise<ApiResult<Touch>> => {
     const result = validateCreateTouchInput(touchData);
@@ -30,6 +39,7 @@ export const useTouchService = () => {
   };
 
   return {
+    getContactTouches,
     logTouch,
     snoozeContact,
   };

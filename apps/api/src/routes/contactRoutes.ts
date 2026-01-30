@@ -18,9 +18,16 @@ const typedHandler = <T extends Record<string, string>>(
   return (ctx: Context) => handler(ctx as TypedContext<T>);
 };
 
-export const createContactRoutes = ({ contactsController }: Container): ContactRoutes => ({
+export const createContactRoutes = ({
+  contactsController,
+  touchesController,
+}: Container): ContactRoutes => ({
   mountRoutes: (router: Router) => {
     router.get('/contacts', requireAuth(contactsController.getContacts));
+    router.get(
+      '/contacts/:id/touches',
+      requireAuth(typedHandler(touchesController.listForContact)),
+    );
     router.get('/contacts/:id', requireAuth(typedHandler(contactsController.getContact)));
     router.post('/contacts', requireAuth(contactsController.createContact));
     router.patch('/contacts/:id', requireAuth(typedHandler(contactsController.patchContact)));

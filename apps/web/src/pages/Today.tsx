@@ -218,7 +218,12 @@ export const Today = () => {
   };
 
   // Auto-log a touch after communication (persists to database)
-  const autoLogTouch = (contactId: string, method: 'email' | 'sms' | 'call', message: string) => {
+  const autoLogTouch = (
+    contactId: string,
+    method: 'email' | 'sms' | 'call',
+    message: string,
+    subject?: string,
+  ) => {
     const methodEnum = ContactMethod.tryFromKey(method);
     if (!methodEnum) return;
 
@@ -226,6 +231,7 @@ export const Today = () => {
       contactId,
       method: methodEnum,
       message,
+      ...(subject != null && subject !== '' && { subject }),
       outcome: `Sent via ${method}`,
       fromContactNow: pinnedIds.includes(contactId),
     }).then((result) => {
@@ -291,7 +297,7 @@ export const Today = () => {
       {
         onSuccess: (result) => {
           if (result.success) {
-            autoLogTouch(contactId, 'email', body);
+            autoLogTouch(contactId, 'email', body, subject);
             handleCloseModal();
             showToast('Email sent', 'success');
           }

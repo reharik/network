@@ -40,6 +40,8 @@ export type Config = {
   connectContactFlowId: string;
   // Logging configuration
   logLevel: 'error' | 'warn' | 'info' | 'http' | 'verbose' | 'debug';
+  // Optional: 32-byte key (64 hex chars) for encrypting touch message/subject at rest
+  touchMessageEncryptionKey?: string;
 };
 
 let config_: Config;
@@ -120,6 +122,7 @@ export const setupConfig = (): Config => {
     logLevel:
       (process.env.LOG_LEVEL as 'error' | 'warn' | 'info' | 'http' | 'verbose' | 'debug') ||
       (isProduction ? 'info' : 'debug'),
+    touchMessageEncryptionKey: process.env.TOUCH_MESSAGE_ENCRYPTION_KEY,
   };
 
   // Return warnings to be logged after logger initialization

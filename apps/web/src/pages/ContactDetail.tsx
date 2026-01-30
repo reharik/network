@@ -1,16 +1,17 @@
-import { Contact, ContactEmail, ContactPhone } from '@network/contracts';
+import { Contact, ContactEmail, ContactPhone, ContactMethod } from '@network/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { DateTime } from 'luxon';
+import { ChangeEvent, Fragment, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useToast } from '../contexts/ToastContext';
-import { useContactService } from '../hooks';
+import { useContactService, useTouchService } from '../hooks';
 import { qk } from '../services/keys';
 import { FormError } from '../ui/FormError';
 import { FormInput } from '../ui/FormInput';
 import { IconButton, PlusIcon, TrashIcon } from '../ui/IconButton';
 import { PhoneInput } from '../ui/PhoneInput';
-import { Button, HStack, VStack } from '../ui/Primitives';
+import { Button, HStack, Table, VStack } from '../ui/Primitives';
 import { addToTodayPinned } from '../utils/todayPinnedStore';
 
 export const ContactDetail = () => {
@@ -20,6 +21,7 @@ export const ContactDetail = () => {
   const { showToast } = useToast();
   const { getContact, updateContact, deleteContact, suspendContact, unsuspendContact } =
     useContactService();
+  const { getContactTouches } = useTouchService();
 
   const {
     data: result,
@@ -31,7 +33,16 @@ export const ContactDetail = () => {
     enabled: Boolean(id),
   });
 
+  const { data: touchesResult } = useQuery({
+    queryKey: ['contact', id, 'touches'],
+    queryFn: () => getContactTouches(id),
+    enabled: Boolean(id),
+  });
+  const touches = touchesResult?.success ? touchesResult.data.touches : [];
+
   const [form, setForm] = useState<Contact | undefined>(undefined);
+  const [historyExpanded, setHistoryExpanded] = useState(false);
+  const [expandedTouchId, setExpandedTouchId] = useState<string | null>(null);
   useEffect(() => {
     if (result?.success) setForm(result.data);
   }, [result]);
@@ -310,6 +321,108 @@ export const ContactDetail = () => {
         errors={!saveMut.data?.success ? saveMut.data?.errors : []}
       />
 
+      <HistorySection>
+        <HistoryHeader
+          type="button"
+          onClick={() => setHistoryExpanded((prev) => !prev)}
+          aria-expanded={historyExpanded}
+        >
+          <span className="chevron">{historyExpanded ? '▼' : '▶'}</span>
+          <strong style={{ fontSize: '0.9rem' }}>Contact history</strong>
+          {touches.length > 0 && (
+            <span style={{ color: '#a8b3c7', fontSize: '0.85rem', fontWeight: 400 }}>
+              {' '}({touches.length})
+            </span>
+          )}
+        </HistoryHeader>
+        {historyExpanded && (
+          <>
+            {touches.length === 0 ? (
+              <p style={{ color: '#a8b3c7', fontSize: '0.9rem', margin: '8px 0 0 0' }}>
+                No reach-outs recorded yet.
+              </p>
+            ) : (
+              <HistoryTable>
+                <thead>
+                  <tr>
+                    <th style={{ width: 28 }} aria-label="Expand" />
+                    <th>Date</th>
+                    <th>Method</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {touches.map((t) => {
+                    const isExpanded = expandedTouchId === t.id;
+                    const hasContent = !!(t.message || t.subject);
+                    const methodDisplay =
+                      t.method && typeof t.method === 'object' && 'display' in t.method
+                        ? String((t.method as { display: string }).display)
+                        : typeof t.method === 'string'
+                          ? ContactMethod.tryFromValue(t.method)?.display ?? t.method
+                          : (t.method as { value?: string })?.value ?? '—';
+                    return (
+                      <Fragment key={t.id}>
+                        <tr>
+                          <td>
+                            {hasContent ? (
+                              <HistoryRowToggle
+                                type="button"
+                                onClick={() =>
+                                  setExpandedTouchId((prev) => (prev === t.id ? null : t.id))
+                                }
+                                aria-expanded={isExpanded}
+                                title={isExpanded ? 'Collapse' : 'Show message'}
+                              >
+                                {isExpanded ? '▼' : '▶'}
+                              </HistoryRowToggle>
+                            ) : (
+                              <span style={{ color: 'transparent' }}>—</span>
+                            )}
+                          </td>
+                          <td>
+                            {t.createdAt
+                              ? DateTime.fromISO(t.createdAt).toLocaleString(DateTime.DATETIME_MED)
+                              : '—'}
+                          </td>
+                          <td>{methodDisplay}</td>
+                        </tr>
+                        {isExpanded && hasContent && (
+                          <tr>
+                            <td colSpan={3} style={{ paddingTop: 0, paddingBottom: 12 }}>
+                              <HistoryDetail>
+                                {t.subject != null && t.subject !== '' && (
+                                  <div className="subject">
+                                    <strong>Subject:</strong> {t.subject}
+                                  </div>
+                                )}
+                                {t.message != null && t.message !== '' && (
+                                  <div className="message">
+                                    {t.subject != null && t.subject !== '' ? (
+                                      <>
+                                        <strong>Message:</strong> {t.message}
+                                      </>
+                                    ) : (
+                                      t.message
+                                    )}
+                                  </div>
+                                )}
+                                {!t.message && !t.subject && (
+                                  <span style={{ color: '#a8b3c7' }}>No message stored.</span>
+                                )}
+                              </HistoryDetail>
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
+                    );
+                  })}
+                </tbody>
+              </HistoryTable>
+            )}
+          </>
+        )}
+      </HistorySection>
+
       <Row>
         <Button
           onClick={() => form && saveMut.mutate({ ...form, id: form.id })}
@@ -349,6 +462,82 @@ const Card = styled.section`
   padding: 20px;
   display: grid;
   gap: 16px;
+`;
+
+const HistorySection = styled.div`
+  display: block;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const HistoryHeader = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+
+  .chevron {
+    font-size: 0.7rem;
+    color: ${({ theme }) => theme.colors.subtext};
+  }
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.text};
+    .chevron {
+      color: ${({ theme }) => theme.colors.text};
+    }
+  }
+`;
+
+const HistoryTable = styled(Table)`
+  margin-top: 8px;
+`;
+
+const HistoryRowToggle = styled.button`
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  color: ${({ theme }) => theme.colors.subtext};
+  cursor: pointer;
+  font-size: 0.7rem;
+  line-height: 1;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.text};
+  }
+`;
+
+const HistoryDetail = styled.div`
+  font-size: 0.85rem;
+  color: ${({ theme }) => theme.colors.subtext};
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: ${({ theme }) => theme.radius.sm};
+  margin-left: 28px;
+  white-space: pre-wrap;
+  word-break: break-word;
+
+  .subject {
+    margin-bottom: 6px;
+  }
+  .message {
+    margin: 0;
+  }
 `;
 
 const SectionHeader = styled.div`

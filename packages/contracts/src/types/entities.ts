@@ -52,6 +52,7 @@ export interface PlainTouch {
   contactId: string;
   method: ContactMethod;
   message?: string;
+  subject?: string;
   outcome?: string;
   fromContactNow?: boolean;
   createdAt?: string;
@@ -122,6 +123,7 @@ export interface CreateTouchInput {
   contactId: string & tags.Format<'uuid'>;
   method: ContactMethod;
   message?: string;
+  subject?: string;
   outcome?: string;
   /** If true, this touch does not consume the daily goal (e.g. from "Contact Now") */
   fromContactNow?: boolean;

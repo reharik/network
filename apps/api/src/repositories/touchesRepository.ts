@@ -2,11 +2,32 @@ import type { PlainContact, Touch, UpdateTouch } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import { DateTime } from 'luxon';
 import { DatabaseFormat, prepareForDatabase, reviveFromDatabase } from 'smart-enums';
+import { config } from '../config';
 import type { Container } from '../container';
+import {
+  decryptTouchField,
+  encryptTouchField,
+  parseEncryptionKey,
+} from '../services/touchEncryption';
 
 export interface TouchesRepository {
   getTouchedRecordsForDay: (userId: string, dayStart: DateTime<true>) => Promise<Touch[] | []>;
+  getByContactId: (userId: string, contactId: string) => Promise<Touch[]>;
   createTouch: (userId: string, body: UpdateTouch) => Promise<Touch | undefined>;
+}
+
+const encryptionKey = parseEncryptionKey(config.touchMessageEncryptionKey);
+
+function decryptTouchRow(row: Record<string, unknown>): void {
+  if (!row || !encryptionKey) return;
+  if (row.message_enc != null) {
+    row.message = decryptTouchField(String(row.message_enc), encryptionKey) ?? row.message;
+    delete row.message_enc;
+  }
+  if (row.subject_enc != null) {
+    row.subject = decryptTouchField(String(row.subject_enc), encryptionKey) ?? row.subject;
+    delete row.subject_enc;
+  }
 }
 
 export const createTouchesRepository = ({ connection, logger }: Container): TouchesRepository => ({
@@ -22,12 +43,25 @@ export const createTouchesRepository = ({ connection, logger }: Container): Touc
         });
         return undefined;
       }
+      let message: string | null = body.message ?? null;
+      let subject: string | null = body.subject ?? null;
+      let messageEnc: string | null = null;
+      let subjectEnc: string | null = null;
+      if (encryptionKey) {
+        messageEnc = encryptTouchField(body.message, encryptionKey);
+        subjectEnc = encryptTouchField(body.subject, encryptionKey);
+        message = null;
+        subject = null;
+      }
       const touchData = {
         id: connection.raw('gen_random_uuid()'),
         userId,
         contactId: body.contactId,
         method: body.method,
-        message: body.message,
+        message,
+        subject,
+        message_enc: messageEnc,
+        subject_enc: subjectEnc,
         outcome: body.outcome,
         fromContactNow: body.fromContactNow ?? false,
         createdAt: connection.fn.now(),
@@ -39,6 +73,7 @@ export const createTouchesRepository = ({ connection, logger }: Container): Touc
       await connection('contacts')
         .where({ id: contact.id })
         .update({ lastTouchedAt: connection.fn.now(), nextDueAt });
+      if (touch && typeof touch === 'object') decryptTouchRow(touch as Record<string, unknown>);
       const result = touch
         ? reviveFromDatabase<Touch>(touch, {
             fieldEnumMapping: {
@@ -66,12 +101,27 @@ export const createTouchesRepository = ({ connection, logger }: Container): Touc
     }
   },
   getTouchedRecordsForDay: async (userId: string, dayStart: DateTime<true>): Promise<Touch[]> => {
-    const touches = await connection('touch_logs')
+    const rows = await connection('touch_logs')
       .where({ userId })
       .where('createdAt', '>=', dayStart.toJSDate())
       .where('createdAt', '<=', dayStart.endOf('day').toJSDate());
-    return touches.length > 0
-      ? reviveFromDatabase<Touch[]>(touches, {
+    rows.forEach((row) => decryptTouchRow(row as Record<string, unknown>));
+    return rows.length > 0
+      ? reviveFromDatabase<Touch[]>(rows, {
+          fieldEnumMapping: {
+            method: ['ContactMethod'],
+          },
+        })
+      : [];
+  },
+
+  getByContactId: async (userId: string, contactId: string): Promise<Touch[]> => {
+    const rows = await connection('touch_logs')
+      .where({ userId, contactId })
+      .orderBy('createdAt', 'desc');
+    rows.forEach((row) => decryptTouchRow(row as Record<string, unknown>));
+    return rows.length > 0
+      ? reviveFromDatabase<Touch[]>(rows, {
           fieldEnumMapping: {
             method: ['ContactMethod'],
           },
