@@ -26,6 +26,7 @@ import { Modal } from '../ui/Modal';
 import { Badge, Button, Card, Field, HStack, VStack } from '../ui/Primitives';
 import { SmsModal } from '../ui/SmsModal';
 import { TouchForm } from '../ui/TouchForm';
+import { getTodayCustomMessages, setTodayCustomMessage } from '../utils/todayMessagesStore';
 import { getTodayPinnedIds, removeFromTodayPinned } from '../utils/todayPinnedStore';
 
 export const Today = () => {
@@ -60,8 +61,10 @@ export const Today = () => {
     contact?: DailyContact;
   }>({ isOpen: false });
 
-  // Track custom messages for each contact
-  const [customMessages, setCustomMessages] = useState<Record<string, string>>({});
+  // Track custom messages for each contact (from session storage so they persist after "done")
+  const [customMessages, setCustomMessages] = useState<Record<string, string>>(() =>
+    getTodayCustomMessages(),
+  );
 
   // Track snooze/suspend dropdown value per contact (reset after selection)
   const [snoozeSuspendValue, setSnoozeSuspendValue] = useState<Record<string, string>>({});
@@ -173,6 +176,10 @@ export const Today = () => {
       ...prev,
       [contactId]: message,
     }));
+    // Only persist for Contact Now contacts; after they're marked done they come from the API and would lose in-memory state
+    if (pinnedIds.includes(contactId)) {
+      setTodayCustomMessage(contactId, message);
+    }
   };
 
   const getMessageForContact = (contact: DailyContact): string => {
@@ -256,11 +263,7 @@ export const Today = () => {
     },
   });
 
-  const handleEmailSubmit = (data: {
-    subject: string;
-    body: string;
-    sendCopyToMe?: boolean;
-  }) => {
+  const handleEmailSubmit = (data: { subject: string; body: string; sendCopyToMe?: boolean }) => {
     if (!modal.contact?.email || modal.type !== 'email') {
       handleCloseModal();
       return;
