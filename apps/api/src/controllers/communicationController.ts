@@ -16,10 +16,11 @@ export const createCommunicationController = ({
   userRepository,
 }: Container): CommunicationController => ({
   sendEmail: async (ctx: Context): Promise<Context> => {
-    const { to, subject, body } = ctx.request.body as {
+    const { to, subject, body, sendCopyToMe } = ctx.request.body as {
       to: string;
       subject: string;
       body: string;
+      sendCopyToMe?: boolean;
     };
 
     if (!to || !subject || !body) {
@@ -35,6 +36,8 @@ export const createCommunicationController = ({
       ctx.body = { error: 'User not found' };
       return ctx;
     }
+
+    const bcc = sendCopyToMe && user.email ? user.email : undefined;
 
     // Construct from address components
     // Use a sanitized version of the name for the email address
@@ -68,6 +71,7 @@ export const createCommunicationController = ({
       fromEmail,
       fromDisplayName,
       replyToEmail,
+      bcc,
     );
 
     if (result.success) {

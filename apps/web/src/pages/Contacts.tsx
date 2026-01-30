@@ -1,7 +1,7 @@
 import { ContactMethod, UpdateContact } from '@network/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useToast } from '../contexts/ToastContext';
 import { useContactListService, useContactService, useUserService } from '../hooks';
@@ -15,6 +15,7 @@ import { addToTodayPinned } from '../utils/todayPinnedStore';
 export const Contacts = () => {
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
   const { fetchContacts } = useContactListService();
   const { deleteContact, createContact, suspendContact, unsuspendContact } = useContactService();
@@ -30,8 +31,38 @@ export const Contacts = () => {
     [result],
   );
 
-  const [query, querySetter] = useState('');
-  const [channel, setChannel] = useState<ContactMethod | undefined>();
+  // Search and channel from URL for deep linking (return to same search after editing a contact)
+  const query = searchParams.get('q') ?? '';
+  const channelParam = searchParams.get('channel');
+  const channel = useMemo(
+    () => (channelParam ? ContactMethod.tryFromValue(channelParam) : undefined),
+    [channelParam],
+  );
+
+  const setQuery = (value: string) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (value) next.set('q', value);
+        else next.delete('q');
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
+  const setChannelFilter = (value: ContactMethod | undefined) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (value?.value) next.set('channel', value.value);
+        else next.delete('channel');
+        return next;
+      },
+      { replace: true },
+    );
+  };
+
   const [showAddModal, setShowAddModal] = useState(false);
 
   const deleteMut = useMutation({
@@ -144,15 +175,15 @@ export const Contacts = () => {
               id="contactFilter"
               placeholder="Search name or handle…"
               value={query}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => querySetter(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
             />
             <FormInput
               as="select"
               id="channelFilter"
-              value={channel?.value}
+              value={channel?.value ?? ''}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                 const value = e.target.value;
-                setChannel(value ? ContactMethod.tryFromValue(value) : undefined);
+                setChannelFilter(value ? ContactMethod.tryFromValue(value) : undefined);
               }}
             >
               <option value="">All channels</option>

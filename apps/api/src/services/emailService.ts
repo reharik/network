@@ -13,6 +13,7 @@ export interface EmailService {
     fromEmail: string,
     fromDisplayName?: string,
     replyToEmail?: string,
+    bcc?: string,
   ) => Promise<Response<{ messageId: string }>>;
 }
 
@@ -52,6 +53,7 @@ export const createEmailService = ({ logger }: Container): EmailService => {
       fromEmail: string,
       fromDisplayName?: string,
       replyToEmail?: string,
+      bcc?: string,
     ): Promise<Response<{ messageId: string }>> => {
       logger.info('Sending email', {
         to,
@@ -59,6 +61,7 @@ export const createEmailService = ({ logger }: Container): EmailService => {
         from: fromEmail,
         fromDisplayName,
         replyTo: replyToEmail,
+        bcc: bcc ?? undefined,
       });
 
       return asyncOperationToResponse(
@@ -77,6 +80,10 @@ export const createEmailService = ({ logger }: Container): EmailService => {
 
           if (replyToEmail) {
             headers.push(`Reply-To: ${replyToEmail}`);
+          }
+
+          if (bcc) {
+            headers.push(`Bcc: ${bcc}`);
           }
 
           headers.push(`Subject: ${subject}`);

@@ -10,6 +10,8 @@ export interface SendEmailRequest extends CommunicationRequest {
   to: string;
   subject: string;
   body: string;
+  /** When true, BCC the current user's email so they receive a copy. */
+  sendCopyToMe?: boolean;
 }
 
 export interface SendSmsRequest extends CommunicationRequest {

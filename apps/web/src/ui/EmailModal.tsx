@@ -9,7 +9,7 @@ interface EmailModalProps {
   contactEmail: string;
   initialSubject?: string;
   initialBody?: string;
-  onSubmit: (data: { subject: string; body: string }) => void;
+  onSubmit: (data: { subject: string; body: string; sendCopyToMe?: boolean }) => void;
   onCancel: () => void;
   isLoading?: boolean;
   errors?: BaseApiError[];
@@ -27,6 +27,7 @@ export const EmailModal = ({
 }: EmailModalProps) => {
   const [subject, setSubject] = useState(initialSubject);
   const [body, setBody] = useState(initialBody);
+  const [sendCopyToMe, setSendCopyToMe] = useState(false);
 
   // Update state when initial values change
   useEffect(() => {
@@ -39,7 +40,7 @@ export const EmailModal = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ subject, body });
+    onSubmit({ subject, body, sendCopyToMe });
   };
 
   return (
@@ -75,6 +76,16 @@ export const EmailModal = ({
           errors={errors}
           rows={6}
         />
+
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={sendCopyToMe}
+            onChange={(e) => setSendCopyToMe(e.target.checked)}
+            disabled={isLoading}
+          />
+          <span>Send me a copy</span>
+        </label>
 
         <HStack>
           <Button type="submit" disabled={isLoading}>

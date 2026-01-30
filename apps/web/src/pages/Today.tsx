@@ -256,7 +256,11 @@ export const Today = () => {
     },
   });
 
-  const handleEmailSubmit = (data: { subject: string; body: string }) => {
+  const handleEmailSubmit = (data: {
+    subject: string;
+    body: string;
+    sendCopyToMe?: boolean;
+  }) => {
     if (!modal.contact?.email || modal.type !== 'email') {
       handleCloseModal();
       return;
@@ -275,6 +279,7 @@ export const Today = () => {
         to: modal.contact.email,
         subject,
         body,
+        sendCopyToMe: data.sendCopyToMe,
       },
       {
         onSuccess: (result) => {
