@@ -263,23 +263,27 @@ export const Today = () => {
     },
   });
 
-  const handleEmailSubmit = (data: { subject: string; body: string; sendCopyToMe?: boolean }) => {
-    if (!modal.contact?.email || modal.type !== 'email') {
+  const handleEmailSubmit = (data: {
+    subject: string;
+    body: string;
+    sendCopyToMe?: boolean;
+    to?: string;
+  }) => {
+    const hasEmail = modal.contact?.emails?.length || modal.contact?.email;
+    if (!hasEmail || modal.type !== 'email' || !modal.contact) {
       handleCloseModal();
       return;
     }
 
-    // Capture contact info before async operation
-    const contactId = modal.contact.id;
-
-    // Replace tokens like {{firstName}} with actual contact values
-    const subject = replaceTokens(data.subject, modal.contact);
-    const body = replaceTokens(data.body, modal.contact);
-
+    const contact = modal.contact;
+    const contactId = contact.id;
+    const subject = replaceTokens(data.subject, contact);
+    const body = replaceTokens(data.body, contact);
+    const toEmail = data.to ?? contact.email ?? contact.emails?.[0]?.email;
     emailMutation.mutate(
       {
         type: 'email',
-        to: modal.contact.email,
+        to: toEmail!,
         subject,
         body,
         sendCopyToMe: data.sendCopyToMe,
@@ -296,22 +300,25 @@ export const Today = () => {
     );
   };
 
-  const handleSmsSubmit = (data: { message: string }) => {
-    if (!modal.contact?.phone || modal.type !== 'sms') {
+  const handleSmsSubmit = (data: { message: string; to?: string }) => {
+    const hasPhone = modal.contact?.phones?.length || modal.contact?.phone;
+    if (!hasPhone || modal.type !== 'sms') {
       handleCloseModal();
       return;
     }
 
-    // Capture contact info before async operation
-    const contactId = modal.contact.id;
-
-    // Replace tokens like {{firstName}} with actual contact values
-    const message = replaceTokens(data.message, modal.contact);
+    const contactId = modal.contact!.id;
+    const toPhone =
+      data.to ??
+      modal.contact!.phone ??
+      modal.contact!.phones?.find((p) => p.isDefault)?.phone ??
+      modal.contact!.phones?.[0]?.phone;
+    const message = replaceTokens(data.message, modal.contact!);
 
     smsMutation.mutate(
       {
         type: 'sms',
-        to: modal.contact.phone,
+        to: toPhone!,
         message,
       },
       {
@@ -382,12 +389,12 @@ export const Today = () => {
                 )}
 
                 {/* Direct contact buttons */}
-                {c.email && (
+                {(c.emails?.length || c.email) && (
                   <Button variant="secondary" onClick={() => handleDirectContact(c, 'email')}>
                     📧 Email
                   </Button>
                 )}
-                {c.phone && (
+                {(c.phones?.length || c.phone) && (
                   <>
                     <Button variant="secondary" onClick={() => handleDirectContact(c, 'sms')}>
                       💬 SMS
@@ -458,10 +465,11 @@ export const Today = () => {
         title={`Send ${modal.type ? pascalCase(modal.type) : ''}`}
       >
         {/* Email Modal */}
-        {modal.type === 'email' && modal.contact?.email && (
+        {modal.type === 'email' && (modal.contact?.emails?.length || modal.contact?.email) && (
           <EmailModal
             contactName={`${modal.contact.firstName} ${modal.contact.lastName}`}
-            contactEmail={modal.contact.email}
+            contactEmail={modal.contact.email ?? modal.contact.emails?.[0]?.email ?? ''}
+            contactEmails={modal.contact.emails?.map((e) => e.email)}
             initialSubject=""
             initialBody={getMessageForContact(modal.contact)}
             onSubmit={handleEmailSubmit}
@@ -474,10 +482,11 @@ export const Today = () => {
         )}
 
         {/* SMS Modal */}
-        {modal.type === 'sms' && modal.contact?.phone && (
+        {modal.type === 'sms' && (modal.contact?.phones?.length || modal.contact?.phone) && (
           <SmsModal
             contactName={`${modal.contact.firstName} ${modal.contact.lastName}`}
-            contactPhone={modal.contact.phone}
+            contactPhone={modal.contact.phone ?? modal.contact.phones?.[0]?.phone ?? ''}
+            contactPhones={modal.contact.phones?.map((p) => p.phone)}
             initialMessage={getMessageForContact(modal.contact)}
             onSubmit={handleSmsSubmit}
             onCancel={handleCloseModal}

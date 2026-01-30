@@ -29,6 +29,16 @@ export const validateContact = (data: unknown) =>
       (undefined === input.email ||
         ('string' === typeof input.email &&
           __typia_transform__isFormatEmail._isFormatEmail(input.email))) &&
+      (undefined === input.emails ||
+        (Array.isArray(input.emails) &&
+          input.emails.every(
+            (elem: any) => 'object' === typeof elem && null !== elem && _io1(elem),
+          ))) &&
+      (undefined === input.phones ||
+        (Array.isArray(input.phones) &&
+          input.phones.every(
+            (elem: any) => 'object' === typeof elem && null !== elem && _io2(elem),
+          ))) &&
       'number' === typeof input.intervalDays &&
       __typia_transform__isTypeInt32._isTypeInt32(input.intervalDays) &&
       1 <= input.intervalDays &&
@@ -50,12 +60,26 @@ export const validateContact = (data: unknown) =>
           __typia_transform__isFormatDateTime._isFormatDateTime(input.updatedAt))) &&
       'object' === typeof input.preferredMethod &&
       null !== input.preferredMethod &&
-      _io1(input.preferredMethod) &&
+      _io3(input.preferredMethod) &&
       (undefined === input.phone || 'string' === typeof input.phone) &&
+      (undefined === input.sms || 'string' === typeof input.sms) &&
+      (undefined === input.call || 'string' === typeof input.call) &&
       (undefined === input.notes || 'string' === typeof input.notes) &&
       'string' === typeof input.suggestion &&
       (undefined === input.paused || 'boolean' === typeof input.paused);
     const _io1 = (input: any): boolean =>
+      'string' === typeof input.id &&
+      'string' === typeof input.contactId &&
+      'string' === typeof input.email &&
+      'boolean' === typeof input.isDefault &&
+      (undefined === input.createdAt || 'string' === typeof input.createdAt);
+    const _io2 = (input: any): boolean =>
+      'string' === typeof input.id &&
+      'string' === typeof input.contactId &&
+      'string' === typeof input.phone &&
+      'boolean' === typeof input.isDefault &&
+      (undefined === input.createdAt || 'string' === typeof input.createdAt);
+    const _io3 = (input: any): boolean =>
       'string' === typeof input.key &&
       'string' === typeof input.value &&
       (undefined === input.display || 'string' === typeof input.display) &&
@@ -139,6 +163,64 @@ export const validateContact = (data: unknown) =>
             path: _path + '.email',
             expected: '((string & Format<"email">) | undefined)',
             value: input.email,
+          }),
+        undefined === input.emails ||
+          ((Array.isArray(input.emails) ||
+            _report(_exceptionable, {
+              path: _path + '.emails',
+              expected: '(Array<ContactEmail> | undefined)',
+              value: input.emails,
+            })) &&
+            input.emails
+              .map(
+                (elem: any, _index3: number) =>
+                  ((('object' === typeof elem && null !== elem) ||
+                    _report(_exceptionable, {
+                      path: _path + '.emails[' + _index3 + ']',
+                      expected: 'ContactEmail',
+                      value: elem,
+                    })) &&
+                    _vo1(elem, _path + '.emails[' + _index3 + ']', true && _exceptionable)) ||
+                  _report(_exceptionable, {
+                    path: _path + '.emails[' + _index3 + ']',
+                    expected: 'ContactEmail',
+                    value: elem,
+                  }),
+              )
+              .every((flag: boolean) => flag)) ||
+          _report(_exceptionable, {
+            path: _path + '.emails',
+            expected: '(Array<ContactEmail> | undefined)',
+            value: input.emails,
+          }),
+        undefined === input.phones ||
+          ((Array.isArray(input.phones) ||
+            _report(_exceptionable, {
+              path: _path + '.phones',
+              expected: '(Array<ContactPhone> | undefined)',
+              value: input.phones,
+            })) &&
+            input.phones
+              .map(
+                (elem: any, _index4: number) =>
+                  ((('object' === typeof elem && null !== elem) ||
+                    _report(_exceptionable, {
+                      path: _path + '.phones[' + _index4 + ']',
+                      expected: 'ContactPhone',
+                      value: elem,
+                    })) &&
+                    _vo2(elem, _path + '.phones[' + _index4 + ']', true && _exceptionable)) ||
+                  _report(_exceptionable, {
+                    path: _path + '.phones[' + _index4 + ']',
+                    expected: 'ContactPhone',
+                    value: elem,
+                  }),
+              )
+              .every((flag: boolean) => flag)) ||
+          _report(_exceptionable, {
+            path: _path + '.phones',
+            expected: '(Array<ContactPhone> | undefined)',
+            value: input.phones,
           }),
         ('number' === typeof input.intervalDays &&
           (__typia_transform__isTypeInt32._isTypeInt32(input.intervalDays) ||
@@ -235,7 +317,7 @@ export const validateContact = (data: unknown) =>
             expected: 'EnumItem<__object, ContactMethodItem>',
             value: input.preferredMethod,
           })) &&
-          _vo1(input.preferredMethod, _path + '.preferredMethod', true && _exceptionable)) ||
+          _vo3(input.preferredMethod, _path + '.preferredMethod', true && _exceptionable)) ||
           _report(_exceptionable, {
             path: _path + '.preferredMethod',
             expected: 'EnumItem<__object, ContactMethodItem>',
@@ -247,6 +329,20 @@ export const validateContact = (data: unknown) =>
             path: _path + '.phone',
             expected: '(string | undefined)',
             value: input.phone,
+          }),
+        undefined === input.sms ||
+          'string' === typeof input.sms ||
+          _report(_exceptionable, {
+            path: _path + '.sms',
+            expected: '(string | undefined)',
+            value: input.sms,
+          }),
+        undefined === input.call ||
+          'string' === typeof input.call ||
+          _report(_exceptionable, {
+            path: _path + '.call',
+            expected: '(string | undefined)',
+            value: input.call,
           }),
         undefined === input.notes ||
           'string' === typeof input.notes ||
@@ -270,6 +366,74 @@ export const validateContact = (data: unknown) =>
           }),
       ].every((flag: boolean) => flag);
     const _vo1 = (input: any, _path: string, _exceptionable: boolean = true): boolean =>
+      [
+        'string' === typeof input.id ||
+          _report(_exceptionable, {
+            path: _path + '.id',
+            expected: 'string',
+            value: input.id,
+          }),
+        'string' === typeof input.contactId ||
+          _report(_exceptionable, {
+            path: _path + '.contactId',
+            expected: 'string',
+            value: input.contactId,
+          }),
+        'string' === typeof input.email ||
+          _report(_exceptionable, {
+            path: _path + '.email',
+            expected: 'string',
+            value: input.email,
+          }),
+        'boolean' === typeof input.isDefault ||
+          _report(_exceptionable, {
+            path: _path + '.isDefault',
+            expected: 'boolean',
+            value: input.isDefault,
+          }),
+        undefined === input.createdAt ||
+          'string' === typeof input.createdAt ||
+          _report(_exceptionable, {
+            path: _path + '.createdAt',
+            expected: '(string | undefined)',
+            value: input.createdAt,
+          }),
+      ].every((flag: boolean) => flag);
+    const _vo2 = (input: any, _path: string, _exceptionable: boolean = true): boolean =>
+      [
+        'string' === typeof input.id ||
+          _report(_exceptionable, {
+            path: _path + '.id',
+            expected: 'string',
+            value: input.id,
+          }),
+        'string' === typeof input.contactId ||
+          _report(_exceptionable, {
+            path: _path + '.contactId',
+            expected: 'string',
+            value: input.contactId,
+          }),
+        'string' === typeof input.phone ||
+          _report(_exceptionable, {
+            path: _path + '.phone',
+            expected: 'string',
+            value: input.phone,
+          }),
+        'boolean' === typeof input.isDefault ||
+          _report(_exceptionable, {
+            path: _path + '.isDefault',
+            expected: 'boolean',
+            value: input.isDefault,
+          }),
+        undefined === input.createdAt ||
+          'string' === typeof input.createdAt ||
+          _report(_exceptionable, {
+            path: _path + '.createdAt',
+            expected: '(string | undefined)',
+            value: input.createdAt,
+          }),
+      ].every((flag: boolean) => flag);
+    const _vo3 = (input: any, _path: string, _exceptionable: boolean = true): boolean =>
       [
         'string' === typeof input.key ||
           _report(_exceptionable, {
@@ -389,6 +553,16 @@ export const validateUpdateContact = (data: unknown) =>
       (undefined === input.email ||
         ('string' === typeof input.email &&
           __typia_transform__isFormatEmail._isFormatEmail(input.email))) &&
+      (undefined === input.emails ||
+        (Array.isArray(input.emails) &&
+          input.emails.every(
+            (elem: any) => 'object' === typeof elem && null !== elem && _io1(elem),
+          ))) &&
+      (undefined === input.phones ||
+        (Array.isArray(input.phones) &&
+          input.phones.every(
+            (elem: any) => 'object' === typeof elem && null !== elem && _io2(elem),
+          ))) &&
       (undefined === input.intervalDays ||
         ('number' === typeof input.intervalDays &&
           __typia_transform__isTypeInt32._isTypeInt32(input.intervalDays) &&
@@ -412,12 +586,26 @@ export const validateUpdateContact = (data: unknown) =>
       (undefined === input.preferredMethod ||
         ('object' === typeof input.preferredMethod &&
           null !== input.preferredMethod &&
-          _io1(input.preferredMethod))) &&
+          _io3(input.preferredMethod))) &&
       (undefined === input.phone || 'string' === typeof input.phone) &&
+      (undefined === input.sms || 'string' === typeof input.sms) &&
+      (undefined === input.call || 'string' === typeof input.call) &&
       (undefined === input.notes || 'string' === typeof input.notes) &&
       (undefined === input.suggestion || 'string' === typeof input.suggestion) &&
       (undefined === input.paused || 'boolean' === typeof input.paused);
     const _io1 = (input: any): boolean =>
+      'string' === typeof input.id &&
+      'string' === typeof input.contactId &&
+      'string' === typeof input.email &&
+      'boolean' === typeof input.isDefault &&
+      (undefined === input.createdAt || 'string' === typeof input.createdAt);
+    const _io2 = (input: any): boolean =>
+      'string' === typeof input.id &&
+      'string' === typeof input.contactId &&
+      'string' === typeof input.phone &&
+      'boolean' === typeof input.isDefault &&
+      (undefined === input.createdAt || 'string' === typeof input.createdAt);
+    const _io3 = (input: any): boolean =>
       'string' === typeof input.key &&
       'string' === typeof input.value &&
       (undefined === input.display || 'string' === typeof input.display) &&
@@ -505,6 +693,64 @@ export const validateUpdateContact = (data: unknown) =>
             path: _path + '.email',
             expected: '((string & Format<"email">) | undefined)',
             value: input.email,
+          }),
+        undefined === input.emails ||
+          ((Array.isArray(input.emails) ||
+            _report(_exceptionable, {
+              path: _path + '.emails',
+              expected: '(Array<ContactEmail> | undefined)',
+              value: input.emails,
+            })) &&
+            input.emails
+              .map(
+                (elem: any, _index3: number) =>
+                  ((('object' === typeof elem && null !== elem) ||
+                    _report(_exceptionable, {
+                      path: _path + '.emails[' + _index3 + ']',
+                      expected: 'ContactEmail',
+                      value: elem,
+                    })) &&
+                    _vo1(elem, _path + '.emails[' + _index3 + ']', true && _exceptionable)) ||
+                  _report(_exceptionable, {
+                    path: _path + '.emails[' + _index3 + ']',
+                    expected: 'ContactEmail',
+                    value: elem,
+                  }),
+              )
+              .every((flag: boolean) => flag)) ||
+          _report(_exceptionable, {
+            path: _path + '.emails',
+            expected: '(Array<ContactEmail> | undefined)',
+            value: input.emails,
+          }),
+        undefined === input.phones ||
+          ((Array.isArray(input.phones) ||
+            _report(_exceptionable, {
+              path: _path + '.phones',
+              expected: '(Array<ContactPhone> | undefined)',
+              value: input.phones,
+            })) &&
+            input.phones
+              .map(
+                (elem: any, _index4: number) =>
+                  ((('object' === typeof elem && null !== elem) ||
+                    _report(_exceptionable, {
+                      path: _path + '.phones[' + _index4 + ']',
+                      expected: 'ContactPhone',
+                      value: elem,
+                    })) &&
+                    _vo2(elem, _path + '.phones[' + _index4 + ']', true && _exceptionable)) ||
+                  _report(_exceptionable, {
+                    path: _path + '.phones[' + _index4 + ']',
+                    expected: 'ContactPhone',
+                    value: elem,
+                  }),
+              )
+              .every((flag: boolean) => flag)) ||
+          _report(_exceptionable, {
+            path: _path + '.phones',
+            expected: '(Array<ContactPhone> | undefined)',
+            value: input.phones,
           }),
         undefined === input.intervalDays ||
           ('number' === typeof input.intervalDays &&
@@ -603,7 +849,7 @@ export const validateUpdateContact = (data: unknown) =>
               expected: '(EnumItem<__object, ContactMethodItem> | undefined)',
               value: input.preferredMethod,
             })) &&
-            _vo1(input.preferredMethod, _path + '.preferredMethod', true && _exceptionable)) ||
+            _vo3(input.preferredMethod, _path + '.preferredMethod', true && _exceptionable)) ||
           _report(_exceptionable, {
             path: _path + '.preferredMethod',
             expected: '(EnumItem<__object, ContactMethodItem> | undefined)',
@@ -615,6 +861,20 @@ export const validateUpdateContact = (data: unknown) =>
             path: _path + '.phone',
             expected: '(string | undefined)',
             value: input.phone,
+          }),
+        undefined === input.sms ||
+          'string' === typeof input.sms ||
+          _report(_exceptionable, {
+            path: _path + '.sms',
+            expected: '(string | undefined)',
+            value: input.sms,
+          }),
+        undefined === input.call ||
+          'string' === typeof input.call ||
+          _report(_exceptionable, {
+            path: _path + '.call',
+            expected: '(string | undefined)',
+            value: input.call,
           }),
         undefined === input.notes ||
           'string' === typeof input.notes ||
@@ -639,6 +899,74 @@ export const validateUpdateContact = (data: unknown) =>
           }),
       ].every((flag: boolean) => flag);
     const _vo1 = (input: any, _path: string, _exceptionable: boolean = true): boolean =>
+      [
+        'string' === typeof input.id ||
+          _report(_exceptionable, {
+            path: _path + '.id',
+            expected: 'string',
+            value: input.id,
+          }),
+        'string' === typeof input.contactId ||
+          _report(_exceptionable, {
+            path: _path + '.contactId',
+            expected: 'string',
+            value: input.contactId,
+          }),
+        'string' === typeof input.email ||
+          _report(_exceptionable, {
+            path: _path + '.email',
+            expected: 'string',
+            value: input.email,
+          }),
+        'boolean' === typeof input.isDefault ||
+          _report(_exceptionable, {
+            path: _path + '.isDefault',
+            expected: 'boolean',
+            value: input.isDefault,
+          }),
+        undefined === input.createdAt ||
+          'string' === typeof input.createdAt ||
+          _report(_exceptionable, {
+            path: _path + '.createdAt',
+            expected: '(string | undefined)',
+            value: input.createdAt,
+          }),
+      ].every((flag: boolean) => flag);
+    const _vo2 = (input: any, _path: string, _exceptionable: boolean = true): boolean =>
+      [
+        'string' === typeof input.id ||
+          _report(_exceptionable, {
+            path: _path + '.id',
+            expected: 'string',
+            value: input.id,
+          }),
+        'string' === typeof input.contactId ||
+          _report(_exceptionable, {
+            path: _path + '.contactId',
+            expected: 'string',
+            value: input.contactId,
+          }),
+        'string' === typeof input.phone ||
+          _report(_exceptionable, {
+            path: _path + '.phone',
+            expected: 'string',
+            value: input.phone,
+          }),
+        'boolean' === typeof input.isDefault ||
+          _report(_exceptionable, {
+            path: _path + '.isDefault',
+            expected: 'boolean',
+            value: input.isDefault,
+          }),
+        undefined === input.createdAt ||
+          'string' === typeof input.createdAt ||
+          _report(_exceptionable, {
+            path: _path + '.createdAt',
+            expected: '(string | undefined)',
+            value: input.createdAt,
+          }),
+      ].every((flag: boolean) => flag);
+    const _vo3 = (input: any, _path: string, _exceptionable: boolean = true): boolean =>
       [
         'string' === typeof input.key ||
           _report(_exceptionable, {
@@ -744,6 +1072,8 @@ export const validateInsertContact = (data: unknown) =>
       (undefined === input.email ||
         ('string' === typeof input.email &&
           __typia_transform__isFormatEmail._isFormatEmail(input.email))) &&
+      (undefined === input.sms || 'string' === typeof input.sms) &&
+      (undefined === input.call || 'string' === typeof input.call) &&
       'string' === typeof input.userId &&
       __typia_transform__isFormatUuid._isFormatUuid(input.userId) &&
       'string' === typeof input.firstName &&
@@ -752,6 +1082,16 @@ export const validateInsertContact = (data: unknown) =>
       'string' === typeof input.lastName &&
       1 <= input.lastName.length &&
       input.lastName.length <= 200 &&
+      (undefined === input.emails ||
+        (Array.isArray(input.emails) &&
+          input.emails.every(
+            (elem: any) => 'object' === typeof elem && null !== elem && _io1(elem),
+          ))) &&
+      (undefined === input.phones ||
+        (Array.isArray(input.phones) &&
+          input.phones.every(
+            (elem: any) => 'object' === typeof elem && null !== elem && _io2(elem),
+          ))) &&
       'number' === typeof input.intervalDays &&
       __typia_transform__isTypeInt32._isTypeInt32(input.intervalDays) &&
       1 <= input.intervalDays &&
@@ -773,12 +1113,24 @@ export const validateInsertContact = (data: unknown) =>
           __typia_transform__isFormatDateTime._isFormatDateTime(input.updatedAt))) &&
       'object' === typeof input.preferredMethod &&
       null !== input.preferredMethod &&
-      _io1(input.preferredMethod) &&
+      _io3(input.preferredMethod) &&
       (undefined === input.phone || 'string' === typeof input.phone) &&
       (undefined === input.notes || 'string' === typeof input.notes) &&
       'string' === typeof input.suggestion &&
       (undefined === input.paused || 'boolean' === typeof input.paused);
     const _io1 = (input: any): boolean =>
+      'string' === typeof input.id &&
+      'string' === typeof input.contactId &&
+      'string' === typeof input.email &&
+      'boolean' === typeof input.isDefault &&
+      (undefined === input.createdAt || 'string' === typeof input.createdAt);
+    const _io2 = (input: any): boolean =>
+      'string' === typeof input.id &&
+      'string' === typeof input.contactId &&
+      'string' === typeof input.phone &&
+      'boolean' === typeof input.isDefault &&
+      (undefined === input.createdAt || 'string' === typeof input.createdAt);
+    const _io3 = (input: any): boolean =>
       'string' === typeof input.key &&
       'string' === typeof input.value &&
       (undefined === input.display || 'string' === typeof input.display) &&
@@ -802,6 +1154,20 @@ export const validateInsertContact = (data: unknown) =>
             path: _path + '.email',
             expected: '((string & Format<"email">) | undefined)',
             value: input.email,
+          }),
+        undefined === input.sms ||
+          'string' === typeof input.sms ||
+          _report(_exceptionable, {
+            path: _path + '.sms',
+            expected: '(string | undefined)',
+            value: input.sms,
+          }),
+        undefined === input.call ||
+          'string' === typeof input.call ||
+          _report(_exceptionable, {
+            path: _path + '.call',
+            expected: '(string | undefined)',
+            value: input.call,
           }),
         ('string' === typeof input.userId &&
           (__typia_transform__isFormatUuid._isFormatUuid(input.userId) ||
@@ -850,6 +1216,64 @@ export const validateInsertContact = (data: unknown) =>
             path: _path + '.lastName',
             expected: '(string & MinLength<1> & MaxLength<200>)',
             value: input.lastName,
+          }),
+        undefined === input.emails ||
+          ((Array.isArray(input.emails) ||
+            _report(_exceptionable, {
+              path: _path + '.emails',
+              expected: '(Array<ContactEmail> | undefined)',
+              value: input.emails,
+            })) &&
+            input.emails
+              .map(
+                (elem: any, _index3: number) =>
+                  ((('object' === typeof elem && null !== elem) ||
+                    _report(_exceptionable, {
+                      path: _path + '.emails[' + _index3 + ']',
+                      expected: 'ContactEmail',
+                      value: elem,
+                    })) &&
+                    _vo1(elem, _path + '.emails[' + _index3 + ']', true && _exceptionable)) ||
+                  _report(_exceptionable, {
+                    path: _path + '.emails[' + _index3 + ']',
+                    expected: 'ContactEmail',
+                    value: elem,
+                  }),
+              )
+              .every((flag: boolean) => flag)) ||
+          _report(_exceptionable, {
+            path: _path + '.emails',
+            expected: '(Array<ContactEmail> | undefined)',
+            value: input.emails,
+          }),
+        undefined === input.phones ||
+          ((Array.isArray(input.phones) ||
+            _report(_exceptionable, {
+              path: _path + '.phones',
+              expected: '(Array<ContactPhone> | undefined)',
+              value: input.phones,
+            })) &&
+            input.phones
+              .map(
+                (elem: any, _index4: number) =>
+                  ((('object' === typeof elem && null !== elem) ||
+                    _report(_exceptionable, {
+                      path: _path + '.phones[' + _index4 + ']',
+                      expected: 'ContactPhone',
+                      value: elem,
+                    })) &&
+                    _vo2(elem, _path + '.phones[' + _index4 + ']', true && _exceptionable)) ||
+                  _report(_exceptionable, {
+                    path: _path + '.phones[' + _index4 + ']',
+                    expected: 'ContactPhone',
+                    value: elem,
+                  }),
+              )
+              .every((flag: boolean) => flag)) ||
+          _report(_exceptionable, {
+            path: _path + '.phones',
+            expected: '(Array<ContactPhone> | undefined)',
+            value: input.phones,
           }),
         ('number' === typeof input.intervalDays &&
           (__typia_transform__isTypeInt32._isTypeInt32(input.intervalDays) ||
@@ -946,7 +1370,7 @@ export const validateInsertContact = (data: unknown) =>
             expected: 'EnumItem<__object, ContactMethodItem>',
             value: input.preferredMethod,
           })) &&
-          _vo1(input.preferredMethod, _path + '.preferredMethod', true && _exceptionable)) ||
+          _vo3(input.preferredMethod, _path + '.preferredMethod', true && _exceptionable)) ||
           _report(_exceptionable, {
             path: _path + '.preferredMethod',
             expected: 'EnumItem<__object, ContactMethodItem>',
@@ -981,6 +1405,74 @@ export const validateInsertContact = (data: unknown) =>
           }),
       ].every((flag: boolean) => flag);
     const _vo1 = (input: any, _path: string, _exceptionable: boolean = true): boolean =>
+      [
+        'string' === typeof input.id ||
+          _report(_exceptionable, {
+            path: _path + '.id',
+            expected: 'string',
+            value: input.id,
+          }),
+        'string' === typeof input.contactId ||
+          _report(_exceptionable, {
+            path: _path + '.contactId',
+            expected: 'string',
+            value: input.contactId,
+          }),
+        'string' === typeof input.email ||
+          _report(_exceptionable, {
+            path: _path + '.email',
+            expected: 'string',
+            value: input.email,
+          }),
+        'boolean' === typeof input.isDefault ||
+          _report(_exceptionable, {
+            path: _path + '.isDefault',
+            expected: 'boolean',
+            value: input.isDefault,
+          }),
+        undefined === input.createdAt ||
+          'string' === typeof input.createdAt ||
+          _report(_exceptionable, {
+            path: _path + '.createdAt',
+            expected: '(string | undefined)',
+            value: input.createdAt,
+          }),
+      ].every((flag: boolean) => flag);
+    const _vo2 = (input: any, _path: string, _exceptionable: boolean = true): boolean =>
+      [
+        'string' === typeof input.id ||
+          _report(_exceptionable, {
+            path: _path + '.id',
+            expected: 'string',
+            value: input.id,
+          }),
+        'string' === typeof input.contactId ||
+          _report(_exceptionable, {
+            path: _path + '.contactId',
+            expected: 'string',
+            value: input.contactId,
+          }),
+        'string' === typeof input.phone ||
+          _report(_exceptionable, {
+            path: _path + '.phone',
+            expected: 'string',
+            value: input.phone,
+          }),
+        'boolean' === typeof input.isDefault ||
+          _report(_exceptionable, {
+            path: _path + '.isDefault',
+            expected: 'boolean',
+            value: input.isDefault,
+          }),
+        undefined === input.createdAt ||
+          'string' === typeof input.createdAt ||
+          _report(_exceptionable, {
+            path: _path + '.createdAt',
+            expected: '(string | undefined)',
+            value: input.createdAt,
+          }),
+      ].every((flag: boolean) => flag);
+    const _vo3 = (input: any, _path: string, _exceptionable: boolean = true): boolean =>
       [
         'string' === typeof input.key ||
           _report(_exceptionable, {

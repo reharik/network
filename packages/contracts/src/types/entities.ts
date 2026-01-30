@@ -1,6 +1,23 @@
 import { tags } from 'typia';
 import { ContactMethod } from '../enumerations/enums/ContactMethod';
 
+// Multiple emails/phones per contact
+export interface ContactEmail {
+  id: string;
+  contactId: string;
+  email: string;
+  isDefault: boolean;
+  createdAt?: string;
+}
+
+export interface ContactPhone {
+  id: string;
+  contactId: string;
+  phone: string;
+  isDefault: boolean;
+  createdAt?: string;
+}
+
 // Plain Entity Types (for database operations without typia conflicts)
 export interface PlainContact {
   id: string;
@@ -8,8 +25,16 @@ export interface PlainContact {
   firstName: string;
   lastName: string;
   preferredMethod: ContactMethod;
+  /** Primary (default) email – set when hydrating from API */
   email?: string;
+  /** Primary (default) phone – set when hydrating from API; also used for sms/call handles */
   phone?: string;
+  emails?: ContactEmail[];
+  phones?: ContactPhone[];
+  /** Alias of phone for ContactMethod.handle (SMS) */
+  sms?: string;
+  /** Alias of phone for ContactMethod.handle (Call) */
+  call?: string;
   notes?: string;
   suggestion: string;
   intervalDays: number;
@@ -54,6 +79,8 @@ export interface Contact extends PlainContact {
   firstName: string & tags.MinLength<1> & tags.MaxLength<200>;
   lastName: string & tags.MinLength<1> & tags.MaxLength<200>;
   email?: string & tags.Format<'email'>;
+  emails?: ContactEmail[];
+  phones?: ContactPhone[];
   intervalDays: number & tags.Type<'int32'> & tags.Minimum<1> & tags.Maximum<365>;
   snoozedUntil?: string & tags.Format<'date-time'>;
   nextDueAt?: string & tags.Format<'date-time'>;
@@ -105,6 +132,8 @@ export interface ImportContactsDTO {
   lastName?: string;
   email?: string;
   phone?: string;
+  emails?: { value: string; isDefault?: boolean }[];
+  phones?: { value: string; isDefault?: boolean }[];
   notes?: string;
   tags?: string;
   suggestion?: string;

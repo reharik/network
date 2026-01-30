@@ -1,4 +1,4 @@
-import { Contact } from '@network/contracts';
+import { Contact, ContactEmail, ContactPhone } from '@network/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -9,6 +9,7 @@ import { qk } from '../services/keys';
 import { FormError } from '../ui/FormError';
 import { FormInput } from '../ui/FormInput';
 import { PhoneInput } from '../ui/PhoneInput';
+import { Button, HStack, VStack } from '../ui/Primitives';
 import { addToTodayPinned } from '../utils/todayPinnedStore';
 
 export const ContactDetail = () => {
@@ -36,6 +37,22 @@ export const ContactDetail = () => {
 
   const onChange = (k: keyof Contact) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((prev) => (prev ? { ...prev, [k]: e.target.value || undefined } : prev));
+
+  const setEmails = (emails: ContactEmail[]) =>
+    setForm((prev) => (prev ? { ...prev, emails } : prev));
+  const setPhones = (phones: ContactPhone[]) =>
+    setForm((prev) => (prev ? { ...prev, phones } : prev));
+
+  const emailsList = form?.emails?.length
+    ? form.emails
+    : form?.email
+      ? [{ id: '', contactId: form.id, email: form.email, isDefault: true }]
+      : [];
+  const phonesList = form?.phones?.length
+    ? form.phones
+    : form?.phone
+      ? [{ id: '', contactId: form.id, phone: form.phone, isDefault: true }]
+      : [];
 
   const isDirty = useMemo(
     () => result?.success && JSON.stringify(result?.data ?? {}) !== JSON.stringify(form ?? {}),
@@ -152,22 +169,118 @@ export const ContactDetail = () => {
         />
       </FieldRow>
 
-      <FieldRow>
-        <FormInput
-          label="Email"
-          id="email"
-          value={form.email ?? ''}
-          onChange={onChange('email')}
-          errors={!saveMut.data?.success ? saveMut.data?.errors : []}
-        />
-        <PhoneInput
-          label="Phone"
-          id="phone"
-          value={form.phone ?? ''}
-          onChange={onChange('phone')}
-          errors={!saveMut.data?.success ? saveMut.data?.errors : []}
-        />
-      </FieldRow>
+      <VStack gap={2}>
+        <strong style={{ fontSize: '0.9rem' }}>Emails</strong>
+        {emailsList.map((entry, index) => (
+          <HStack key={entry.id || `e-${index}`} gap={2} wrap>
+            <FormInput
+              type="email"
+              value={entry.email}
+              onChange={(ev: ChangeEvent<HTMLInputElement>) =>
+                setEmails(
+                  emailsList.map((entry, i) =>
+                    i === index ? { ...entry, email: ev.target.value } : entry,
+                  ),
+                )
+              }
+              disabled={!form}
+              errors={!saveMut.data?.success ? saveMut.data?.errors : []}
+            />
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
+              <input
+                type="radio"
+                name="defaultEmail"
+                checked={entry.isDefault}
+                onChange={() =>
+                  setEmails(emailsList.map((e, i) => ({ ...e, isDefault: i === index })))
+                }
+                disabled={!form}
+              />
+              Default
+            </label>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() =>
+                setEmails(
+                  emailsList.length > 1 ? emailsList.filter((_, i) => i !== index) : emailsList,
+                )
+              }
+              disabled={!form || emailsList.length <= 1}
+            >
+              Remove
+            </Button>
+          </HStack>
+        ))}
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          onClick={() =>
+            setEmails([...emailsList, { id: '', contactId: form!.id, email: '', isDefault: false }])
+          }
+          disabled={!form}
+        >
+          + Add email
+        </Button>
+      </VStack>
+
+      <VStack gap={2}>
+        <strong style={{ fontSize: '0.9rem' }}>Phones</strong>
+        {phonesList.map((entry, index) => (
+          <HStack key={entry.id || `p-${index}`} gap={2} wrap>
+            <PhoneInput
+              value={entry.phone}
+              onChange={(ev: ChangeEvent<HTMLInputElement>) =>
+                setPhones(
+                  phonesList.map((entry, i) =>
+                    i === index ? { ...entry, phone: ev.target.value } : entry,
+                  ),
+                )
+              }
+              disabled={!form}
+              errors={!saveMut.data?.success ? saveMut.data?.errors : []}
+            />
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
+              <input
+                type="radio"
+                name="defaultPhone"
+                checked={entry.isDefault}
+                onChange={() =>
+                  setPhones(phonesList.map((p, i) => ({ ...p, isDefault: i === index })))
+                }
+                disabled={!form}
+              />
+              Default
+            </label>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() =>
+                setPhones(
+                  phonesList.length > 1 ? phonesList.filter((_, i) => i !== index) : phonesList,
+                )
+              }
+              disabled={!form || phonesList.length <= 1}
+            >
+              Remove
+            </Button>
+          </HStack>
+        ))}
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          onClick={() =>
+            setPhones([...phonesList, { id: '', contactId: form!.id, phone: '', isDefault: false }])
+          }
+          disabled={!form}
+        >
+          + Add phone
+        </Button>
+      </VStack>
 
       <FormInput
         label="Notes"
@@ -199,7 +312,7 @@ export const ContactDetail = () => {
           </>
         )}
 
-        <Button danger onClick={() => deleteMut.mutate()} disabled={deleteMut.isPending}>
+        <Button variant="danger" onClick={() => deleteMut.mutate()} disabled={deleteMut.isPending}>
           {deleteMut.isPending ? 'Deleting…' : 'Delete contact'}
         </Button>
 
@@ -228,18 +341,6 @@ const FieldRow = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-`;
-
-const Button = styled.button<{ danger?: boolean }>`
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: ${({ danger }) => (danger ? '#2a0e13' : '#0f1424')};
-  color: ${({ theme }) => theme.colors.text};
-  cursor: pointer;
-  &:hover {
-    filter: brightness(1.1);
-  }
 `;
 
 const SuspendedBadge = styled.span`

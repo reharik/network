@@ -15,7 +15,8 @@
       "dependsOn": ["ts-patch:install", "contracts:build"],
       "options": {
         "outputPath": "apps/web/dist",
-        "configFile": "{projectRoot}/vite.config.js"
+        "configFile": "{projectRoot}/vite.config.js",
+        "tsConfig": "{projectRoot}/tsconfig.json"
       }
     },
     "build:production": {
@@ -25,6 +26,7 @@
       "options": {
         "outputPath": "apps/web/dist",
         "configFile": "{projectRoot}/vite.config.js",
+        "tsConfig": "{projectRoot}/tsconfig.json",
         "mode": "production"
       }
     },

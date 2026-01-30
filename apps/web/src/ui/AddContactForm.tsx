@@ -18,6 +18,9 @@ interface AddContactFormProps {
   defaultPreferredMethod?: string;
 }
 
+type EmailEntry = { value: string; isDefault: boolean };
+type PhoneEntry = { value: string; isDefault: boolean };
+
 export const AddContactForm = ({
   onSubmit,
   onCancel,
@@ -29,8 +32,8 @@ export const AddContactForm = ({
 }: AddContactFormProps) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  const [emails, setEmails] = useState<EmailEntry[]>([{ value: '', isDefault: true }]);
+  const [phones, setPhones] = useState<PhoneEntry[]>([{ value: '', isDefault: true }]);
   const [notes, setNotes] = useState('');
   const [suggestion, setSuggestion] = useState(userDefaultMessage ?? config.defaultContactMessage);
   const [preferredMethod, setPreferredMethod] = useState<ContactMethod>(
@@ -41,20 +44,37 @@ export const AddContactForm = ({
     userDefaultInterval ?? config.defaultIntervalDays,
   );
 
+  const setEmailDefault = (index: number) => {
+    setEmails((prev) => prev.map((e, i) => ({ ...e, isDefault: i === index })));
+  };
+  const setPhoneDefault = (index: number) => {
+    setPhones((prev) => prev.map((p, i) => ({ ...p, isDefault: i === index })));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const emailList = emails
+      .map((e) => e.value.trim())
+      .filter(Boolean)
+      .map((value, i) => ({ email: value, isDefault: i === 0 || emails[i]?.isDefault }));
+    const phoneList = phones
+      .map((p) => p.value.trim())
+      .filter(Boolean)
+      .map((value, i) => ({ phone: value, isDefault: i === 0 || phones[i]?.isDefault }));
+    if (emailList.length === 1) emailList[0].isDefault = true;
+    if (phoneList.length === 1) phoneList[0].isDefault = true;
 
-    const contactData: UpdateContact = {
+    const contactData = {
       firstName,
       lastName,
-      email: email || undefined,
-      phone: phone || undefined,
+      ...(emailList.length && { emails: emailList }),
+      ...(phoneList.length && { phones: phoneList }),
       notes: notes || undefined,
       suggestion,
       preferredMethod,
       intervalDays,
       paused: false,
-    };
+    } as UpdateContact;
 
     onSubmit(contactData);
   };
@@ -91,26 +111,111 @@ export const AddContactForm = ({
           />
         </HStack>
 
-        <HStack gap={2}>
-          <FormInput
-            label="Email"
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-            placeholder="email@example.com"
+        <VStack gap={2}>
+          <strong style={{ fontSize: '0.9rem' }}>Emails</strong>
+          {emails.map((entry, index) => (
+            <HStack key={index} gap={2} wrap>
+              <FormInput
+                type="email"
+                value={entry.value}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setEmails((prev) =>
+                    prev.map((entry, i) =>
+                      i === index ? { ...entry, value: e.target.value } : entry,
+                    ),
+                  )
+                }
+                placeholder="email@example.com"
+                disabled={isLoading}
+                errors={errors}
+              />
+              <label
+                style={{ display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}
+              >
+                <input
+                  type="radio"
+                  name="defaultEmail"
+                  checked={entry.isDefault}
+                  onChange={() => setEmailDefault(index)}
+                  disabled={isLoading}
+                />
+                Default
+              </label>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  setEmails((prev) => (prev.length > 1 ? prev.filter((_, i) => i !== index) : prev))
+                }
+                disabled={isLoading || emails.length <= 1}
+              >
+                Remove
+              </Button>
+            </HStack>
+          ))}
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => setEmails((prev) => [...prev, { value: '', isDefault: false }])}
             disabled={isLoading}
-            errors={errors}
-          />
-          <PhoneInput
-            label="Phone"
-            id="phone"
-            value={phone}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
+          >
+            + Add email
+          </Button>
+        </VStack>
+
+        <VStack gap={2}>
+          <strong style={{ fontSize: '0.9rem' }}>Phones</strong>
+          {phones.map((entry, index) => (
+            <HStack key={index} gap={2} wrap>
+              <PhoneInput
+                value={entry.value}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setPhones((prev) =>
+                    prev.map((entry, i) =>
+                      i === index ? { ...entry, value: e.target.value } : entry,
+                    ),
+                  )
+                }
+                disabled={isLoading}
+                errors={errors}
+              />
+              <label
+                style={{ display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}
+              >
+                <input
+                  type="radio"
+                  name="defaultPhone"
+                  checked={entry.isDefault}
+                  onChange={() => setPhoneDefault(index)}
+                  disabled={isLoading}
+                />
+                Default
+              </label>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  setPhones((prev) => (prev.length > 1 ? prev.filter((_, i) => i !== index) : prev))
+                }
+                disabled={isLoading || phones.length <= 1}
+              >
+                Remove
+              </Button>
+            </HStack>
+          ))}
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => setPhones((prev) => [...prev, { value: '', isDefault: false }])}
             disabled={isLoading}
-            errors={errors}
-          />
-        </HStack>
+          >
+            + Add phone
+          </Button>
+        </VStack>
 
         <HStack gap={2}>
           <FormInput

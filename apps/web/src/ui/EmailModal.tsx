@@ -6,10 +6,13 @@ import { Button, HStack, VStack } from './Primitives';
 
 interface EmailModalProps {
   contactName: string;
+  /** Primary (default) email */
   contactEmail: string;
+  /** All emails for this contact (when multiple, user can choose) */
+  contactEmails?: string[];
   initialSubject?: string;
   initialBody?: string;
-  onSubmit: (data: { subject: string; body: string; sendCopyToMe?: boolean }) => void;
+  onSubmit: (data: { subject: string; body: string; sendCopyToMe?: boolean; to?: string }) => void;
   onCancel: () => void;
   isLoading?: boolean;
   errors?: BaseApiError[];
@@ -18,6 +21,7 @@ interface EmailModalProps {
 export const EmailModal = ({
   contactName,
   contactEmail,
+  contactEmails,
   initialSubject = '',
   initialBody = '',
   onSubmit,
@@ -25,22 +29,25 @@ export const EmailModal = ({
   isLoading = false,
   errors = [],
 }: EmailModalProps) => {
+  const emails = contactEmails?.length ? contactEmails : contactEmail ? [contactEmail] : [];
   const [subject, setSubject] = useState(initialSubject);
   const [body, setBody] = useState(initialBody);
   const [sendCopyToMe, setSendCopyToMe] = useState(false);
+  const [selectedTo, setSelectedTo] = useState(contactEmail || emails[0] || '');
 
-  // Update state when initial values change
   useEffect(() => {
     setSubject(initialSubject);
   }, [initialSubject]);
-
   useEffect(() => {
     setBody(initialBody);
   }, [initialBody]);
+  useEffect(() => {
+    setSelectedTo(contactEmail || emails[0] || '');
+  }, [contactEmail, emails]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ subject, body, sendCopyToMe });
+    onSubmit({ subject, body, sendCopyToMe, to: selectedTo || contactEmail });
   };
 
   return (
@@ -48,9 +55,29 @@ export const EmailModal = ({
       <VStack gap={3}>
         <div>
           <strong>Send Email to {contactName}</strong>
-          <p style={{ color: '#a8b3c7', fontSize: '0.9rem', margin: '4px 0 0 0' }}>
-            To: {contactEmail}
-          </p>
+          {emails.length > 1 ? (
+            <p style={{ color: '#a8b3c7', fontSize: '0.9rem', margin: '4px 0 0 0' }}>
+              <label>
+                To:{' '}
+                <select
+                  value={selectedTo}
+                  onChange={(e) => setSelectedTo(e.target.value)}
+                  disabled={isLoading}
+                  style={{ marginLeft: 4 }}
+                >
+                  {emails.map((addr) => (
+                    <option key={addr} value={addr}>
+                      {addr}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </p>
+          ) : (
+            <p style={{ color: '#a8b3c7', fontSize: '0.9rem', margin: '4px 0 0 0' }}>
+              To: {contactEmail}
+            </p>
+          )}
         </div>
 
         <FormError errors={errors} />

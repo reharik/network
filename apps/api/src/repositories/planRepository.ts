@@ -1,8 +1,65 @@
-import { Contact } from '@network/contracts';
+import type { Contact } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import { DateTime } from 'luxon';
 import { DatabaseFormat, reviveFromDatabase } from 'smart-enums';
 import type { Container } from '../container';
+
+type EmailRow = { id: string; contactId: string; email: string; isDefault: boolean };
+type PhoneRow = { id: string; contactId: string; phone: string; isDefault: boolean };
+
+async function hydrateContactsEmailsPhones(
+  connection: Container['connection'],
+  contacts: Contact[],
+): Promise<Contact[]> {
+  if (contacts.length === 0) return contacts;
+  const ids = contacts.map((c) => c.id);
+  const [emailRows, phoneRows] = await Promise.all([
+    connection('contact_emails').whereIn('contactId', ids).orderBy('isDefault', 'desc'),
+    connection('contact_phones').whereIn('contactId', ids).orderBy('isDefault', 'desc'),
+  ]);
+  const emailsByContact = new Map<string, EmailRow[]>();
+  const phonesByContact = new Map<string, PhoneRow[]>();
+  for (const r of emailRows as EmailRow[]) {
+    const list = emailsByContact.get(r.contactId) ?? [];
+    list.push(r);
+    emailsByContact.set(r.contactId, list);
+  }
+  for (const r of phoneRows as PhoneRow[]) {
+    const list = phonesByContact.get(r.contactId) ?? [];
+    list.push(r);
+    phonesByContact.set(r.contactId, list);
+  }
+  return contacts.map((c) => {
+    const emails = emailsByContact.get(c.id) ?? [];
+    const phones = phonesByContact.get(c.id) ?? [];
+    const primaryEmail = emails.find((e) => e.isDefault) ?? emails[0];
+    const primaryPhone = phones.find((p) => p.isDefault) ?? phones[0];
+    const phone = primaryPhone?.phone;
+    return {
+      ...c,
+      emails: emails.length
+        ? emails.map((e) => ({
+            id: e.id,
+            contactId: e.contactId,
+            email: e.email,
+            isDefault: e.isDefault,
+          }))
+        : undefined,
+      phones: phones.length
+        ? phones.map((p) => ({
+            id: p.id,
+            contactId: p.contactId,
+            phone: p.phone,
+            isDefault: p.isDefault,
+          }))
+        : undefined,
+      email: primaryEmail?.email,
+      phone,
+      sms: phone,
+      call: phone,
+    };
+  });
+}
 
 export interface PlanRepository {
   getDailyContacts: (
@@ -95,8 +152,9 @@ export const createPlanRepository = ({ connection }: Container): PlanRepository 
     // Combine: carryover first (guaranteed to appear), then others
     const result = [...carryoverContacts, ...otherContacts];
 
-    // Return only the number needed
-    return result.slice(0, dailyGoal);
+    // Return only the number needed, then hydrate email/phone from contact_emails/contact_phones
+    const sliced = result.slice(0, dailyGoal);
+    return hydrateContactsEmailsPhones(connection, sliced);
   },
 
   getTouchedContactsForDay: async (userId: string, dayStart: DateTime) => {
@@ -126,7 +184,7 @@ export const createPlanRepository = ({ connection }: Container): PlanRepository 
         preferredMethod: ['ContactMethod'],
       },
     });
-    return revived;
+    return hydrateContactsEmailsPhones(connection, revived);
   },
 
   getTouchedTodayCounts: async (userId: string, dayStart: DateTime) => {
