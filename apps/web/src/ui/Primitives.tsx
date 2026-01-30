@@ -18,16 +18,32 @@ export const Card = styled.div`
   padding: ${({ theme }) => theme.spacing(2)};
 `;
 
-const HStackBase = styled.div<{ $gap?: number; $wrap?: boolean }>`
+const HStackBase = styled.div<{ $gap?: number; $wrap?: boolean; $stackOnMobile?: boolean }>`
   display: flex;
   align-items: center;
   gap: ${({ $gap = 2, theme }) => theme.spacing($gap)};
   flex-wrap: ${({ $wrap }) => ($wrap ? 'wrap' : 'nowrap')};
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+    ${({ $stackOnMobile }) =>
+      $stackOnMobile &&
+      `
+      flex-direction: column;
+      align-items: stretch;
+    `}
+  }
 `;
 
-type HStackProps = React.ComponentPropsWithoutRef<'div'> & { gap?: number; wrap?: boolean };
+type HStackProps = React.ComponentPropsWithoutRef<'div'> & {
+  gap?: number;
+  wrap?: boolean;
+  stackOnMobile?: boolean;
+};
 export const HStack = React.forwardRef<HTMLDivElement, HStackProps>(
-  ({ gap, wrap, ...rest }, ref) => <HStackBase ref={ref} $gap={gap} $wrap={wrap} {...rest} />,
+  ({ gap, wrap, stackOnMobile, ...rest }, ref) => (
+    <HStackBase ref={ref} $gap={gap} $wrap={wrap} $stackOnMobile={stackOnMobile} {...rest} />
+  ),
 );
 HStack.displayName = 'HStack';
 

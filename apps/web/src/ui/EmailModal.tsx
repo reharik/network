@@ -114,7 +114,7 @@ export const EmailModal = ({
           <span>Send me a copy</span>
         </label>
 
-        <HStack>
+        <HStack stackOnMobile>
           <Button type="submit" disabled={isLoading}>
             {isLoading ? 'Sending...' : 'Send Email'}
           </Button>

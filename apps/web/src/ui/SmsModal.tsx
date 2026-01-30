@@ -85,7 +85,7 @@ export const SmsModal = ({
           rows={4}
         />
 
-        <HStack>
+        <HStack stackOnMobile>
           <Button type="submit" disabled={isLoading}>
             {isLoading ? 'Sending...' : 'Send SMS'}
           </Button>

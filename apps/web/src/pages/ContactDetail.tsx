@@ -8,6 +8,7 @@ import { useContactService } from '../hooks';
 import { qk } from '../services/keys';
 import { FormError } from '../ui/FormError';
 import { FormInput } from '../ui/FormInput';
+import { IconButton, PlusIcon, TrashIcon } from '../ui/IconButton';
 import { PhoneInput } from '../ui/PhoneInput';
 import { Button, HStack, VStack } from '../ui/Primitives';
 import { addToTodayPinned } from '../utils/todayPinnedStore';
@@ -170,23 +171,41 @@ export const ContactDetail = () => {
       </FieldRow>
 
       <VStack gap={2}>
-        <strong style={{ fontSize: '0.9rem' }}>Emails</strong>
+        <SectionHeader>
+          <strong style={{ fontSize: '0.9rem' }}>Emails</strong>
+          <IconButton
+            type="button"
+            onClick={() =>
+              setEmails([
+                ...emailsList,
+                { id: '', contactId: form!.id, email: '', isDefault: false },
+              ])
+            }
+            disabled={!form}
+            aria-label="Add email"
+            title="Add email address"
+          >
+            <PlusIcon />
+          </IconButton>
+        </SectionHeader>
         {emailsList.map((entry, index) => (
-          <HStack key={entry.id || `e-${index}`} gap={2} wrap>
-            <FormInput
-              type="email"
-              value={entry.email}
-              onChange={(ev: ChangeEvent<HTMLInputElement>) =>
-                setEmails(
-                  emailsList.map((entry, i) =>
-                    i === index ? { ...entry, email: ev.target.value } : entry,
-                  ),
-                )
-              }
-              disabled={!form}
-              errors={!saveMut.data?.success ? saveMut.data?.errors : []}
-            />
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
+          <EntryRow key={entry.id || `e-${index}`}>
+            <InputCell>
+              <FormInput
+                type="email"
+                value={entry.email}
+                onChange={(ev: ChangeEvent<HTMLInputElement>) =>
+                  setEmails(
+                    emailsList.map((entry, i) =>
+                      i === index ? { ...entry, email: ev.target.value } : entry,
+                    ),
+                  )
+                }
+                disabled={!form}
+                errors={!saveMut.data?.success ? saveMut.data?.errors : []}
+              />
+            </InputCell>
+            <DefaultLabel>
               <input
                 type="radio"
                 name="defaultEmail"
@@ -197,10 +216,10 @@ export const ContactDetail = () => {
                 disabled={!form}
               />
               Default
-            </label>
-            <Button
+            </DefaultLabel>
+            <IconButton
               type="button"
-              variant="secondary"
+              variant="danger"
               size="sm"
               onClick={() =>
                 setEmails(
@@ -208,41 +227,50 @@ export const ContactDetail = () => {
                 )
               }
               disabled={!form || emailsList.length <= 1}
+              aria-label="Remove email"
+              title="Remove this email"
             >
-              Remove
-            </Button>
-          </HStack>
+              <TrashIcon />
+            </IconButton>
+          </EntryRow>
         ))}
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={() =>
-            setEmails([...emailsList, { id: '', contactId: form!.id, email: '', isDefault: false }])
-          }
-          disabled={!form}
-        >
-          + Add email
-        </Button>
       </VStack>
 
       <VStack gap={2}>
-        <strong style={{ fontSize: '0.9rem' }}>Phones</strong>
+        <SectionHeader>
+          <strong style={{ fontSize: '0.9rem' }}>Phones</strong>
+          <IconButton
+            type="button"
+            onClick={() =>
+              setPhones([
+                ...phonesList,
+                { id: '', contactId: form!.id, phone: '', isDefault: false },
+              ])
+            }
+            disabled={!form}
+            aria-label="Add phone"
+            title="Add phone number"
+          >
+            <PlusIcon />
+          </IconButton>
+        </SectionHeader>
         {phonesList.map((entry, index) => (
-          <HStack key={entry.id || `p-${index}`} gap={2} wrap>
-            <PhoneInput
-              value={entry.phone}
-              onChange={(ev: ChangeEvent<HTMLInputElement>) =>
-                setPhones(
-                  phonesList.map((entry, i) =>
-                    i === index ? { ...entry, phone: ev.target.value } : entry,
-                  ),
-                )
-              }
-              disabled={!form}
-              errors={!saveMut.data?.success ? saveMut.data?.errors : []}
-            />
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
+          <EntryRow key={entry.id || `p-${index}`}>
+            <InputCell>
+              <PhoneInput
+                value={entry.phone}
+                onChange={(ev: ChangeEvent<HTMLInputElement>) =>
+                  setPhones(
+                    phonesList.map((entry, i) =>
+                      i === index ? { ...entry, phone: ev.target.value } : entry,
+                    ),
+                  )
+                }
+                disabled={!form}
+                errors={!saveMut.data?.success ? saveMut.data?.errors : []}
+              />
+            </InputCell>
+            <DefaultLabel>
               <input
                 type="radio"
                 name="defaultPhone"
@@ -253,10 +281,10 @@ export const ContactDetail = () => {
                 disabled={!form}
               />
               Default
-            </label>
-            <Button
+            </DefaultLabel>
+            <IconButton
               type="button"
-              variant="secondary"
+              variant="danger"
               size="sm"
               onClick={() =>
                 setPhones(
@@ -264,22 +292,13 @@ export const ContactDetail = () => {
                 )
               }
               disabled={!form || phonesList.length <= 1}
+              aria-label="Remove phone"
+              title="Remove this phone number"
             >
-              Remove
-            </Button>
-          </HStack>
+              <TrashIcon />
+            </IconButton>
+          </EntryRow>
         ))}
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={() =>
-            setPhones([...phonesList, { id: '', contactId: form!.id, phone: '', isDefault: false }])
-          }
-          disabled={!form}
-        >
-          + Add phone
-        </Button>
       </VStack>
 
       <FormInput
@@ -332,15 +351,56 @@ const Card = styled.section`
   gap: 16px;
 `;
 
+const SectionHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const DefaultLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  color: ${({ theme }) => theme.colors.subtext};
+`;
+
+const EntryRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+  }
+`;
+
+const InputCell = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
 const Row = styled.div`
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 `;
 
 const FieldRow = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 const SuspendedBadge = styled.span`

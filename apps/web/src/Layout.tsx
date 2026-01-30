@@ -46,6 +46,12 @@ export const Container = styled.div`
   max-width: 960px;
   margin: 0 auto;
   padding: 24px;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 `;
 
 export const NavBar = styled.nav`
@@ -61,6 +67,12 @@ export const NavInner = styled.div`
   max-width: 960px;
   margin: 0 auto;
   padding: 12px 24px;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 12px 16px;
+  }
 `;
 
 export const StyledNavLink = styled(NavLink)`

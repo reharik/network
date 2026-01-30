@@ -4,6 +4,8 @@ import { BaseApiError, isValidationError } from '../types/ApiResult';
 
 const baseInput = css<{ $hasError: boolean }>`
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 10px 12px;
   background: #0c0f15;
   border: 1px solid

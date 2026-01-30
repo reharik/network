@@ -4,6 +4,7 @@ import { config } from '../config';
 import { BaseApiError } from '../types/ApiResult';
 import { FormError } from './FormError';
 import { FormInput } from './FormInput';
+import { IconButton, PlusIcon, TrashIcon } from './IconButton';
 import { PhoneInput } from './PhoneInput';
 import { Button, HStack, VStack } from './Primitives';
 
@@ -88,7 +89,7 @@ export const AddContactForm = ({
 
         <FormError errors={errors} />
 
-        <HStack gap={2}>
+        <HStack gap={2} stackOnMobile>
           <FormInput
             label="First Name"
             id="firstName"
@@ -112,23 +113,36 @@ export const AddContactForm = ({
         </HStack>
 
         <VStack gap={2}>
-          <strong style={{ fontSize: '0.9rem' }}>Emails</strong>
+          <HStack gap={1} style={{ alignItems: 'center' }}>
+            <strong style={{ fontSize: '0.9rem' }}>Emails</strong>
+            <IconButton
+              type="button"
+              onClick={() => setEmails((prev) => [...prev, { value: '', isDefault: false }])}
+              disabled={isLoading}
+              aria-label="Add email"
+              title="Add email address"
+            >
+              <PlusIcon />
+            </IconButton>
+          </HStack>
           {emails.map((entry, index) => (
-            <HStack key={index} gap={2} wrap>
-              <FormInput
-                type="email"
-                value={entry.value}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setEmails((prev) =>
-                    prev.map((entry, i) =>
-                      i === index ? { ...entry, value: e.target.value } : entry,
-                    ),
-                  )
-                }
-                placeholder="email@example.com"
-                disabled={isLoading}
-                errors={errors}
-              />
+            <HStack key={index} gap={2} style={{ alignItems: 'center' }} wrap={false}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <FormInput
+                  type="email"
+                  value={entry.value}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setEmails((prev) =>
+                      prev.map((entry, i) =>
+                        i === index ? { ...entry, value: e.target.value } : entry,
+                      ),
+                    )
+                  }
+                  placeholder="email@example.com"
+                  disabled={isLoading}
+                  errors={errors}
+                />
+              </div>
               <label
                 style={{ display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}
               >
@@ -141,46 +155,53 @@ export const AddContactForm = ({
                 />
                 Default
               </label>
-              <Button
+              <IconButton
                 type="button"
-                variant="secondary"
-                size="sm"
+                variant="danger"
                 onClick={() =>
-                  setEmails((prev) => (prev.length > 1 ? prev.filter((_, i) => i !== index) : prev))
+                  setEmails((prev) =>
+                    prev.length > 1 ? prev.filter((_, i) => i !== index) : prev,
+                  )
                 }
                 disabled={isLoading || emails.length <= 1}
+                aria-label="Remove email"
+                title="Remove this email"
               >
-                Remove
-              </Button>
+                <TrashIcon />
+              </IconButton>
             </HStack>
           ))}
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => setEmails((prev) => [...prev, { value: '', isDefault: false }])}
-            disabled={isLoading}
-          >
-            + Add email
-          </Button>
         </VStack>
 
         <VStack gap={2}>
-          <strong style={{ fontSize: '0.9rem' }}>Phones</strong>
+          <HStack gap={1} style={{ alignItems: 'center' }}>
+            <strong style={{ fontSize: '0.9rem' }}>Phones</strong>
+            <IconButton
+              type="button"
+              onClick={() => setPhones((prev) => [...prev, { value: '', isDefault: false }])}
+              disabled={isLoading}
+              aria-label="Add phone"
+              title="Add phone number"
+            >
+              <PlusIcon />
+            </IconButton>
+          </HStack>
           {phones.map((entry, index) => (
-            <HStack key={index} gap={2} wrap>
-              <PhoneInput
-                value={entry.value}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setPhones((prev) =>
-                    prev.map((entry, i) =>
-                      i === index ? { ...entry, value: e.target.value } : entry,
-                    ),
-                  )
-                }
-                disabled={isLoading}
-                errors={errors}
-              />
+            <HStack key={index} gap={2} style={{ alignItems: 'center' }} wrap={false}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <PhoneInput
+                  value={entry.value}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setPhones((prev) =>
+                      prev.map((entry, i) =>
+                        i === index ? { ...entry, value: e.target.value } : entry,
+                      ),
+                    )
+                  }
+                  disabled={isLoading}
+                  errors={errors}
+                />
+              </div>
               <label
                 style={{ display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}
               >
@@ -193,31 +214,25 @@ export const AddContactForm = ({
                 />
                 Default
               </label>
-              <Button
+              <IconButton
                 type="button"
-                variant="secondary"
-                size="sm"
+                variant="danger"
                 onClick={() =>
-                  setPhones((prev) => (prev.length > 1 ? prev.filter((_, i) => i !== index) : prev))
+                  setPhones((prev) =>
+                    prev.length > 1 ? prev.filter((_, i) => i !== index) : prev,
+                  )
                 }
                 disabled={isLoading || phones.length <= 1}
+                aria-label="Remove phone"
+                title="Remove this phone number"
               >
-                Remove
-              </Button>
+                <TrashIcon />
+              </IconButton>
             </HStack>
           ))}
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => setPhones((prev) => [...prev, { value: '', isDefault: false }])}
-            disabled={isLoading}
-          >
-            + Add phone
-          </Button>
         </VStack>
 
-        <HStack gap={2}>
+        <HStack gap={2} stackOnMobile>
           <FormInput
             label="Preferred Method"
             id="preferredMethod"
@@ -274,7 +289,7 @@ export const AddContactForm = ({
           errors={errors}
         />
 
-        <HStack>
+        <HStack stackOnMobile>
           <Button type="submit" disabled={isLoading || !firstName || !lastName}>
             {isLoading ? 'Creating...' : 'Add Contact'}
           </Button>

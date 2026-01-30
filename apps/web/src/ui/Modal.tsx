@@ -55,6 +55,13 @@ const Overlay = styled.div`
   justify-content: center;
   z-index: 1000;
   padding: 20px;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 12px;
+    align-items: flex-start;
+    overflow-y: auto;
+  }
 `;
 
 const ModalCard = styled(Card)`
@@ -62,6 +69,12 @@ const ModalCard = styled(Card)`
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    max-height: none;
+  }
 `;
 
 const ModalHeader = styled.div`

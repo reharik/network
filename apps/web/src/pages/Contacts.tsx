@@ -8,6 +8,13 @@ import { useContactListService, useContactService, useUserService } from '../hoo
 import { Container } from '../Layout';
 import { AddContactForm } from '../ui/AddContactForm';
 import { FormInput } from '../ui/FormInput';
+import {
+  CalendarPlusIcon,
+  IconButton,
+  PauseIcon,
+  PlayIcon,
+  TrashIcon,
+} from '../ui/IconButton';
 import { Modal } from '../ui/Modal';
 import { Badge, Button, Card, HStack, Table, VStack } from '../ui/Primitives';
 import { addToTodayPinned } from '../utils/todayPinnedStore';
@@ -163,7 +170,7 @@ export const Contacts = () => {
   return (
     <Container>
       <VStack gap={3}>
-        <HStack>
+        <HStack stackOnMobile>
           <h1>Contacts</h1>
           <Badge>{contacts.length} total</Badge>
           <Button onClick={() => setShowAddModal(true)}>Add Contact</Button>
@@ -197,76 +204,148 @@ export const Contacts = () => {
         {isLoading ? (
           <Card>Loading…</Card>
         ) : (
-          <Card>
-            <Table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Preferred Method</th>
-                  <th>Interval</th>
-                  <th style={{ width: 1 }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+          <>
+            <TableSection>
+              <Card>
+                <TableWrapper>
+                  <Table>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Preferred Method</th>
+                        <th>Interval</th>
+                        <th style={{ width: 1 }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filtered.map((c) => (
+                        <tr key={c.id}>
+                          <td>
+                            <HStack gap={1}>
+                              <Link to={`/contacts/${c.id}`}>{`${c.firstName} ${c.lastName}`}</Link>
+                              {c.paused && (
+                                <SuspendedBadge title="Suspended – contact will not appear on daily list">
+                                  Suspended
+                                </SuspendedBadge>
+                              )}
+                            </HStack>
+                          </td>
+                          <td>{c.preferredMethod.display}</td>
+                          <td>{c.intervalDays} days</td>
+                          <td>
+                            <ActionCell>
+                              {c.paused ? (
+                                <IconButton
+                                  onClick={() => unsuspendMut.mutate(c.id)}
+                                  disabled={unsuspendMut.isPending}
+                                  aria-label="Unsuspend"
+                                  title="Unsuspend contact"
+                                >
+                                  <PlayIcon />
+                                </IconButton>
+                              ) : (
+                                <>
+                                  <IconButton
+                                    onClick={() => handleContactNow(c.id)}
+                                    aria-label="Contact Now"
+                                    title="Add to today"
+                                  >
+                                    <CalendarPlusIcon />
+                                  </IconButton>
+                                  <IconButton
+                                    onClick={() => suspendMut.mutate(c.id)}
+                                    disabled={suspendMut.isPending}
+                                    aria-label="Suspend"
+                                    title="Suspend contact"
+                                  >
+                                    <PauseIcon />
+                                  </IconButton>
+                                </>
+                              )}
+                              <IconButton
+                                variant="danger"
+                                onClick={() => handleDelete(c.id, `${c.firstName} ${c.lastName}`)}
+                                disabled={deleteMut.isPending}
+                                aria-label="Delete"
+                                title="Delete contact"
+                              >
+                                <TrashIcon />
+                              </IconButton>
+                            </ActionCell>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </TableWrapper>
+              </Card>
+            </TableSection>
+
+            <CardListSection>
+              <VStack gap={2}>
                 {filtered.map((c) => (
-                  <tr key={c.id}>
-                    <td>
-                      <HStack gap={1}>
-                        <Link to={`/contacts/${c.id}`}>{`${c.firstName} ${c.lastName}`}</Link>
-                        {c.paused && (
-                          <SuspendedBadge title="Suspended – contact will not appear on daily list">
-                            Suspended
-                          </SuspendedBadge>
-                        )}
-                      </HStack>
-                    </td>
-                    <td>{c.preferredMethod.display}</td>
-                    <td>{c.intervalDays} days</td>
-                    <td>
-                      <HStack gap={1}>
-                        {c.paused ? (
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => unsuspendMut.mutate(c.id)}
-                            disabled={unsuspendMut.isPending}
+                  <ContactListCard key={c.id} $paused={!!c.paused}>
+                    <CardTop>
+                      <CardTopRow>
+                        <HStack gap={1}>
+                          <Link to={`/contacts/${c.id}`} className="contact-name">
+                            {c.firstName} {c.lastName}
+                          </Link>
+                          {c.paused && (
+                            <SuspendedBadge title="Suspended – contact will not appear on daily list">
+                              Suspended
+                            </SuspendedBadge>
+                          )}
+                        </HStack>
+                        <CardActions>
+                          {c.paused ? (
+                            <IconButton
+                              onClick={() => unsuspendMut.mutate(c.id)}
+                              disabled={unsuspendMut.isPending}
+                              aria-label="Unsuspend"
+                              title="Unsuspend contact"
+                            >
+                              <PlayIcon />
+                            </IconButton>
+                          ) : (
+                            <>
+                              <IconButton
+                                onClick={() => handleContactNow(c.id)}
+                                aria-label="Contact Now"
+                                title="Add to today"
+                              >
+                                <CalendarPlusIcon />
+                              </IconButton>
+                              <IconButton
+                                onClick={() => suspendMut.mutate(c.id)}
+                                disabled={suspendMut.isPending}
+                                aria-label="Suspend"
+                                title="Suspend contact"
+                              >
+                                <PauseIcon />
+                              </IconButton>
+                            </>
+                          )}
+                          <IconButton
+                            variant="danger"
+                            onClick={() => handleDelete(c.id, `${c.firstName} ${c.lastName}`)}
+                            disabled={deleteMut.isPending}
+                            aria-label="Delete"
+                            title="Delete contact"
                           >
-                            Unsuspend
-                          </Button>
-                        ) : (
-                          <>
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              onClick={() => handleContactNow(c.id)}
-                            >
-                              Contact Now
-                            </Button>
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              onClick={() => suspendMut.mutate(c.id)}
-                              disabled={suspendMut.isPending}
-                            >
-                              Suspend
-                            </Button>
-                          </>
-                        )}
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => handleDelete(c.id, `${c.firstName} ${c.lastName}`)}
-                          disabled={deleteMut.isPending}
-                        >
-                          Delete
-                        </Button>
-                      </HStack>
-                    </td>
-                  </tr>
+                            <TrashIcon />
+                          </IconButton>
+                        </CardActions>
+                      </CardTopRow>
+                      <MetaLine>
+                        {c.preferredMethod.display} · every {c.intervalDays} days
+                      </MetaLine>
+                    </CardTop>
+                  </ContactListCard>
                 ))}
-              </tbody>
-            </Table>
-          </Card>
+              </VStack>
+            </CardListSection>
+          </>
         )}
 
         <Modal isOpen={showAddModal} onClose={handleCancelAdd} title="Add New Contact">
@@ -284,6 +363,72 @@ export const Contacts = () => {
     </Container>
   );
 };
+
+const TableSection = styled.div`
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const TableWrapper = styled.div`
+  overflow-x: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+`;
+
+const ActionCell = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+`;
+
+const CardListSection = styled.div`
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+  }
+`;
+
+const ContactListCard = styled(Card)<{ $paused: boolean }>`
+  opacity: ${({ $paused }) => ($paused ? 0.85 : 1)};
+  border-left: 3px solid
+    ${({ $paused, theme }) => ($paused ? 'rgba(234, 179, 8, 0.6)' : 'transparent')};
+`;
+
+const CardTopRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+`;
+
+const CardTop = styled.div`
+  .contact-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    text-decoration: none;
+    color: ${({ theme }) => theme.colors.text};
+  }
+  .contact-name:hover {
+    text-decoration: underline;
+  }
+`;
+
+const MetaLine = styled.div`
+  color: #a8b3c7;
+  font-size: 0.9rem;
+  margin-top: 6px;
+`;
+
+const CardActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+`;
 
 const SuspendedBadge = styled.span`
   display: inline-flex;

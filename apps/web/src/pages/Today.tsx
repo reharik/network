@@ -343,7 +343,7 @@ export const Today = () => {
   return (
     <Container>
       <VStack gap={3}>
-        <HStack>
+        <HStack stackOnMobile>
           <h1>Today's Reach-outs</h1>
           {<Badge>{DateTime.now().toLocaleString(DateTime.DATE_FULL)}</Badge>}
         </HStack>
@@ -383,7 +383,7 @@ export const Today = () => {
                 />
               </Field>
 
-              <HStack>
+              <HStack stackOnMobile>
                 {!c.touchedToday && (
                   <Button onClick={() => handleMarkDoneClick(c)}>Mark Done</Button>
                 )}
@@ -422,7 +422,6 @@ export const Today = () => {
                     setSnoozeSuspendValue((prev) => ({ ...prev, [c.id]: '' }));
                   }}
                   disabled={snooze.isPending || suspend.isPending}
-                  style={{ width: 'auto', minWidth: 140 }}
                 >
                   <option value="">Snooze / Suspend</option>
                   {[1, 2, 3, 4, 5, 6].map((w) => (
@@ -503,6 +502,21 @@ export const Today = () => {
 const ContactCard = styled(Card)<{ $isDone: boolean }>`
   opacity: ${({ $isDone }) => ($isDone ? 0.7 : 1)};
   border-left: 3px solid ${({ $isDone, theme }) => ($isDone ? '#22c55e' : 'transparent')};
+
+  & select {
+    min-width: 140px;
+  }
+
+  @media (max-width: 768px) {
+    & select,
+    & input,
+    & textarea {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+  }
 `;
 
 const DoneBadge = styled.span`

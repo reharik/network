@@ -292,6 +292,12 @@ const Row = styled.div`
   grid-template-columns: 200px 1fr;
   align-items: center;
   gap: 16px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    gap: 8px;
+  }
 `;
 
 const Label = styled.label`
@@ -312,6 +318,12 @@ const Input = styled.input`
   padding: 10px 12px;
   color: ${({ theme }) => theme.colors.text};
   min-width: 260px;
+
+  @media (max-width: 768px) {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 `;
 
 const Select = styled.select`
@@ -321,6 +333,12 @@ const Select = styled.select`
   padding: 10px 12px;
   color: ${({ theme }) => theme.colors.text};
   min-width: 260px;
+
+  @media (max-width: 768px) {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 `;
 
 const Textarea = styled.textarea`
@@ -331,10 +349,26 @@ const Textarea = styled.textarea`
   color: ${({ theme }) => theme.colors.text};
   min-width: 260px;
   resize: vertical;
+
+  @media (max-width: 768px) {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 `;
 
 const PhoneInputWrapper = styled.div`
   min-width: 260px;
+
+  @media (max-width: 768px) {
+    min-width: 0;
+    max-width: 100%;
+
+    & input {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+  }
 `;
 
 const Button = styled.button`
