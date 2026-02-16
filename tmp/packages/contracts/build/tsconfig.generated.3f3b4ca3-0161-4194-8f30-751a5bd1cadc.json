@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "paths": {
-      "@network/contracts": ["packages/contracts/dist/src/index.d.ts"],
-      "@network/contracts/*": ["packages/contracts/dist/src/*.d.ts"]
-    }
-  },
-  "extends": "../../../../packages/contracts/tsconfig.json"
-}

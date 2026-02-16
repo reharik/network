@@ -26,7 +26,7 @@ env:
   S3_BUCKET: network-deploy-709865789463-us-east-1
 
   # Tag targeting defaults (used by scripts/ssm-run.sh)
-  SSM_TAG_APP: network
+  SSM_TAG_HOST: prod-shared
   SSM_TAG_ENV: prod
 
   # Keep waits bounded (2s * 120 = ~4 minutes per instance)
