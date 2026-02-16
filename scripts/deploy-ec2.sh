@@ -34,4 +34,7 @@ docker compose -p "${APP_NAME}" --env-file /opt/network/env/prod.env --project-d
 echo "Running containers:"
 docker compose -p "${APP_NAME}" --env-file /opt/network/env/prod.env --project-directory /opt/network -f /opt/network/docker-compose.prod.yml ps
 
+echo "Cleaning up old Docker images..."
+docker image prune -f
+
 echo "Deploy complete"
