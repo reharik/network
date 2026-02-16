@@ -14,6 +14,8 @@ mkdir -p /opt/network/frontend
 tar -xzf /tmp/frontend.tar.gz -C /opt/network/frontend
 rm -f /tmp/frontend.tar.gz
 
+: "${APP_NAME:=network}"
+
 cd /opt/network
-docker compose -f docker-compose.prod.yml restart proxy
+docker compose -p "${APP_NAME}" -f docker-compose.prod.yml restart proxy
 echo "Frontend deployed."
