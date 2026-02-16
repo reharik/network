@@ -82,10 +82,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          aws s3 cp network-api-image.tar.gz "s3://${S3_BUCKET}/deployments/${app_name}/network-api-${{ github.sha }}.tar.gz"
-          aws s3 cp network-api-image.tar.gz "s3://${S3_BUCKET}/deployments/${app_name}/network-api-latest.tar.gz"
-          aws s3 cp docker-compose.prod.yml     "s3://${S3_BUCKET}/deployments/${app_name}/docker-compose.prod.yml"
-          aws s3 cp scripts/deploy-ec2.sh       "s3://${S3_BUCKET}/deployments/${app_name}/deploy-ec2.sh"
+          aws s3 cp network-api-image.tar.gz "s3://${S3_BUCKET}/deployments/${APP_NAME}/network-api-${{ github.sha }}.tar.gz"
+          aws s3 cp network-api-image.tar.gz "s3://${S3_BUCKET}/deployments/${APP_NAME}/network-api-latest.tar.gz"
+          aws s3 cp docker-compose.prod.yml     "s3://${S3_BUCKET}/deployments/${APP_NAME}/docker-compose.prod.yml"
+          aws s3 cp scripts/deploy-ec2.sh       "s3://${S3_BUCKET}/deployments/${APP_NAME}/deploy-ec2.sh"
 
       - name: Download backend artifacts on EC2 (SSM)
         shell: bash
@@ -164,9 +164,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          aws s3 cp frontend.tar.gz "s3://${S3_BUCKET}/deployments/${app_name}/frontend-${{ github.sha }}.tar.gz"
-          aws s3 cp frontend.tar.gz "s3://${S3_BUCKET}/deployments/${app_name}/frontend-latest.tar.gz"
-          aws s3 cp Caddyfile       "s3://${S3_BUCKET}/deployments/${app_name}/Caddyfile"
+          aws s3 cp frontend.tar.gz "s3://${S3_BUCKET}/deployments/${APP_NAME}/frontend-${{ github.sha }}.tar.gz"
+          aws s3 cp frontend.tar.gz "s3://${S3_BUCKET}/deployments/${APP_NAME}/frontend-latest.tar.gz"
+          aws s3 cp Caddyfile       "s3://${S3_BUCKET}/deployments/${APP_NAME}/Caddyfile"
 
       - name: Deploy frontend on EC2 (SSM)
         shell: bash

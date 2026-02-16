@@ -20,12 +20,14 @@ const encryptionKey = parseEncryptionKey(config.touchMessageEncryptionKey);
 
 function decryptTouchRow(row: Record<string, unknown>): void {
   if (!row || !encryptionKey) return;
-  if (row.message_enc != null) {
-    row.message = decryptTouchField(String(row.message_enc), encryptionKey) ?? row.message;
+  const messageEnc = row.message_enc;
+  if (messageEnc != null && typeof messageEnc === 'string') {
+    row.message = decryptTouchField(messageEnc, encryptionKey) ?? row.message;
     delete row.message_enc;
   }
-  if (row.subject_enc != null) {
-    row.subject = decryptTouchField(String(row.subject_enc), encryptionKey) ?? row.subject;
+  const subjectEnc = row.subject_enc;
+  if (subjectEnc != null && typeof subjectEnc === 'string') {
+    row.subject = decryptTouchField(subjectEnc, encryptionKey) ?? row.subject;
     delete row.subject_enc;
   }
 }

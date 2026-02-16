@@ -20,7 +20,10 @@ export function encryptTouchField(plaintext: string | undefined, key: Buffer): s
 /**
  * Decrypt a value produced by encryptTouchField. Key must be 32 bytes.
  */
-export function decryptTouchField(ciphertext: string | null | undefined, key: Buffer): string | null {
+export function decryptTouchField(
+  ciphertext: string | null | undefined,
+  key: Buffer,
+): string | null {
   if (ciphertext == null || ciphertext === '') return null;
   try {
     const buf = Buffer.from(ciphertext, 'base64');
