@@ -1,4 +1,5 @@
-name: network-prod
+# Project name from APP_NAME (set in env file or when running compose)
+name: ${APP_NAME:-network-prod}
 
 services:
   db:
