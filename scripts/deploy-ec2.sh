@@ -63,4 +63,10 @@ docker compose --env-file /opt/network/env/prod.env --project-directory /opt/net
 echo "Cleaning up old Docker images..."
 docker image prune -f
 
+# Reload shared Caddy proxy so it reconnects to localhost:3000 (new API container)
+if docker ps --format '{{.Names}}' | grep -q '^shared-proxy$'; then
+  echo "Reloading shared Caddy proxy..."
+  docker exec shared-proxy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile 2>/dev/null || true
+fi
+
 echo "Deploy complete"
