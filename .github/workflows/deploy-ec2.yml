@@ -99,6 +99,7 @@ jobs:
           aws s3 cp network-api-image.tar.gz "s3://${S3_BUCKET}/deployments/${APP_NAME}/network-api-latest.tar.gz"
           aws s3 cp docker-compose.prod.yml     "s3://${S3_BUCKET}/deployments/${APP_NAME}/docker-compose.prod.yml"
           aws s3 cp scripts/deploy-ec2.sh       "s3://${S3_BUCKET}/deployments/${APP_NAME}/deploy-ec2.sh"
+          aws s3 cp scripts/remote/setup-shared-proxy.sh "s3://${S3_BUCKET}/deployments/${APP_NAME}/setup-shared-proxy.sh"
 
       - name: Download backend artifacts on EC2 (SSM)
         if: steps.check-backend.outputs.skip != 'true'
