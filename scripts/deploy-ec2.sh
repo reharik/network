@@ -39,8 +39,23 @@ docker compose -p network --project-directory /opt/network -f /opt/network/docke
 echo "Starting services via docker compose"
 docker compose --env-file /opt/network/env/prod.env --project-directory /opt/network -f /opt/network/docker-compose.prod.yml up -d
 
+# Wait for API container and Docker network DNS to be ready (avoids getaddrinfo EAI_AGAIN for "db")
+echo "Waiting for services to be ready..."
+sleep 10
+
 echo "Running database migrations"
-docker compose --env-file /opt/network/env/prod.env --project-directory /opt/network -f /opt/network/docker-compose.prod.yml exec -T api sh -c "cd /app && npx knex --knexfile apps/api/dist/knexfile.js migrate:latest"
+COMPOSE_CMD=(docker compose --env-file /opt/network/env/prod.env --project-directory /opt/network -f /opt/network/docker-compose.prod.yml exec -T api sh -c "cd /app && npx knex --knexfile apps/api/dist/knexfile.js migrate:latest")
+for attempt in 1 2 3 4 5; do
+  if "${COMPOSE_CMD[@]}"; then
+    break
+  fi
+  if [ "$attempt" -eq 5 ]; then
+    echo "ERROR: Migrations failed after 5 attempts"
+    exit 1
+  fi
+  echo "Migration attempt $attempt failed (e.g. DNS not ready), retrying in 5s..."
+  sleep 5
+done
 
 echo "Running containers:"
 docker compose --env-file /opt/network/env/prod.env --project-directory /opt/network -f /opt/network/docker-compose.prod.yml ps
