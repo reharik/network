@@ -11,8 +11,8 @@ backintouch.net {
 
 	handle {
 		root * /srv/network
-		file_server
 		try_files {path} /index.html
+		file_server
 	}
 }
 
@@ -31,8 +31,8 @@ chores.backintouch.net {
 
 	handle {
 		root * /srv/chore-tracker
-		file_server
 		try_files {path} /index.html
+		file_server
 	}
 }
 
