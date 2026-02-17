@@ -15,6 +15,10 @@ mkdir -p /opt/network/frontend
 tar -xzf /tmp/frontend.tar.gz -C /opt/network/frontend
 rm -f /tmp/frontend.tar.gz
 
+# Fix permissions so Caddy can read the files
+chmod -R 755 /opt/network/frontend
+find /opt/network/frontend -type f -exec chmod 644 {} \;
+
 echo "Frontend files deployed to /opt/network/frontend"
 
 # Reload shared proxy if it exists (will be set up by setup-shared-proxy.sh)
