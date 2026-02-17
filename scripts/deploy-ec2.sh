@@ -32,6 +32,10 @@ fi
 echo "Loading Docker image"
 gunzip -c /opt/network/deploy/network-api.tar.gz | docker load
 
+# Tear down legacy project "network" if it exists (releases port 3000 for network-prod)
+echo "Stopping legacy project if present..."
+docker compose -p network --project-directory /opt/network -f /opt/network/docker-compose.prod.yml down 2>/dev/null || true
+
 echo "Starting services via docker compose"
 docker compose --env-file /opt/network/env/prod.env --project-directory /opt/network -f /opt/network/docker-compose.prod.yml up -d
 
