@@ -1,6 +1,7 @@
 import { ImportContactsDTO } from '@network/contracts';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { DragEvent, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useToast } from '../contexts/ToastContext';
 import { useContactListService, useContactService } from '../hooks';
@@ -95,6 +96,7 @@ const mapRow = (r: CsvRow): ImportContactsDTO => {
 
 export const ImportPage = () => {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const { showToast } = useToast();
   const { importContacts } = useContactService();
   const { fetchContacts } = useContactListService();
@@ -111,6 +113,11 @@ export const ImportPage = () => {
       if (result.success) {
         void qc.invalidateQueries({ queryKey: qk.contacts });
         showToast('Import complete', 'success');
+        setRows([]);
+        setFileName('');
+        setSelectedRows(new Set());
+        setDuplicateRows(new Set());
+        navigate('/contacts');
       } else {
         showToast('Failed to import contacts', 'error');
       }

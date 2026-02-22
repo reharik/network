@@ -3,6 +3,7 @@ name: Deploy to EC2 (SSM + S3 + OIDC)
 on:
   push:
     branches: [main]
+  # Use "Run workflow" (not Re-run) to deploy an app that was skipped on push.
   workflow_dispatch:
     inputs:
       deploy_backend:

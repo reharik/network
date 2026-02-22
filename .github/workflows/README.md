@@ -204,8 +204,10 @@ if: "!contains(github.event.head_commit.message, '[skip deploy]')"
 You can manually trigger deployment from the Actions tab:
 
 1. Go to Actions → Deploy to EC2
-2. Click "Run workflow"
-3. Choose which components to deploy (backend/frontend)
+2. Click **"Run workflow"** (dropdown), choose branch (e.g. `main`), check **Deploy backend** and/or **Deploy frontend**
+3. Click the green **"Run workflow"** button
+
+**To run a job that was skipped:** Push-triggered runs only deploy apps whose files changed. GitHub does not let you "Re-run" a single skipped job. To run a deploy that was skipped (e.g. only backend was deployed and you want to deploy frontend too), start a **new** run via **"Run workflow"** and check only the app(s) you want. Do not use "Re-run all jobs" on the previous run—that reuses the same push event and path detection, so the same jobs will be skipped again.
 
 ### Environment-Specific Deployments
 
