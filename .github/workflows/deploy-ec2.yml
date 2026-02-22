@@ -35,10 +35,53 @@ env:
   SSM_WAIT_MAX_ATTEMPTS: "120"
 
 jobs:
+  detect-changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend_changed: ${{ steps.changes.outputs.backend_changed }}
+      frontend_changed: ${{ steps.changes.outputs.frontend_changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Set changes (manual run)
+        if: github.event_name == 'workflow_dispatch'
+        id: changes
+        run: |
+          echo "backend_changed=${{ github.event.inputs.deploy_backend }}" >> "$GITHUB_OUTPUT"
+          echo "frontend_changed=${{ github.event.inputs.deploy_frontend }}" >> "$GITHUB_OUTPUT"
+
+      - name: Set changes (push – path filter)
+        if: github.event_name == 'push'
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend_changed:
+              - 'apps/api/**'
+              - 'docker-compose.prod.yml'
+              - 'scripts/deploy-ec2.sh'
+              - 'scripts/remote/download-backend.sh'
+              - 'scripts/remote/deploy-backend.sh'
+              - 'scripts/remote/verify-backend.sh'
+              - 'scripts/remote/setup-shared-proxy.sh'
+            frontend_changed:
+              - 'apps/web/**'
+              - 'Caddyfile'
+              - 'Caddyfile.shared'
+              - 'scripts/remote/deploy-frontend.sh'
+              - 'scripts/remote/deploy-shared-caddyfile.sh'
+          base: ${{ github.event.before }}
+          ref: ${{ github.sha }}
+
   deploy-backend:
     name: Deploy backend
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || github.event.inputs.deploy_backend == 'true' }}
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.backend_changed == 'true'
 
     steps:
       - name: Checkout
@@ -128,7 +171,8 @@ jobs:
   deploy-frontend:
     name: Deploy frontend
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || github.event.inputs.deploy_frontend == 'true' }}
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.frontend_changed == 'true'
 
     steps:
       - name: Checkout

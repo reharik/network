@@ -25,12 +25,18 @@ Deploys the application to an EC2 instance using Docker Compose.
 
 **Jobs:**
 
-- **Deploy Backend**: Builds Docker image, transfers to EC2, runs deployment script
-- **Deploy Frontend**: Builds frontend, transfers to EC2, restarts proxy
+- **Detect changes**: On push, determines which paths changed; on manual run, uses the backend/frontend checkboxes.
+- **Deploy Backend**: Runs only when backend-related files changed (or when "Deploy backend" is checked manually). Builds Docker image, transfers to EC2, runs deployment script.
+- **Deploy Frontend**: Runs only when frontend-related files changed (or when "Deploy frontend" is checked manually). Builds frontend, transfers to EC2, restarts proxy.
+
+**Path-based deploy (push to `main`):**
+
+- Backend deploy runs when changes touch: `apps/api/**`, `docker-compose.prod.yml`, or backend deploy scripts under `scripts/remote/` (e.g. `deploy-backend.sh`, `download-backend.sh`, `verify-backend.sh`, `setup-shared-proxy.sh`).
+- Frontend deploy runs when changes touch: `apps/web/**`, `Caddyfile`, `Caddyfile.shared`, or frontend deploy scripts (`deploy-frontend.sh`, `deploy-shared-caddyfile.sh`).
 
 **Triggers:**
 
-- Push to `main` branch
+- Push to `main` branch (only the app(s) with changed paths are deployed)
 - Manual workflow dispatch (with options to deploy backend/frontend separately)
 
 ## Required GitHub Secrets

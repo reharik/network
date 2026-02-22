@@ -34,9 +34,9 @@ export const createImportService = ({ contactRepository, logger }: Container): I
         continue;
       }
 
-      // Use provided name(s); if only one is set, use it for both (Contact requires both non-empty)
-      const firstName = first || last;
-      const lastName = last || first;
+      // Store names as provided; use empty string for missing so we don't duplicate (e.g. "Quang Quang")
+      const firstName = first || '';
+      const lastName = last || '';
 
       try {
         // Create contact with default values
@@ -49,7 +49,7 @@ export const createImportService = ({ contactRepository, logger }: Container): I
           preferredMethod: ContactMethod.EMAIL, // Default to email
           suggestion: "Hi {{firstName}}, just checking in to see how you're doing.".replaceAll(
             '{{firstName}}',
-            firstName,
+            firstName || lastName || 'there',
           ),
           intervalDays: 14, // Default interval (matches database default)
           paused: false,

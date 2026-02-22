@@ -129,8 +129,28 @@ export const ImportPage = () => {
     const parsed = text.includes('BEGIN:VCARD') ? parseVCard(text) : parseCsv(text);
     setRows(parsed);
 
-    // Check for duplicates
+    // Normalize for duplicate matching: canonical name (first+last, ignore empty) and contact method
+    const canonicalName = (first: string | undefined, last: string | undefined) =>
+      [first, last]
+        .map((s) => (s ?? '').trim())
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+    const norm = (s: string | undefined) => (s ?? '').trim().toLowerCase();
+    const sameContactMethod = (
+      aEmail: string | undefined,
+      aPhone: string | undefined,
+      bEmail: string | undefined,
+      bPhone: string | undefined,
+    ) => {
+      if (aEmail && bEmail && norm(aEmail) === norm(bEmail)) return true;
+      if (aPhone && bPhone && norm(aPhone) === norm(bPhone)) return true;
+      return false;
+    };
+
     const duplicateIndices = new Set<number>();
+    const seenInFile = new Set<string>();
+
     try {
       const existingContactsResponse = await fetchContacts();
       if (!existingContactsResponse.success) {
@@ -138,16 +158,35 @@ export const ImportPage = () => {
           'Failed to fetch existing contacts: ' + existingContactsResponse.errors.join(', '),
         );
       }
-      const existingContacts = existingContactsResponse.data.contacts;
+      const existingContacts = existingContactsResponse.data.contacts as Array<{
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+        phone?: string;
+      }>;
 
       parsed.forEach((row, index) => {
         const mapped = mapRow(row);
+        const nameCanon = canonicalName(mapped.firstName, mapped.lastName);
+        const fileKey = `${nameCanon}|${norm(mapped.email ?? '')}|${norm(mapped.phone ?? '')}`;
+
+        // Within-file duplicate: same name + same email/phone already seen in this file
+        if (seenInFile.has(fileKey)) {
+          duplicateIndices.add(index);
+          return;
+        }
+        seenInFile.add(fileKey);
+
+        // Duplicate of an existing contact: same canonical name + same contact method
         const isDup = existingContacts.some(
-          (contact: any) =>
-            contact.firstName?.toLowerCase() === mapped.firstName?.toLowerCase() &&
-            contact.lastName?.toLowerCase() === mapped.lastName?.toLowerCase() &&
-            (contact.email?.toLowerCase() === mapped.email?.toLowerCase() ||
-              contact.phone === mapped.phone),
+          (contact) =>
+            canonicalName(contact.firstName, contact.lastName) === nameCanon &&
+            sameContactMethod(
+              mapped.email,
+              mapped.phone,
+              contact.email,
+              contact.phone,
+            ),
         );
         if (isDup) {
           duplicateIndices.add(index);
@@ -160,13 +199,14 @@ export const ImportPage = () => {
 
     // Auto-select all valid contacts initially (excluding duplicates)
     const validIndices = new Set<number>();
+    const hasAnyName = (r: ImportContactsDTO) =>
+      (r.firstName?.trim() ?? '') !== '' || (r.lastName?.trim() ?? '') !== '';
     parsed.forEach((row, index) => {
       const mapped = mapRow(row);
-      const hasName = mapped.firstName && mapped.lastName;
       const hasContactMethod = mapped.email || mapped.phone;
       const isDuplicate = duplicateIndices.has(index);
 
-      if (hasName && hasContactMethod && !isDuplicate) {
+      if (hasAnyName(mapped) && hasContactMethod && !isDuplicate) {
         validIndices.add(index);
       }
     });
