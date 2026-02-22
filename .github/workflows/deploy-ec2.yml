@@ -18,7 +18,7 @@ on:
 
 permissions:
   contents: read
-  actions: read, write
+  actions: write
   id-token: write
 
 env:
