@@ -2,6 +2,19 @@ import { ContactMethod } from '@network/contracts';
 import { RESOLVER } from 'awilix';
 import type { Container } from '../container';
 
+/**
+ * Normalize a name field for display: title-case real names, lowercase if it looks like an email.
+ */
+const normalizeNamePart = (value: string): string => {
+  const trimmed = value.trim();
+  if (!trimmed) return trimmed;
+  if (trimmed.includes('@')) return trimmed.toLowerCase();
+  return trimmed
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 export interface ImportRow {
   firstName?: string;
   lastName?: string;
@@ -27,16 +40,16 @@ export const createImportService = ({ contactRepository, logger }: Container): I
 
     for (const row of rows) {
       // Skip rows with neither first nor last name (require at least one)
-      const first = row.firstName?.trim() ?? '';
-      const last = row.lastName?.trim() ?? '';
-      if (!first && !last) {
+      const rawFirst = row.firstName?.trim() ?? '';
+      const rawLast = row.lastName?.trim() ?? '';
+      if (!rawFirst && !rawLast) {
         skipped++;
         continue;
       }
 
-      // Store names as provided; use empty string for missing so we don't duplicate (e.g. "Quang Quang")
-      const firstName = first || '';
-      const lastName = last || '';
+      // Capitalize names (title-case); if value looks like email, use lowercase
+      const firstName = rawFirst ? normalizeNamePart(rawFirst) : '';
+      const lastName = rawLast ? normalizeNamePart(rawLast) : '';
 
       try {
         // Create contact with default values

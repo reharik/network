@@ -39,8 +39,8 @@ jobs:
     name: Detect changes
     runs-on: ubuntu-latest
     outputs:
-      backend_changed: ${{ steps.changes.outputs.backend_changed }}
-      frontend_changed: ${{ steps.changes.outputs.frontend_changed }}
+      backend_changed: ${{ steps.manual.outputs.backend_changed || steps.filter.outputs.backend_changed }}
+      frontend_changed: ${{ steps.manual.outputs.frontend_changed || steps.filter.outputs.frontend_changed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,14 +49,14 @@ jobs:
 
       - name: Set changes (manual run)
         if: github.event_name == 'workflow_dispatch'
-        id: changes
+        id: manual
         run: |
           echo "backend_changed=${{ github.event.inputs.deploy_backend }}" >> "$GITHUB_OUTPUT"
           echo "frontend_changed=${{ github.event.inputs.deploy_frontend }}" >> "$GITHUB_OUTPUT"
 
       - name: Set changes (push – path filter)
         if: github.event_name == 'push'
-        id: changes
+        id: filter
         uses: dorny/paths-filter@v3
         with:
           filters: |
