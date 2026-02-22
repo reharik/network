@@ -321,7 +321,7 @@ export const ImportPage = () => {
               const originalIndex = rows.indexOf(row);
               const mapped = mapRow(row);
               const isSelected = selectedRows.has(originalIndex);
-              const isValid = mapped.firstName && mapped.lastName;
+              const isValid = hasAnyName(mapped);
 
               if (!isValid) return undefined;
 
@@ -338,7 +338,7 @@ export const ImportPage = () => {
                   />
                   <ContactInfo>
                     <ContactName>
-                      {mapped.firstName} {mapped.lastName}
+                      {[mapped.firstName, mapped.lastName].filter(Boolean).join(' ').trim() || '—'}
                     </ContactName>
                     <ContactDetails>
                       {mapped.email && <div>📧 {mapped.email}</div>}
