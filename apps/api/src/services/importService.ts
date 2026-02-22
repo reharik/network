@@ -26,34 +26,30 @@ export const createImportService = ({ contactRepository, logger }: Container): I
     let skipped = 0;
 
     for (const row of rows) {
-      // Skip rows without required fields
-      if (!row.firstName || !row.lastName) {
+      // Skip rows with neither first nor last name (require at least one)
+      const first = row.firstName?.trim() ?? '';
+      const last = row.lastName?.trim() ?? '';
+      if (!first && !last) {
         skipped++;
         continue;
       }
 
-      try {
-        // Parse tags if provided
-        // const tags = Array.isArray(row.tags)
-        //   ? row.tags
-        //   : typeof row.tags === 'string'
-        //     ? row.tags
-        //         .split('|')
-        //         .map((s) => s.trim())
-        //         .filter(Boolean)
-        //     : [];
+      // Use provided name(s); if only one is set, use it for both (Contact requires both non-empty)
+      const firstName = first || last;
+      const lastName = last || first;
 
+      try {
         // Create contact with default values
         const contactData = {
-          firstName: row.firstName,
-          lastName: row.lastName,
+          firstName,
+          lastName,
           email: row.email || undefined,
           phone: row.phone || undefined,
           notes: row.notes || undefined,
           preferredMethod: ContactMethod.EMAIL, // Default to email
           suggestion: "Hi {{firstName}}, just checking in to see how you're doing.".replaceAll(
             '{{firstName}}',
-            row.firstName,
+            firstName,
           ),
           intervalDays: 14, // Default interval (matches database default)
           paused: false,
@@ -66,8 +62,8 @@ export const createImportService = ({ contactRepository, logger }: Container): I
         logger.error('Error importing contact', err, {
           userId,
           contactData: {
-            firstName: row.firstName,
-            lastName: row.lastName,
+            firstName,
+            lastName,
             hasEmail: !!row.email,
             hasPhone: !!row.phone,
           },

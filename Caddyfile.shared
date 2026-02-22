@@ -1,4 +1,9 @@
 # Shared Caddyfile for Both Applications on Same EC2
+#
+# If chores.backintouch.net works but backintouch.net doesn't:
+# - DNS: backintouch.net (apex) must have an A record to this server (same IP as chores). Run locally: ./scripts/verify-dns-and-frontend.sh
+# - Ping often fails (ICMP blocked on EC2); use curl or browser, not ping.
+# - Frontend: /opt/network/frontend on the server must contain index.html (run a frontend deploy).
 
 # Network App - Main domain
 backintouch.net {

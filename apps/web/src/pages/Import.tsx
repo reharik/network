@@ -179,14 +179,15 @@ export const ImportPage = () => {
     void onFile(file ?? undefined);
   };
 
-  const mapped = rows.map(mapRow).filter((row) => row.firstName && row.lastName);
+  const hasAnyName = (row: ImportContactsDTO) => (row.firstName?.trim() ?? '') !== '' || (row.lastName?.trim() ?? '') !== '';
+  const mapped = rows.map(mapRow).filter(hasAnyName);
 
   // Filter contacts based on various criteria
   const filteredRows = rows.filter((row, index) => {
     const mapped = mapRow(row);
 
-    // Auto-filter: Must have name AND contact method
-    const hasName = mapped.firstName && mapped.lastName;
+    // Auto-filter: Must have at least one name (first or last) AND contact method
+    const hasName = hasAnyName(mapped);
     const hasContactMethod = mapped.email || mapped.phone;
 
     if (!hasName || !hasContactMethod) {
@@ -229,7 +230,7 @@ export const ImportPage = () => {
     })
     .filter(({ originalIndex }) => selectedRows.has(originalIndex))
     .map(({ row }) => mapRow(row))
-    .filter((row) => row.firstName && row.lastName);
+    .filter(hasAnyName);
 
   const toggleSelection = (index: number) => {
     const newSelected = new Set(selectedRows);
@@ -246,7 +247,7 @@ export const ImportPage = () => {
     filteredRows.forEach((row, filteredIndex) => {
       const originalIndex = rows.indexOf(row);
       const mapped = mapRow(row);
-      if (mapped.firstName && mapped.lastName) {
+      if (hasAnyName(mapped)) {
         allValidIndices.add(originalIndex);
       }
     });
