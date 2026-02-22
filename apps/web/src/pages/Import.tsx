@@ -137,6 +137,7 @@ export const ImportPage = () => {
         .join(' ')
         .toLowerCase();
     const norm = (s: string | undefined) => (s ?? '').trim().toLowerCase();
+    const digitsOnly = (s: string | undefined) => (s ?? '').replace(/\D/g, '');
     const sameContactMethod = (
       aEmail: string | undefined,
       aPhone: string | undefined,
@@ -144,7 +145,9 @@ export const ImportPage = () => {
       bPhone: string | undefined,
     ) => {
       if (aEmail && bEmail && norm(aEmail) === norm(bEmail)) return true;
-      if (aPhone && bPhone && norm(aPhone) === norm(bPhone)) return true;
+      const aDigits = digitsOnly(aPhone);
+      const bDigits = digitsOnly(bPhone);
+      if (aDigits && bDigits && aDigits === bDigits) return true;
       return false;
     };
 
@@ -168,7 +171,7 @@ export const ImportPage = () => {
       parsed.forEach((row, index) => {
         const mapped = mapRow(row);
         const nameCanon = canonicalName(mapped.firstName, mapped.lastName);
-        const fileKey = `${nameCanon}|${norm(mapped.email ?? '')}|${norm(mapped.phone ?? '')}`;
+        const fileKey = `${nameCanon}|${norm(mapped.email ?? '')}|${digitsOnly(mapped.phone)}`;
 
         // Within-file duplicate: same name + same email/phone already seen in this file
         if (seenInFile.has(fileKey)) {

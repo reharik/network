@@ -18,7 +18,7 @@ on:
 
 permissions:
   contents: read
-  actions: write
+  actions: read, write
   id-token: write
 
 env:
@@ -39,8 +39,8 @@ jobs:
     name: Detect changes
     runs-on: ubuntu-latest
     outputs:
-      backend_changed: ${{ steps.manual.outputs.backend_changed || steps.filter.outputs.backend_changed }}
-      frontend_changed: ${{ steps.manual.outputs.frontend_changed || steps.filter.outputs.frontend_changed }}
+      backend_changed: ${{ steps.manual.outputs.backend_changed || steps.prev_run.outputs.deploy_both || steps.filter.outputs.backend_changed }}
+      frontend_changed: ${{ steps.manual.outputs.frontend_changed || steps.prev_run.outputs.deploy_both || steps.filter.outputs.frontend_changed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,6 +53,26 @@ jobs:
         run: |
           echo "backend_changed=${{ github.event.inputs.deploy_backend }}" >> "$GITHUB_OUTPUT"
           echo "frontend_changed=${{ github.event.inputs.deploy_frontend }}" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy both if previous run failed (push)
+        if: github.event_name == 'push'
+        id: prev_run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Get the previous workflow run (not this one) for this branch
+          PREV_CONCLUSION=$(gh run list \
+            --workflow="${{ github.workflow }}.yml" \
+            --branch="${{ github.ref_name }}" \
+            --limit=10 \
+            --json databaseId,conclusion | \
+            jq -r --arg rid "${{ github.run_id }}" 'map(select((.databaseId | tostring) != $rid)) | .[0].conclusion // empty')
+          if [ "$PREV_CONCLUSION" = "failure" ] || [ "$PREV_CONCLUSION" = "cancelled" ]; then
+            echo "Previous run was $PREV_CONCLUSION; will deploy both backend and frontend."
+            echo "deploy_both=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy_both=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Set changes (push – path filter)
         if: github.event_name == 'push'
