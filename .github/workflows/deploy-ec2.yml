@@ -14,7 +14,7 @@ on:
 
 jobs:
   deploy:
-    uses: reharik/cannibal-infra/.github/workflows/deploy-ec2.yml@main
+    uses: reharik/cannibal-infra/github/workflows/deploy-ec2.yml@main
     with:
       deploy_backend: ${{ inputs.deploy_backend }}
       deploy_frontend: ${{ inputs.deploy_frontend }}
