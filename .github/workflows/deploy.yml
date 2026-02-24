@@ -16,6 +16,6 @@ jobs:
   deploy:
     uses: reharik/cannibal-infra/.github/workflows/deploy-ec2.yml@main
     with:
-      deploy_backend: ${{ github.event.inputs.deploy_backend || true }}
-      deploy_frontend: ${{ github.event.inputs.deploy_frontend || true }}
+      deploy_backend: ${{ inputs.deploy_backend }}
+      deploy_frontend: ${{ inputs.deploy_frontend }}
     secrets: inherit
