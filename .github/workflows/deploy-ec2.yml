@@ -131,7 +131,9 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts
           docker save "${APP_NAME}-api:${GITHUB_SHA}" "${APP_NAME}-api:latest" | gzip > artifacts/backend.tar.gz
-
+      - name: Debug role arn presence
+        run: |
+          test -n "${{ secrets.AWS_ROLE_ARN }}" && echo "AWS_ROLE_ARN is set" || (echo "AWS_ROLE_ARN missing" && exit 1)
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
