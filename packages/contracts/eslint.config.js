@@ -1,6 +1,6 @@
-import { createBaseTypeScriptConfig } from '../../eslint-shared.js';
+import { createBaseTypeScriptConfig } from '../../infra/config/eslint/eslint-shared.js';
 
 export default [
   { ignores: ['**/_typia/**', '**/dist/**'] },
-  ...(await createBaseTypeScriptConfig()),
+  ...(await createBaseTypeScriptConfig({ tsconfigRootDir: import.meta.dirname })),
 ];

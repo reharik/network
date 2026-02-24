@@ -1,6 +1,6 @@
 export default {
   displayName: 'api',
-  preset: '../../jest.preset.cjs',
+  preset: '../../infra/config/jest/jest.preset.cjs',
   testEnvironment: 'node',
   extensionsToTreatAsEsm: ['.ts'],
   transform: {

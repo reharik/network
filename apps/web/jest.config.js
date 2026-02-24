@@ -1,6 +1,6 @@
 export default {
   displayName: 'web',
-  preset: '../../jest.preset.cjs',
+  preset: '../../infra/config/jest/jest.preset.cjs',
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   transform: {

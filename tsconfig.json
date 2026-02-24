@@ -1,38 +1,15 @@
 {
+  "extends": "./infra/config/tsconfig/tsconfig.base.json",
   "files": [],
-  "references": [
-    {
-      "path": "apps/api"
-    },
-    {
-      "path": "apps/web"
-    },
-    {
-      "path": "packages/contracts"
-    }
-  ],
+  "references": [{ "path": "apps/api" }, { "path": "apps/web" }, { "path": "packages/contracts" }],
   "compilerOptions": {
-    "module": "ESNext",
-    "target": "ES2022",
-    "lib": ["ES2022", "DOM"],
-    "moduleResolution": "bundler",
-    "strict": true,
-    "noEmit": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
       "@network/contracts": ["packages/contracts/dist/src/index.d.ts"],
       "@network/contracts/*": ["packages/contracts/dist/src/*.d.ts"]
     },
     "types": ["typia"],
-    "plugins": [
-      {
-        "transform": "typia/lib/transform"
-      }
-    ],
-    "strictNullChecks": true
+    "plugins": [{ "transform": "typia/lib/transform" }]
   },
   "include": ["types/**/*.d.ts"]
 }

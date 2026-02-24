@@ -36,7 +36,15 @@ In practice, infra changes are usually made in the cannibal-infra repo and then 
 
 - Scripts: `./infra/scripts/deploy/`, `./infra/scripts/remote/`, `./infra/scripts/local/`
 - Workflows: `./.github/workflows/` in the app repo typically call or reference `./infra/github/workflows/` (or copy patterns from there)
-- Config: apps extend `./infra/config/eslint/`, `./infra/config/prettier/`, `./infra/config/tsconfig/` as needed
+- Config: apps extend `./infra/config/eslint/`, `./infra/config/prettier/`, `./infra/config/tsconfig/`, `./infra/config/jest/` as needed (see below).
+
+## Config usage (network, chore-tracker, etc.)
+
+- **App deploy/config**: Root `infra.app.config.json` is the app-specific deploy/config; template lives at `infra/templates/app/infra.app.config.example.json`. Each app keeps its own copy at repo root with `appName`, `env`, `s3Bucket`, etc.
+- **Prettier**: Use `.prettierrc.cjs` that `require()`s `./infra/config/prettier/.prettierrc.json`; add a root `.prettierignore` (same content as `infra/config/prettier/.prettierignore` or app-specific).
+- **ESLint**: Import `./infra/config/eslint/eslint-shared.js` and call `createBaseTypeScriptConfig({ tsconfigRootDir: import.meta.dirname, ... })` so the shared config resolves tsconfig from the app/project root.
+- **TypeScript**: Root `tsconfig.json` should `"extends": "./infra/config/tsconfig/tsconfig.base.json"` and override only app-specific `compilerOptions` (e.g. `paths`, `types`, `plugins`).
+- **Jest**: Point each project’s `jest.config.js` at `preset: '../../infra/config/jest/jest.preset.cjs'` (adjust path from project root).
 
 ## Notes
 
