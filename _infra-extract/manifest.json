@@ -1,17 +1,9 @@
 {
   "copied": [
-    { "from": "scripts/deploy-ec2.sh", "to": "scripts/deploy/deploy-ec2.sh", "reason": "Shared EC2 deploy entrypoint; parameterize APP_NAME and /opt paths later" },
     { "from": "scripts/ssm-run.sh", "to": "scripts/deploy/ssm-run.sh", "reason": "Reusable SSM runner for S3-staged remote scripts" },
-    { "from": "scripts/remote/download-backend.sh", "to": "scripts/remote/download-backend.sh", "reason": "Backend artifact download from S3; uses APP_NAME env" },
-    { "from": "scripts/remote/deploy-backend.sh", "to": "scripts/remote/deploy-backend.sh", "reason": "Runs deploy-ec2.sh on EC2" },
-    { "from": "scripts/remote/verify-backend.sh", "to": "scripts/remote/verify-backend.sh", "reason": "Health check for API on EC2" },
-    { "from": "scripts/remote/deploy-frontend.sh", "to": "scripts/remote/deploy-frontend.sh", "reason": "Frontend tarball + Caddyfile deploy from S3" },
-    { "from": "scripts/remote/setup-shared-proxy.sh", "to": "scripts/remote/setup-shared-proxy.sh", "reason": "Shared Caddy proxy setup; hardcodes /opt/network, /opt/chore-tracker — parameterize later" },
     { "from": "scripts/remote/deploy-shared-caddyfile.sh", "to": "scripts/remote/deploy-shared-caddyfile.sh", "reason": "Deploy shared Caddyfile from S3" },
     { "from": "scripts/remote/cleanup-docker.sh", "to": "scripts/remote/cleanup-docker.sh", "reason": "Generic Docker prune on EC2" },
-    { "from": "scripts/verify-dns-and-frontend.sh", "to": "scripts/local/verify-dns-and-frontend.sh", "reason": "Local DNS/frontend check; domains (backintouch.net) are app-specific — parameterize or use as template" },
     { "from": ".github/workflows/ci.yml", "to": "github/workflows/ci.yml", "reason": "CI template (lint, test, build); app uses npm scripts and Nx" },
-    { "from": ".github/workflows/deploy-ec2.yml", "to": "github/workflows/deploy-ec2.yml", "reason": "Deploy template; APP_NAME, S3_BUCKET, path filters are app-specific" },
     { "from": "tsconfig.json (compilerOptions only)", "to": "config/tsconfig/tsconfig.base.json", "reason": "Shared TypeScript compiler options; app adds references and paths" },
     { "from": "eslint-shared.js", "to": "config/eslint/eslint-shared.js", "reason": "Shared ESLint base (TypeScript + Prettier + Jest); app projects extend it" },
     { "from": ".prettierrc.json", "to": "config/prettier/.prettierrc.json", "reason": "Shared Prettier config" },
@@ -24,6 +16,14 @@
     { "from": "docker-compose.yml (as template)", "to": "templates/app/docker-compose.example.yml", "reason": "Minimal postgres + api compose pattern; app copies and sets APP_NAME, image, paths" }
   ],
   "left_in_app": [
+    { "path": "_app-owned-candidates/scripts/deploy/deploy-ec2.sh", "reason": "Hardcoded /opt/network, network-api image name, network-prod, compose -p network, apps/api paths; app-owned" },
+    { "path": "_app-owned-candidates/scripts/remote/download-backend.sh", "reason": "Hardcoded /opt/network, network-api-latest.tar.gz; app-owned" },
+    { "path": "_app-owned-candidates/scripts/remote/deploy-backend.sh", "reason": "Hardcoded /opt/network, network-api.tar.gz; app-owned" },
+    { "path": "_app-owned-candidates/scripts/remote/verify-backend.sh", "reason": "Hardcoded /opt/network, network-prod; app-owned" },
+    { "path": "_app-owned-candidates/scripts/remote/deploy-frontend.sh", "reason": "Hardcoded /opt/network; app-owned" },
+    { "path": "_app-owned-candidates/scripts/remote/setup-shared-proxy.sh", "reason": "Container names/paths: network, chore-tracker, /srv/network, /srv/chore-tracker; app-owned" },
+    { "path": "_app-owned-candidates/scripts/local/verify-dns-and-frontend.sh", "reason": "Hardcoded domains backintouch.net, chores.backintouch.net and /opt/network/frontend; app-owned" },
+    { "path": "_app-owned-candidates/github/workflows/deploy-ec2.yml", "reason": "Hardcoded APP_NAME: network, S3_BUCKET, network-api image, apps/api, apps/web path filters; app-owned" },
     { "path": "Caddyfile", "reason": "App-specific single-app Caddy config (backintouch.net, api service)" },
     { "path": "docker-compose.prod.yml", "reason": "App-specific compose (services, env paths, image names)" },
     { "path": "docker-compose.yml, docker-compose-dev.yml, docker-compose-local-prod.yml", "reason": "App-specific compose files (service names, images, localstack, volumes)" },
