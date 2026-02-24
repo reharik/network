@@ -6,5 +6,5 @@ on:
 
 jobs:
   ci:
-    uses: reharik/cannibal-infra/.github/workflows/ci-reusable.yml@main
+    uses: reharik/cannibal-infra/.github/workflows/ci.yml@main
     secrets: inherit
