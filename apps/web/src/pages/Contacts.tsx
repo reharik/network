@@ -8,13 +8,7 @@ import { useContactListService, useContactService, useUserService } from '../hoo
 import { Container } from '../Layout';
 import { AddContactForm } from '../ui/AddContactForm';
 import { FormInput } from '../ui/FormInput';
-import {
-  CalendarPlusIcon,
-  IconButton,
-  PauseIcon,
-  PlayIcon,
-  TrashIcon,
-} from '../ui/IconButton';
+import { CalendarPlusIcon, IconButton, PauseIcon, PlayIcon, TrashIcon } from '../ui/IconButton';
 import { Modal } from '../ui/Modal';
 import { Badge, Button, Card, HStack, Table, VStack } from '../ui/Primitives';
 import { addToTodayPinned } from '../utils/todayPinnedStore';

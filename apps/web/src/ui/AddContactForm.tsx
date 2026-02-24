@@ -159,9 +159,7 @@ export const AddContactForm = ({
                 type="button"
                 variant="danger"
                 onClick={() =>
-                  setEmails((prev) =>
-                    prev.length > 1 ? prev.filter((_, i) => i !== index) : prev,
-                  )
+                  setEmails((prev) => (prev.length > 1 ? prev.filter((_, i) => i !== index) : prev))
                 }
                 disabled={isLoading || emails.length <= 1}
                 aria-label="Remove email"
@@ -218,9 +216,7 @@ export const AddContactForm = ({
                 type="button"
                 variant="danger"
                 onClick={() =>
-                  setPhones((prev) =>
-                    prev.length > 1 ? prev.filter((_, i) => i !== index) : prev,
-                  )
+                  setPhones((prev) => (prev.length > 1 ? prev.filter((_, i) => i !== index) : prev))
                 }
                 disabled={isLoading || phones.length <= 1}
                 aria-label="Remove phone"

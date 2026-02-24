@@ -1,10 +1,10 @@
 {
-    "appName": "network",
-    "env": "prod",
-    "awsRegion": "us-east-1",
-    "s3Bucket": "network-deploy-709865789463-us-east-1",
-    "ssm": {
-      "tagHost": "prod-shared",
-      "tagEnv": "prod"
-    }
+  "appName": "network",
+  "env": "prod",
+  "awsRegion": "us-east-1",
+  "s3Bucket": "network-deploy-709865789463-us-east-1",
+  "ssm": {
+    "tagHost": "prod-shared",
+    "tagEnv": "prod"
   }
+}

@@ -1,4 +1,4 @@
-import { Contact, ContactEmail, ContactPhone, ContactMethod } from '@network/contracts';
+import { Contact, ContactEmail, ContactMethod, ContactPhone } from '@network/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { DateTime } from 'luxon';
 import { ChangeEvent, Fragment, useEffect, useMemo, useState } from 'react';
@@ -11,7 +11,7 @@ import { FormError } from '../ui/FormError';
 import { FormInput } from '../ui/FormInput';
 import { IconButton, PlusIcon, TrashIcon } from '../ui/IconButton';
 import { PhoneInput } from '../ui/PhoneInput';
-import { Button, HStack, Table, VStack } from '../ui/Primitives';
+import { Button, Table, VStack } from '../ui/Primitives';
 import { addToTodayPinned } from '../utils/todayPinnedStore';
 
 export const ContactDetail = () => {
@@ -331,7 +331,8 @@ export const ContactDetail = () => {
           <strong style={{ fontSize: '0.9rem' }}>Contact history</strong>
           {touches.length > 0 && (
             <span style={{ color: '#a8b3c7', fontSize: '0.85rem', fontWeight: 400 }}>
-              {' '}({touches.length})
+              {' '}
+              ({touches.length})
             </span>
           )}
         </HistoryHeader>
@@ -358,8 +359,8 @@ export const ContactDetail = () => {
                       t.method && typeof t.method === 'object' && 'display' in t.method
                         ? String((t.method as { display: string }).display)
                         : typeof t.method === 'string'
-                          ? ContactMethod.tryFromValue(t.method)?.display ?? t.method
-                          : (t.method as { value?: string })?.value ?? '—';
+                          ? (ContactMethod.tryFromValue(t.method)?.display ?? t.method)
+                          : ((t.method as { value?: string })?.value ?? '—');
                     return (
                       <Fragment key={t.id}>
                         <tr>

@@ -191,12 +191,7 @@ export const ImportPage = () => {
         const isDup = existingContacts.some(
           (contact) =>
             canonicalName(contact.firstName, contact.lastName) === nameCanon &&
-            sameContactMethod(
-              mapped.email,
-              mapped.phone,
-              contact.email,
-              contact.phone,
-            ),
+            sameContactMethod(mapped.email, mapped.phone, contact.email, contact.phone),
         );
         if (isDup) {
           duplicateIndices.add(index);
@@ -229,7 +224,8 @@ export const ImportPage = () => {
     void onFile(file ?? undefined);
   };
 
-  const hasAnyName = (row: ImportContactsDTO) => (row.firstName?.trim() ?? '') !== '' || (row.lastName?.trim() ?? '') !== '';
+  const hasAnyName = (row: ImportContactsDTO) =>
+    (row.firstName?.trim() ?? '') !== '' || (row.lastName?.trim() ?? '') !== '';
   const mapped = rows.map(mapRow).filter(hasAnyName);
 
   // Filter contacts based on various criteria
