@@ -10,6 +10,15 @@
 !tsconfig.json
 !jest.preset.js
 !eslint-shared.js
+# nx.json extends ./infra/config/nx/nx.json; tsconfig extends infra/config/tsconfig (need parents un-excluded)
+!infra
+infra/*
+!infra/config
+infra/config/*
+!infra/config/nx
+!infra/config/nx/**
+!infra/config/tsconfig
+!infra/config/tsconfig/**
 
 # Exclude unnecessary files from included directories
 apps/api/dist/

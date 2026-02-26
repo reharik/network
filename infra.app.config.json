@@ -6,5 +6,12 @@
   "ssm": {
     "tagHost": "prod-shared",
     "tagEnv": "prod"
+  },
+  "docker": {
+    "nodeVersion": "22",
+    "apiWorkspacePath": "apps/api",
+    "nxProject": "api",
+    "devWorkspaceName": "@app/api",
+    "nodeEntrypoint": "apps/api/dist/index.js"
   }
 }
