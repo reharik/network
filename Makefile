@@ -2,19 +2,19 @@ APP_NAME := network
 ENV_NAME ?= dev
 COMPOSE_PROJECT_NAME := $(APP_NAME)-$(ENV_NAME)
 
-BASE_FILES := -f infra/docker-compose/base.yml
+BASE_FILES := -f infra/config/docker-compose/base.yml
 
 DEV_FILES := \
-	-f infra/docker-compose/dev.yml \
+	-f infra/config/docker-compose/dev.yml \
 	-f docker-compose/docker-compose.dev.yml
 
 LOCAL_PROD_FILES := \
-	-f infra/docker-compose/dev.yml \
-	-f docker-compose/docker-compose-local-prod.yml
+	-f infra/config/docker-compose/dev.yml \
+	-f docker-compose/docker-compose-local-prod.yml \
 	-f docker-compose/docker-compose.dev.yml
 
 PROD_FILES := \
-	-f infra/docker-compose/prod.yml
+	-f infra/config/docker-compose/prod.yml
 
 define compose_dev
 APP_NAME=$(APP_NAME) \
