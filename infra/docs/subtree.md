@@ -43,8 +43,20 @@ In practice, infra changes are usually made in the cannibal-infra repo and then 
 - **App deploy/config**: Root `infra.app.config.json` is the app-specific deploy/config; template lives at `infra/templates/app/infra.app.config.example.json`. Each app keeps its own copy at repo root with `appName`, `env`, `s3Bucket`, etc.
 - **Prettier**: Use `.prettierrc.cjs` that `require()`s `./infra/config/prettier/.prettierrc.json`; add a root `.prettierignore` (same content as `infra/config/prettier/.prettierignore` or app-specific).
 - **ESLint**: Import `./infra/config/eslint/eslint-shared.js` and call `createBaseTypeScriptConfig({ tsconfigRootDir: import.meta.dirname, ... })` so the shared config resolves tsconfig from the app/project root.
-- **TypeScript**: Root `tsconfig.json` should `"extends": "./infra/config/tsconfig/tsconfig.base.json"` and override only app-specific `compilerOptions` (e.g. `paths`, `types`, `plugins`).
+- **TypeScript**: Root `tsconfig.json` extends `./infra/config/tsconfig/tsconfig.monorepo.json` (which adds shared `types`/`plugins`); app adds only `files`, `include`, `references`, and `compilerOptions.baseUrl`/`paths`.
+- **Nx**: Root `nx.json` has `"$schema"` and `"extends": "./infra/config/nx/nx.json"`. Infra config is self-contained; add app overrides in root if needed.
+- **.nxignore**: Same content as `infra/config/nx/.nxignore` (e.g. `dist/**`), or symlink.
 - **Jest**: Point each project’s `jest.config.js` at `preset: '../../infra/config/jest/jest.preset.cjs'` (adjust path from project root).
+
+## Caddyfile (shared proxy)
+
+- **One file in infra:** `infra/config/caddy/Caddyfile.shared` – lists all known apps (network, chore-tracker, …). Deploy uses this file from infra (uploads to S3 `deployments/shared/Caddyfile`). No `Caddyfile.shared` at app root is needed.
+- **To add a new app:** Edit `Caddyfile.shared` in infra (add domain, reverse_proxy port, root path). Then deploy (any app’s workflow that runs frontend deploy will upload the updated file).
+- **Per-app Caddyfile:** Optional root `Caddyfile` for single-app proxy; deploy uploads it to `deployments/${APP_NAME}/…/Caddyfile` if present.
+
+## docker-compose (infra bases)
+
+- **Bases** in `infra/config/docker-compose/`: `docker-compose.dev.yml`, `docker-compose.prod.yml`, `docker-compose.yml`, `docker-compose-local-prod.yml`. Root files **include** the base and add app-specific overrides in a separate override file (e.g. `docker-compose-dev.override.yml`). Run with both: `docker compose -f docker-compose-dev.yml -f docker-compose-dev.override.yml up`. Deploy workflow merges prod base + override and uploads a single file to S3.
 
 ## Notes
 

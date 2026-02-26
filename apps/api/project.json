@@ -94,13 +94,13 @@
     "docker-build:prod": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker compose -f docker-compose.prod.yml build api"
+        "command": "docker compose -f docker-compose.prod.yml -f docker-compose.prod.override.yml build api"
       }
     },
     "docker-up:dev": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "docker compose -f docker-compose.dev.yml up --build"
+        "command": "docker compose -f docker-compose-dev.yml -f docker-compose-dev.override.yml up --build"
       }
     }
   },

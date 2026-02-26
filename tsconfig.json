@@ -1,15 +1,12 @@
 {
-  "extends": "./infra/config/tsconfig/tsconfig.base.json",
+  "extends": "./infra/config/tsconfig/tsconfig.typia.json",
   "files": [],
-  "references": [{ "path": "apps/api" }, { "path": "apps/web" }, { "path": "packages/contracts" }],
+  "include": ["types/**/*.d.ts"],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
       "@network/contracts": ["packages/contracts/dist/src/index.d.ts"],
       "@network/contracts/*": ["packages/contracts/dist/src/*.d.ts"]
-    },
-    "types": ["typia"],
-    "plugins": [{ "transform": "typia/lib/transform" }]
-  },
-  "include": ["types/**/*.d.ts"]
+    }
+  }
 }

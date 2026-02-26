@@ -21,7 +21,7 @@
     "postinstall": "npm run gen:container",
     "lint": "nx run api:lint",
     "localstack:check": "tsx src/scripts/localstack-test-utils.ts",
-    "localstack:setup": "docker-compose -f ../../docker-compose-dev.yml up localstack -d",
+    "localstack:setup": "docker compose -f ../../docker-compose-dev.yml -f ../../docker-compose-dev.override.yml up localstack -d",
     "serve": "nx serve api",
     "start": "node dist/index.js",
     "start:dev": "node --enable-source-maps dist/index.js",
