@@ -1,17 +1,4 @@
 {
   "appName": "network",
-  "env": "prod",
-  "awsRegion": "us-east-1",
-  "s3Bucket": "network-deploy-709865789463-us-east-1",
-  "ssm": {
-    "tagHost": "prod-shared",
-    "tagEnv": "prod"
-  },
-  "docker": {
-    "nodeVersion": "22",
-    "apiWorkspacePath": "apps/api",
-    "nxProject": "api",
-    "devWorkspaceName": "@app/api",
-    "nodeEntrypoint": "apps/api/dist/index.js"
-  }
+  "s3Bucket": "network-deploy-709865789463-us-east-1"
 }
