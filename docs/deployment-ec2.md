@@ -183,8 +183,6 @@ CORS_ORIGIN=http://YOUR_EC2_IP_OR_DNS
 # AWS Configuration (uses IAM role if available, otherwise set these)
 # Note: All AWS services should be in us-east-1 region
 AWS_REGION=us-east-1
-# AWS_ACCESS_KEY_ID=  # Leave empty if using IAM role
-# AWS_SECRET_ACCESS_KEY=  # Leave empty if using IAM role
 # DO NOT SET AWS_ENDPOINT in production!
 
 # Email Configuration

@@ -61,8 +61,6 @@ Configure these secrets in your GitHub repository settings:
   - See "Setting Up OIDC" section below
 
 **Option B: Access Keys (Simpler Setup)**
-- **`AWS_ACCESS_KEY_ID`**: AWS access key ID
-- **`AWS_SECRET_ACCESS_KEY`**: AWS secret access key
   - User/role must have permissions for SSM, S3, and EC2
 
 **Optional:**
@@ -127,9 +125,6 @@ Create an IAM role with the `AmazonSSMManagedInstanceCore` policy and attach it 
    - `AmazonS3FullAccess` (or custom policy for deployment bucket)
    - `AmazonEC2ReadOnlyAccess` (for instance status checks)
 3. Go to Security credentials → Create access key
-4. Add to GitHub Secrets:
-   - `AWS_ACCESS_KEY_ID`
-   - `AWS_SECRET_ACCESS_KEY`
 
 ### 4. Create S3 Bucket for Deployments
 

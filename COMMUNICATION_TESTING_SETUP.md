@@ -78,8 +78,6 @@ The following environment variables are automatically configured for LocalStack 
 # AWS Configuration (LocalStack) - ONLY for testing!
 AWS_ENDPOINT=http://localstack:4566  # ⚠️ DO NOT set in production!
 AWS_REGION=us-east-1
-AWS_ACCESS_KEY_ID=test
-AWS_SECRET_ACCESS_KEY=test
 
 # Test Configuration
 FROM_EMAIL=test@example.com
