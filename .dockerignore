@@ -23,6 +23,7 @@ infra/config/*
 # Exclude unnecessary files from included directories
 apps/api/dist/
 apps/api/node_modules/
+# Exclude .env from image (secrets). Local dev uses docker-compose env_file + volume mount.
 apps/api/.env
 apps/api/*.log
 apps/api/coverage/

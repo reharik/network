@@ -19,17 +19,17 @@ PROD_FILES := \
 define compose_dev
 APP_NAME=$(APP_NAME) \
 COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) \
-docker compose $(BASE_FILES) $(DEV_FILES)
+docker compose --project-directory $(CURDIR) $(BASE_FILES) $(DEV_FILES)
 endef
 
 define compose_local_prod
 APP_NAME=$(APP_NAME) \
 COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) \
-docker compose $(BASE_FILES) $(LOCAL_PROD_FILES)
+docker compose --project-directory $(CURDIR) $(BASE_FILES) $(LOCAL_PROD_FILES)
 endef
 
 docker/up/dev:
-	$(compose_dev) up --build;
+	$(compose_dev)  up --build;
 
 docker/down/dev:
 	$(compose_dev) down --rmi local --remove-orphans --volumes

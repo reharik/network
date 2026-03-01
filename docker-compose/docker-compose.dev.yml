@@ -2,7 +2,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: infra/docker/node-nx-api/Dockerfile
+      dockerfile: infra/docker/api/Dockerfile
       target: dev
       args:
         NODE_VERSION: '22'
@@ -18,5 +18,9 @@ services:
       - ./packages:/app/packages
 
   db:
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     env_file:
       - ./apps/api/.env
