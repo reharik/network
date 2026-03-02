@@ -20,6 +20,7 @@ services:
       - /app/apps/api/node_modules
       - ./packages:/app/packages
       - ~/.aws:/root/.aws:ro
+    command: ['sh', 'apps/api/src/scripts/serverStartUpDev.sh']
 
   db:
     env_file:
