@@ -27,8 +27,6 @@ export type Config = {
   serverPort: number;
   // AWS configuration
   awsRegion: string;
-  awsAccessKeyId: string;
-  awsSecretAccessKey: string;
   awsEndpoint?: string; // Only for LocalStack testing - DO NOT set in production
   // Email configuration
   fromEmail: string;

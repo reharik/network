@@ -103,28 +103,16 @@ That's it — once you hit Send, the message will be sent from your own phone nu
  * when SMS_DELIVERY_MODE is set to 'email_handoff'.
  */
 export const createAwsSnsSmsProvider = ({ logger }: Container): SmsProvider => {
-  // Check if explicit credentials are provided
-  // If not, AWS SDK will use default credential chain (IAM roles, environment variables, etc.)
-  const hasExplicitCredentials =
-    config.awsAccessKeyId &&
-    config.awsAccessKeyId.trim() !== '' &&
-    config.awsSecretAccessKey &&
-    config.awsSecretAccessKey.trim() !== '';
-
-  if (!hasExplicitCredentials && !config.awsEndpoint) {
+  // Use default credential chain (IAM roles on ECS/EC2/Lambda, AWS_ACCESS_KEY_ID env, ~/.aws/credentials).
+  // Do not pass credentials so the SDK resolves them automatically.
+  if (!config.awsEndpoint) {
     logger.info(
-      'No explicit AWS credentials configured. Using default credential chain (IAM roles, environment variables, etc.).',
+      'Using AWS default credential chain for SNS (IAM roles, environment variables, or shared config).',
     );
   }
 
   const snsClientConfig: SNSClientConfig = {
     region: config.awsRegion,
-    credentials: hasExplicitCredentials
-      ? {
-          accessKeyId: config.awsAccessKeyId,
-          secretAccessKey: config.awsSecretAccessKey,
-        }
-      : undefined, // Let AWS SDK use default credential chain (IAM roles on EC2, etc.)
     endpoint: config.awsEndpoint, // Will be undefined in production, LocalStack URL in development
   };
 

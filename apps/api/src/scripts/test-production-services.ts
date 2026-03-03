@@ -116,9 +116,9 @@ const checkConfiguration = () => {
     );
   }
 
-  if (!config.awsAccessKeyId || !config.awsSecretAccessKey) {
-    console.log('\n⚠️  WARNING: AWS credentials not configured!');
-  }
+  console.log(
+    'AWS credentials: resolved from default chain (IAM roles, env vars, or ~/.aws/credentials)',
+  );
 
   if (config.connectInstanceId === '' || config.connectContactFlowId === '') {
     console.log('\n⚠️  WARNING: Connect configuration incomplete!');
